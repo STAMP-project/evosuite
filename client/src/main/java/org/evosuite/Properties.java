@@ -116,7 +116,7 @@ public class Properties {
 
 	@Parameter(key = "reset_static_final_fields", group = "Test Creation", description = "Remove the static modifier in target fields")
 	public static boolean RESET_STATIC_FINAL_FIELDS = true;
-	
+
 	@Parameter(key = "reset_static_field_gets", group = "Test Creation", description = "Call static constructors also after each static field was read")
 	public static boolean RESET_STATIC_FIELD_GETS = false;
 
@@ -315,7 +315,7 @@ public class Properties {
 	// MOSA PROPERTIES
 	public enum RankingType {
 		// Preference sorting is the ranking strategy proposed in
-		PREFERENCE_SORTING, 
+		PREFERENCE_SORTING,
 		FAST_NON_DOMINATED_SORTING
 	}
 
@@ -1058,7 +1058,7 @@ public class Properties {
 
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = true;
-	
+
 	@Parameter(key = "ignore_missing_statistics", group = "Output", description = "Return an empty string for missing output variables")
 	public static boolean IGNORE_MISSING_STATISTICS = false;
 
@@ -1188,7 +1188,7 @@ public class Properties {
 
 	@Parameter(key = "instrument_method_calls", description = "Instrument methods calls")
 	public static boolean INSTRUMENT_METHOD_CALLS = false;
-	
+
 	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
 	public static boolean INSTRUMENT_LIBRARIES = false;
 
@@ -1338,7 +1338,7 @@ public class Properties {
 	@Parameter(key = "replace_gui", group = "Test Execution", description = "Replace javax.swing with a smart stub/mock")
 	public static boolean REPLACE_GUI = false;
 
-	
+
     @Parameter(key = "max_started_threads", group = "Test Execution", description = "Max number of threads allowed to be started in each test")
     public static int MAX_STARTED_THREADS = RuntimeSettings.maxNumberOfThreads;
 
@@ -1412,7 +1412,7 @@ public class Properties {
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
-	
+
 	/** Cache target regression class */
 	private static Class<?> TARGET_REGRESSION_CLASS_INSTANCE = null;
 
@@ -1511,8 +1511,8 @@ public class Properties {
 
 	@Parameter(key = "keep_regression_archive", group = "Runtime", description = "Keep an archive of regression tests")
 	public static boolean KEEP_REGRESSION_ARCHIVE = false;
-	
-	
+
+
 	public enum Strategy {
 	    ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, ENTBUG, REGRESSION, MOSUITE, DSE, NOVELTY
 	}
@@ -1562,16 +1562,32 @@ public class Properties {
 
 	@Parameter(key = "eclipse_plugin", group = "Plugin", description = "Running plugin for experiments. Use EvoSuiteTest annotation and decorate generated tests with (checked = false).")
 	public static boolean ECLIPSE_PLUGIN = false;
-	
+
 	// Added - fix for @NotNull annotations issue on evo mailing list
 
 	@Parameter(key = "honour_data_annotations", group = "Runtime", description = "Allows EvoSuite to generate tests with or without honouring the parameter data annotations")
 	public static boolean HONOUR_DATA_ANNOTATIONS = true;
 
+
+	// ---------------------------------------------------------------
+	// Behavioral model seeding properties
+
+	@Parameter(key = "seed_model", group = "Model Seeding", description = "Generate abtract test cases from the given behavioral model and seed it to the search process")
+	public static boolean SEED_MODEL = false;
+
+	@Parameter(key = "model_path", group = "Model Seeding", description = "Path of the given model for seeding.")
+	public static String MODEL_PATH = "";
+
+	@Parameter(key = "abtsract_testcase_per_model", group = "Model Seeding", description = "Number abstact test cases exported from each model")
+	public static int ABSTRACT_TESTCASE_PER_MODEL = 100;
+
+	@Parameter(key = "abtsract_testcase_per_model", group = "Model Seeding", description = "Number abstact test cases exported from each model")
+	public static long ABSTRACT_TESTCASE_SELECTION_DURATION = 10000; // 10 seconds by default
+
 	/**
 	 * Get all parameters that are available
 	 *
-	 * @return a {@link java.util.Set} object.
+	 * @return a {@link Set} object.
 	 */
 	public static Set<String> getParameters() {
 		return parameterMap.keySet();
@@ -1631,7 +1647,7 @@ public class Properties {
 	 * Load and initialize a properties file from a given path
 	 *
 	 * @param propertiesPath
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 */
 	public void loadProperties(String propertiesPath, boolean silent) {
 		loadPropertiesFile(propertiesPath, silent);
@@ -1642,7 +1658,7 @@ public class Properties {
 	 * Load a properties file
 	 *
 	 * @param propertiesPath
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 */
 	public void loadPropertiesFile(String propertiesPath, boolean silent) {
 		properties = new java.util.Properties();
@@ -1705,10 +1721,10 @@ public class Properties {
 	 * Get class of parameter
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @return a {@link java.lang.Class} object.
+	 * @return a {@link Class} object.
 	 */
 	public static Class<?> getType(String key) throws NoSuchParameterException {
 		if (!parameterMap.containsKey(key))
@@ -1722,10 +1738,10 @@ public class Properties {
 	 * Get description string of parameter
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @return a {@link java.lang.String} object.
+	 * @return a {@link String} object.
 	 */
 	public static String getDescription(String key)
 			throws NoSuchParameterException {
@@ -1741,10 +1757,10 @@ public class Properties {
 	 * Get group name of parameter
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @return a {@link java.lang.String} object.
+	 * @return a {@link String} object.
 	 */
 	public static String getGroup(String key) throws NoSuchParameterException {
 		if (!parameterMap.containsKey(key))
@@ -1759,10 +1775,10 @@ public class Properties {
 	 * Get integer boundaries
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @return a {@link org.evosuite.Properties.IntValue} object.
+	 * @return a {@link IntValue} object.
 	 */
 	public static IntValue getIntLimits(String key)
 			throws NoSuchParameterException {
@@ -1777,10 +1793,10 @@ public class Properties {
 	 * Get long boundaries
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @return a {@link org.evosuite.Properties.LongValue} object.
+	 * @return a {@link LongValue} object.
 	 */
 	public static LongValue getLongLimits(String key)
 			throws NoSuchParameterException {
@@ -1795,10 +1811,10 @@ public class Properties {
 	 * Get double boundaries
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @return a {@link org.evosuite.Properties.DoubleValue} object.
+	 * @return a {@link DoubleValue} object.
 	 */
 	public static DoubleValue getDoubleLimits(String key)
 			throws NoSuchParameterException {
@@ -1813,12 +1829,12 @@ public class Properties {
 	 * Get an integer parameter value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
 	 * @return a int.
 	 */
@@ -1835,12 +1851,12 @@ public class Properties {
 	 * Get an integer parameter value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
 	 * @return a long.
 	 */
@@ -1857,12 +1873,12 @@ public class Properties {
 	 * Get a boolean parameter value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
 	 * @return a boolean.
 	 */
@@ -1879,12 +1895,12 @@ public class Properties {
 	 * Get a double parameter value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
 	 * @return a double.
 	 */
@@ -1901,14 +1917,14 @@ public class Properties {
 	 * Get parameter value as string (works for all types)
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
-	 * @return a {@link java.lang.String} object.
+	 * @return a {@link String} object.
 	 */
 	public static String getStringValue(String key)
 			throws NoSuchParameterException, IllegalArgumentException,
@@ -1946,14 +1962,14 @@ public class Properties {
 	 * Set parameter to new integer value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @param value
 	 *            a int.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
 	 */
 	public void setValue(String key, int value)
@@ -1977,14 +1993,14 @@ public class Properties {
 	 * Set parameter to new long value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @param value
 	 *            a long.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
 	 */
 	public void setValue(String key, long value)
@@ -2008,14 +2024,14 @@ public class Properties {
 	 * Set parameter to new boolean value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @param value
 	 *            a boolean.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
 	 */
 	public void setValue(String key, boolean value)
@@ -2032,14 +2048,14 @@ public class Properties {
 	 * Set parameter to new double value
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @param value
 	 *            a double.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
 	 */
 	public void setValue(String key, double value)
@@ -2061,14 +2077,14 @@ public class Properties {
 	 * Set parameter to new value from String
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @param value
-	 *            a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            a {@link String} object.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -2163,14 +2179,14 @@ public class Properties {
 	 * </p>
 	 *
 	 * @param key
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 * @param value
-	 *            an array of {@link java.lang.String} objects.
-	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *            an array of {@link String} objects.
+	 * @throws NoSuchParameterException
 	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
+	 * @throws IllegalArgumentException
 	 *             if any.
-	 * @throws java.lang.IllegalAccessException
+	 * @throws IllegalAccessException
 	 *             if any.
 	 */
 	public void setValue(String key, String[] value)
@@ -2223,7 +2239,7 @@ public class Properties {
 	/**
 	 * Singleton accessor
 	 *
-	 * @return a {@link org.evosuite.Properties} object.
+	 * @return a {@link Properties} object.
 	 */
 	public static Properties getInstance() {
 		if (instance == null)
@@ -2234,7 +2250,7 @@ public class Properties {
 	/**
 	 * Singleton accessor
 	 *
-	 * @return a {@link org.evosuite.Properties} object.
+	 * @return a {@link Properties} object.
 	 */
 	public static Properties getInstanceSilent() {
 		if (instance == null)
@@ -2274,12 +2290,12 @@ public class Properties {
 			}
 		}
 	}
-	
+
 	private static boolean toReturnRegression = false;
-	
+
 	/*
 	 * Get target class
-	 * 
+	 *
 	 * @param isOriginal whether or not you want the original or the regression class.
 	 */
 	public static Class<?> getTargetClassRegression(boolean isOriginal){
@@ -2289,20 +2305,20 @@ public class Properties {
 		else if(!isOriginal && TARGET_REGRESSION_CLASS_INSTANCE != null
 		        && TARGET_REGRESSION_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_REGRESSION_CLASS_INSTANCE;
-		
+
 		if(isOriginal)
 		 toReturnRegression = true;
-		
+
 		 Class<?> targetClass = getTargetClass(true);
-		 
+
 		 toReturnRegression = false;
 		 return targetClass;
 	}
 
 	/**
-	 * Returns the target class. It required, it also executes the 
-	 * <clinit> class initialiser of the target class 
-	 * 
+	 * Returns the target class. It required, it also executes the
+	 * <clinit> class initialiser of the target class
+	 *
 	 * @return the initialised target class
 	 */
 	public static Class<?> getInitializedTargetClass() {
@@ -2310,18 +2326,18 @@ public class Properties {
 	}
 
 	/**
-	 * Returns the target class. If the class is not yet initialised, 
-	 * this method *does not* execute the <clinit> class initialiser of the target class. 
-	 * This method explicitly states that the <clinit> method is not executed 
+	 * Returns the target class. If the class is not yet initialised,
+	 * this method *does not* execute the <clinit> class initialiser of the target class.
+	 * This method explicitly states that the <clinit> method is not executed
 	 * because of this method.
-	 * 
+	 *
 	 * @return the target class. The target class could be uninitialised
 	 */
 	public static Class<?> getTargetClassAndDontInitialise() {
 		return getTargetClass(false);
 	}
 
-	
+
 	/**
 	 * Returns true if there is a loaded target class object.
 	 * Warning: resetTargetClass() does not load the class, only
@@ -2335,7 +2351,7 @@ public class Properties {
 	/**
 	 * Get class object of class under test
 	 *
-	 * @return a {@link java.lang.Class} object.
+	 * @return a {@link Class} object.
 	 */
 	private static Class<?> getTargetClass(boolean initialise) {
 
@@ -2344,7 +2360,7 @@ public class Properties {
 						.equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
-		if (TARGET_CLASS_INSTANCE!=null) { 
+		if (TARGET_CLASS_INSTANCE!=null) {
 			TARGET_CLASS_INSTANCE = null;
 		}
 
@@ -2364,7 +2380,7 @@ public class Properties {
 			LoopCounter.getInstance().setActive(false);
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
-			
+
 
 			if (STRATEGY == Strategy.REGRESSION) {
 				TARGET_REGRESSION_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
@@ -2386,7 +2402,7 @@ public class Properties {
 	/**
 	 * Get class object of class under test
 	 *
-	 * @return a {@link java.lang.Class} object.
+	 * @return a {@link Class} object.
 	 */
 	public static void resetTargetClass() {
 		TARGET_CLASS_INSTANCE = null;
@@ -2406,7 +2422,7 @@ public class Properties {
 	 * Update the evosuite.properties file with the current setting
 	 *
 	 * @param fileName
-	 *            a {@link java.lang.String} object.
+	 *            a {@link String} object.
 	 */
 	public void writeConfiguration(String fileName) {
 		StringBuffer buffer = new StringBuffer();
@@ -2480,7 +2496,7 @@ public class Properties {
 	}
 
 	public static final String JAVA_VERSION_WARN_MSG = "EvoSuite does not support Java versions > 8 yet";
-	
+
 	/*
 	 * whether or not the regression mode is running
 	 */

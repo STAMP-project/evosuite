@@ -813,23 +813,25 @@ public class TestFactory {
 			}
 
 			ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
-			if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
-			        && objectPool.hasSequence(clazz)) {
+			if (objectPool.usable){
+				if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
+						&& objectPool.hasSequence(clazz)) {
 
-				TestCase sequence = objectPool.getRandomSequence(clazz);
-				logger.debug("Using a sequence from the object pool to satisfy the type: {}", type);
-				VariableReference targetObject = sequence.getLastObject(type);
-				int returnPos = position + targetObject.getStPosition();
+					TestCase sequence = objectPool.getRandomSequence(clazz);
+					logger.debug("Using a sequence from the object pool to satisfy the type: {}", type);
+					VariableReference targetObject = sequence.getLastObject(type);
+					int returnPos = position + targetObject.getStPosition();
 
-				for (int i = 0; i < sequence.size(); i++) {
-					Statement s = sequence.getStatement(i);
-					test.addStatement(s.copy(test, position), position + i);
+					for (int i = 0; i < sequence.size(); i++) {
+						Statement s = sequence.getStatement(i);
+						test.addStatement(s.copy(test, position), position + i);
+					}
+
+					logger.debug("Return type of object sequence: {}",
+							test.getStatement(returnPos).getReturnValue().getClassName());
+
+					return test.getStatement(returnPos).getReturnValue();
 				}
-
-				logger.debug("Return type of object sequence: {}",
-				         test.getStatement(returnPos).getReturnValue().getClassName());
-
-				return test.getStatement(returnPos).getReturnValue();
 			}
 
 			logger.debug("Creating new object for type {}",type);
