@@ -90,7 +90,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
 
-	private Thread statisticsThread; 
+	private Thread statisticsThread;
 
 	//only for testing
 	protected ClientNodeImpl() {
@@ -160,15 +160,15 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 				if (Properties.SANDBOX) {
 					/*
-					 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written 
+					 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written
 					 */
 					Sandbox.resetDefaultSecurityManager();
 				}
 
 				/*
 				 * System is special due to the handling of properties
-				 * 
-				 *  TODO: re-add it once we save JUnit code in the 
+				 *
+				 *  TODO: re-add it once we save JUnit code in the
 				 *  best individual. Otherwise, we wouldn't
 				 *  be able to properly create the JUnit files in the
 				 *  system test cases after the search
@@ -200,6 +200,14 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	}
 
 	@Override
+	public boolean isModelCarving() {
+		if(this.state == ClientState.CARVING_MODEL){
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public void changeState(ClientState state) {
 		changeState(state, new ClientStateInformation(state));
 	}
@@ -207,7 +215,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	@Override
 	public synchronized void changeState(ClientState state, ClientStateInformation information) {
 		if (this.state != state){
-			logger.info("Client changing state from " + this.state + " to " + state);
+			LoggingUtils.getEvoLogger().info("Client changing state from " + this.state + " to " + state);
 		}
 
 		this.state = state;
@@ -412,7 +420,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 				changeState(ClientState.DONE);
 				if (Properties.SANDBOX) {
 					/*
-					 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written 
+					 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written
 					 */
 					Sandbox.resetDefaultSecurityManager();
 				}
