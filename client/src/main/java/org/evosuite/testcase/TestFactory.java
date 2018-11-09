@@ -35,6 +35,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
@@ -812,8 +813,8 @@ public class TestFactory {
 				return createNull(test, type, position, recursionDepth);
 			}
 
-			ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
-			if (objectPool.usable){
+			if (!ClientServices.getInstance().getClientNode().isModelCarving()){
+				ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
 				if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
 						&& objectPool.hasSequence(clazz)) {
 

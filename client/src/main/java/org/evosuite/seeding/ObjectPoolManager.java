@@ -35,6 +35,8 @@ import be.vibes.ts.UsageModel;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.setup.TestClusterUtils;
 import org.evosuite.testcarver.extraction.CarvingManager;
 import org.evosuite.testcase.DefaultTestCase;
@@ -54,8 +56,6 @@ public class ObjectPoolManager extends ObjectPool {
 	private ObjectPoolManager() {
 		initialisePool();
 	}
-
-	public boolean usable = false;
 
 	public static ObjectPoolManager getInstance() {
 		if(instance == null)
@@ -110,6 +110,7 @@ public class ObjectPoolManager extends ObjectPool {
 		}
 
 		if(Properties.SEED_MODEL){
+			ClientServices.getInstance().getClientNode().changeState(ClientState.CARVING_MODEL);
 			File folder = new File(Properties.MODEL_PATH);
 			if(folder.exists()){
 				seedModel(folder);
@@ -118,8 +119,6 @@ public class ObjectPoolManager extends ObjectPool {
 				LoggingUtils.getEvoLogger().warn("The model directory {} is not right!",Properties.MODEL_PATH);
 			}
 		}
-
-		usable= true;
 	}
 
 	private void seedModel(File folder) {
@@ -129,13 +128,14 @@ public class ObjectPoolManager extends ObjectPool {
 		for (File file : listOfFiles){
 			if (file.isFile() && !file.getName().startsWith(".") && file.getName().endsWith(".xml") ) {
 				String xmlClassName = file.getName().substring(0, file.getName().length() - 4);
-				if (xmlClassName.indexOf('.')== -1 || xmlClassName.contains(".java.")){
+				// TODO: We shpuld find a proper approach to filter the models.
+//				if (xmlClassName.indexOf('.')== -1 || xmlClassName.contains(".java.") ){
 					UsageModel um = Xml.loadUsageModel(Paths.get(folder.getAbsolutePath(), file.getName()).toString());
 					TestSet ts = Dissimilar.from(um).withGlobalMaxDistance(Dissimilar.jaccard()).during(Properties.ABSTRACT_TESTCASE_SELECTION_DURATION).generate(Properties.ABSTRACT_TESTCASE_PER_MODEL);
 					for (be.vibes.ts.TestCase abstractTestCase : ts) {
 						concretizeAbstractTestCase(abstractTestCase);
 					}
-				}
+//				}
 			}
 		}
 	}
@@ -200,6 +200,7 @@ public class ObjectPoolManager extends ObjectPool {
 		}
 		// Add test case to pool
 		if (genericClass != null){
+//			LoggingUtils.getEvoLogger().info("Adding the following test case for class {}: \n {}",genericClass.getClassName(),newTestCase.toCode());
 			this.addSequence(genericClass, newTestCase);
 		}
 	}
