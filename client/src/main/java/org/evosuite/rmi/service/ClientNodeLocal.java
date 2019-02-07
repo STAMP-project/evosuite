@@ -21,18 +21,22 @@ package org.evosuite.rmi.service;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.utils.Listenable;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Client Node view in the client process.
  * @author arcuri
  *
  */
-public interface ClientNodeLocal {
+public interface ClientNodeLocal extends Listenable<Set<? extends Chromosome>> {
 
 	public boolean init();
 
 	public void trackOutputVariable(RuntimeVariable variable, Object value);
-	
+
     public void publishPermissionStatistics();
 
 	public void changeState(ClientState state);
@@ -47,5 +51,10 @@ public interface ClientNodeLocal {
 
 	public void waitUntilDone();
 
-	boolean isModelCarving();
+
+	public void emigrate(Set<? extends Chromosome> immigrants);
+
+	public void sendBestSolution(Set<? extends Chromosome> solutions);
+
+    public Set<Set<? extends Chromosome>> getBestSolutions();
 }
