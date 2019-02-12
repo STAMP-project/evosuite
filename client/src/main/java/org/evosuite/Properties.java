@@ -94,6 +94,22 @@ public class Properties {
 	}
 
 	// ---------------------------------------------------------------
+
+	@Parameter(key = "isinitPassed", group = "Search Algorithm", description = "Is Init Passed!")
+	public static boolean IsInitPassed = false;
+
+	@Parameter(key = "allow_object_pool_usage", group = "SUT Modelling", description = "allow object pool usage")
+	public static boolean ALLOW_OBJECT_POOL_USAGE = false;
+
+	@Properties.Parameter(key = "model_path", group = "SUT Modelling", description = "path of the directory which contains SUT models")
+	public static String MODEL_PATH = null;
+
+    @Parameter(key = "CP_static_analysis", group = "SUT Modelling", description = "The classpaths that we want to have for statical analysis for filling CallSequencePool")
+    public static String CP_STATIC_ANALYSIS = null;
+
+	@Parameter(key = "online_model_seeding", group = "SUT Modelling", description = "Enable/Disable online model seeding")
+	public static boolean ONLINE_MODEL_SEEDING = false;
+
 	// Test sequence creation
 	@Parameter(key = "test_excludes", group = "Test Creation", description = "File containing methods that should not be used in testing")
 	public static String TEST_EXCLUDES = "test.excludes";
@@ -2391,6 +2407,24 @@ public class Properties {
 			LoopCounter.getInstance().setActive(false);
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, initialise,
 					TestGenerationContext.getInstance().getClassLoaderForSUT());
+
+
+            if(Properties.CP_STATIC_ANALYSIS != null && Properties.CP_STATIC_ANALYSIS.length()>0){
+                String[] cps = Properties.CP_STATIC_ANALYSIS.split(":");
+                for (String cp: cps){
+                    Class.forName(cp, initialise,
+                            TestGenerationContext.getInstance().getClassLoaderForSUT());
+                }
+            }
+
+
+            if(Properties.CP_STATIC_ANALYSIS != null && Properties.CP_STATIC_ANALYSIS.length()>0){
+                String[] cps = Properties.CP_STATIC_ANALYSIS.split(":");
+                for (String cp: cps){
+                    Class.forName(cp, initialise,
+                            TestGenerationContext.getInstance().getClassLoaderForSUT());
+                }
+            }
 
 
 			if (STRATEGY == Strategy.REGRESSION) {

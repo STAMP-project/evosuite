@@ -50,6 +50,7 @@ import org.evosuite.utils.generic.GenericMethod;
 public class ObjectPoolManager extends ObjectPool {
 
 	private static final long serialVersionUID = 6287216639197977371L;
+	private List<GenericClass> fetchedModels;
 
 	private static ObjectPoolManager instance = null;
 
@@ -71,9 +72,14 @@ public class ObjectPoolManager extends ObjectPool {
 			else
 				this.pool.put(clazz, tests);
 		}
+
+		for (String key : pool.abstractTests.keySet()) {
+			this.abstractTests.put(key,pool.abstractTests.get(key));
+		}
 	}
 
 	public void initialisePool() {
+		fetchedModels = new ArrayList<>();
 		if(!Properties.OBJECT_POOLS.isEmpty()) {
 			String[] poolFiles = Properties.OBJECT_POOLS.split(File.pathSeparator);
 			if(poolFiles.length > 1)
@@ -119,6 +125,60 @@ public class ObjectPoolManager extends ObjectPool {
 				LoggingUtils.getEvoLogger().warn("The model directory {} is not right!",Properties.MODEL_PATH);
 			}
 		}
+
+		// fill objectPool from model.
+//		if(Properties.MODEL_PATH != null && !Properties.ONLINE_MODEL_SEEDING){
+//			// Collect all of the models
+//			File folder = new File(Properties.MODEL_PATH);
+//			File[] listOfFiles = folder.listFiles();
+//			for (File file : listOfFiles) {
+//				if (file.isFile() && !file.getName().startsWith(".") && file.getName().endsWith(".xml") ) {
+//					String xmlClassName = file.getName().substring(0, file.getName().length() - 4);
+//					if ( Properties.CP_STATIC_ANALYSIS.contains(xmlClassName)){
+//						LoggingUtils.getEvoLogger().info("working on callSequences of " + file.getName());
+//						try {
+//							UsageModel um = Xml.loadUsageModel(Paths.get(folder.getAbsolutePath(), file.getName()).toString());
+//							//					TestSet ts = Random.randomSelection(um,Properties.NUMBER_OF_MODEL_TESTS); // For random selection
+//							TestSet ts = Dissimilar.from(um).withGlobalMaxDistance(Dissimilar.jaccard()).during(100).generate(Properties.POPULATION);
+//
+//							for (be.vibes.ts.TestCase abstractTestCase : ts) {
+//								this.concretizeTest(abstractTestCase,null);
+//							}
+//						} catch (Exception e) {
+//							LoggingUtils.getEvoLogger().error("Could not load model " + file.getName());
+//						}
+//					}
+//				}
+//			}
+//
+//		}
+		Properties.ALLOW_OBJECT_POOL_USAGE=true;
+	}
+
+	public void fillObjectPoolIfNecessary(GenericClass clazz){
+		if(Properties.ONLINE_MODEL_SEEDING && !fetchedModels.contains(clazz)){
+			File folder = new File(Properties.MODEL_PATH);
+			if(modelExists(clazz,folder)){
+				logger.info("working on model of " + clazz.getClassName());
+				String modelPath=Paths.get(folder.getAbsolutePath(), clazz.getClassName()+".xml").toString();
+				fillObjectPool(clazz,modelPath);
+			}
+			fetchedModels.add(clazz);
+		}
+
+	}
+	private boolean modelExists(GenericClass clazz, File folder) {
+		String className = clazz.getClassName();
+		File[] listOfModels = folder.listFiles();
+		for (File file : listOfModels) {
+			if (file.isFile() && !file.getName().startsWith(".") && file.getName().endsWith(".xml")) {
+				String xmlClassName = file.getName().substring(0, file.getName().length() - 4);
+				if (xmlClassName.equals(className)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	private void seedModel(File folder) {

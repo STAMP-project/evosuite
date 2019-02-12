@@ -35,7 +35,6 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TimeController;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.annotation.Constraints;
 import org.evosuite.runtime.javaee.injection.Injector;
 import org.evosuite.runtime.javaee.javax.servlet.EvoServletState;
@@ -812,12 +811,11 @@ public class TestFactory {
 				logger.debug("Using a null reference to satisfy the type: {}", type);
 				return createNull(test, type, position, recursionDepth);
 			}
-
-			if (!ClientServices.getInstance().getClientNode().isModelCarving()){
-				ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
-				if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
-						&& objectPool.hasSequence(clazz)) {
-
+			ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
+			if(Properties.MODEL_PATH != null && Properties.ALLOW_OBJECT_POOL_USAGE){
+				objectPool.fillObjectPoolIfNecessary(clazz);
+				double r =   Randomness.nextDouble();
+				if (objectPool.hasSequence(clazz) && ((!Properties.IsInitPassed && r <= Properties.SEED_CLONE) || (Properties.IsInitPassed && r <= Properties.P_OBJECT_POOL))) {
 					TestCase sequence = objectPool.getRandomSequence(clazz);
 					logger.debug("Using a sequence from the object pool to satisfy the type: {}", type);
 					VariableReference targetObject = sequence.getLastObject(type);
@@ -835,7 +833,27 @@ public class TestFactory {
 				}
 			}
 
-			logger.debug("Creating new object for type {}",type);
+
+
+
+				if(Properties.CARVE_OBJECT_POOL && objectPool.hasSequence(clazz) && Randomness.nextDouble() <= Properties.P_OBJECT_POOL){
+					TestCase sequence = objectPool.getRandomSequence(clazz);
+					logger.debug("Using a sequence from the object pool to satisfy the type: {}", type);
+					VariableReference targetObject = sequence.getLastObject(type);
+					int returnPos = position + targetObject.getStPosition();
+
+					for (int i = 0; i < sequence.size(); i++) {
+						Statement s = sequence.getStatement(i);
+						test.addStatement(s.copy(test, position), position + i);
+					}
+
+					logger.debug("Return type of object sequence: {}",
+							test.getStatement(returnPos).getReturnValue().getClassName());
+
+					return test.getStatement(returnPos).getReturnValue();
+				}
+
+				logger.debug("Creating new object for type {}", type);
 			return createObject(test, type, position, recursionDepth,
 					generatorRefToExclude, allowNull, canUseMocks,canReuseExistingVariables);
 		}
@@ -1256,11 +1274,6 @@ public class TestFactory {
 						}
 
 						if (var.isAssignableTo(type) && ! (statement instanceof FunctionalMockStatement)) {
-
-						    // Workaround for https://issues.apache.org/jira/browse/LANG-1420
-                            if(!clazz.getRawClass().isAssignableFrom(var.getGenericClass().getRawClass())) {
-                                continue;
-                            }
 							logger.debug("Reusing variable at position {}",var.getStPosition());
 							return var;
 						}
