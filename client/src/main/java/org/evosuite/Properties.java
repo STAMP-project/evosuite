@@ -1602,9 +1602,6 @@ public class Properties {
 	@Parameter(key = "seed_model", group = "Model Seeding", description = "Generate abtract test cases from the given behavioral model and seed it to the search process")
 	public static boolean SEED_MODEL = false;
 
-	@Parameter(key = "model_path", group = "Model Seeding", description = "Path of the given model for seeding.")
-	public static String MODEL_PATH = "";
-
 	@Parameter(key = "abtsract_testcase_per_model", group = "Model Seeding", description = "Number abstact test cases exported from each model")
 	public static int ABSTRACT_TESTCASE_PER_MODEL = 100;
 
