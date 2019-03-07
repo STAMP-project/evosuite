@@ -47,6 +47,7 @@ import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.result.TestGenerationResult;
@@ -269,6 +270,12 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		logger.info("Sending current best individual to master process");
 
 		try {
+
+			for(FitnessFunction f : individual.getFitnessValues().keySet()){
+				LoggingUtils.getEvoLogger().info("Current fitness function value: "+f.getClass()+" ** "+individual.getCoverage(f));
+			}
+
+
 			masterNode.evosuite_collectStatistics(clientRmiIdentifier, individual);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state", e);
