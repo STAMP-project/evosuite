@@ -815,7 +815,7 @@ public class TestFactory {
 			if(Properties.MODEL_PATH != null && Properties.ALLOW_OBJECT_POOL_USAGE){
 				objectPool.fillObjectPoolIfNecessary(clazz);
 				double r =   Randomness.nextDouble();
-				if (objectPool.hasSequence(clazz) && ((!Properties.IsInitPassed && r <= Properties.SEED_CLONE) || (Properties.IsInitPassed && r <= Properties.P_OBJECT_POOL))) {
+				if (objectPool.hasSequence(clazz) && (objectPool.getNumberOfSequences(clazz)>0) && ((!Properties.IsInitPassed && r <= Properties.SEED_CLONE) || (Properties.IsInitPassed && r <= Properties.P_OBJECT_POOL))) {
 					TestCase sequence = objectPool.getRandomSequence(clazz);
 					logger.debug("Using a sequence from the object pool to satisfy the type: {}", type);
 					VariableReference targetObject = sequence.getLastObject(type);

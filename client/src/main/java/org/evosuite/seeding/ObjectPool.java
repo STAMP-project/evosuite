@@ -309,6 +309,18 @@ public class ObjectPool implements Serializable {
 	public int getNumberOfClasses() {
 		return pool.size();
 	}
+	public int getNumberOfSequences(GenericClass clazz) {
+		int nonUsed = 0;
+		int used = 0;
+		if(pool.containsKey(clazz)){
+			nonUsed = pool.get(clazz).size();
+		}
+
+		if(usedPool.containsKey(clazz)){
+			used = usedPool.size();
+		}
+		return used+nonUsed;
+	}
 
 	public int getNumberOfSequences() {
 		int num = 0;
