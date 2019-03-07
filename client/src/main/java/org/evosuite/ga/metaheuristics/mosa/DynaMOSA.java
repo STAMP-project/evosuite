@@ -32,6 +32,7 @@ import org.evosuite.ga.comparators.OnlyCrowdingComparator;
 import org.evosuite.ga.metaheuristics.mosa.structural.MultiCriteriatManager;
 import org.evosuite.ga.metaheuristics.mosa.structural.StructuralGoalManager;
 import org.evosuite.ga.operators.ranking.CrowdingDistance;
+import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -43,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * Implementation of the DynaMOSA (Many Objective Sorting Algorithm) described in the paper
  * "Automated Test Case Generation as a Many-Objective Optimisation Problem with Dynamic Selection
  * of the Targets".
- * 
+ *
  * @author Annibale Panichella, Fitsum M. Kifetew, Paolo Tonella
  */
 public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
@@ -59,7 +60,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 	/**
 	 * Constructor based on the abstract class {@link AbstractMOSA}.
-	 * 
+	 *
 	 * @param factory
 	 */
 	public DynaMOSA(ChromosomeFactory<T> factory) {
@@ -137,7 +138,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		this.goalsManager = new MultiCriteriatManager<T>(this.fitnessFunctions);
 
-		LoggingUtils.getEvoLogger().info("* Initial Number of Goals in DynMOSA = " +
+		LoggingUtils.getEvoLogger().info("* Initialsss Number of Goals in DynMOSA = " +
 				this.goalsManager.getCurrentGoals().size() +" / "+ this.getUncoveredGoals().size());
 
 		logger.debug("Initial Number of Goals = " + this.goalsManager.getCurrentGoals().size());
@@ -149,7 +150,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 		// update current goals
 		this.calculateFitness();
-
+		printEvaluations();
 		// Calculate dominance ranks and crowding distance
 		this.rankingFunction.computeRankingAssignment(this.population, this.goalsManager.getCurrentGoals());
 
@@ -160,13 +161,14 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		// next generations
 		while (!isFinished() && this.goalsManager.getUncoveredGoals().size() > 0) {
 			this.evolve();
+			printEvaluations();
 			this.notifyIteration();
 		}
 
 		this.notifySearchFinished();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -174,7 +176,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return this.goalsManager.getCoveredGoals().keySet();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -182,14 +184,14 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return this.getCoveredGoals().size();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	protected Set<FitnessFunction<T>> getUncoveredGoals() {
 		return this.goalsManager.getUncoveredGoals();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -197,7 +199,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return this.getUncoveredGoals().size();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -205,7 +207,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return this.getNumberOfCoveredGoals() + this.getNumberOfUncoveredGoals();
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -214,7 +216,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return suite;
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -227,7 +229,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return suite;
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -236,7 +238,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		this.notifyEvaluation(c);
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
@@ -260,7 +262,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return bests;
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
@@ -284,7 +286,19 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 		return (T) best;
 	}
 
-	/** 
+
+	public void printEvaluations(){
+		LoggingUtils.getEvoLogger().info("* naaame: ");
+		for (StoppingCondition stoppingCondition: stoppingConditions){
+			LoggingUtils.getEvoLogger().info("* naaame: "+stoppingCondition.getClass().getName());
+			if (stoppingCondition.getClass().getName().contains("MaxFitnessEvaluations")){
+				LoggingUtils.getEvoLogger().info("Current fitness evaluations: "+stoppingCondition.getCurrentValue());
+			}
+		}
+
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
