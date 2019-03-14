@@ -42,11 +42,11 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Represents the complete CFG of a method
- * 
+ *
  * Essentially this is a graph containing all BytecodeInstrucions of a method as
  * nodes. From each such instruction there is an edge to each possible
  * instruction the control flow can reach immediately after that instruction.
- * 
+ *
  * @author Andre Mis
  */
 public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
@@ -66,7 +66,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * Constructor for RawControlFlowGraph.
 	 * </p>
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @param methodName
@@ -115,7 +115,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * addEdge
 	 * </p>
-	 * 
+	 *
 	 * @param src
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @param target
@@ -250,7 +250,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * determineBasicBlockFor
 	 * </p>
-	 * 
+	 *
 	 * @param instruction
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link org.evosuite.graphs.cfg.BasicBlock} object.
@@ -361,7 +361,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * getInstructionWithSmallestId
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public BytecodeInstruction getInstructionWithSmallestId() {
@@ -380,7 +380,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * getInstructionWithBiggestId
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public BytecodeInstruction getInstructionWithBiggestId() {
@@ -399,7 +399,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * completely empty try-catch-finally. Since these nodes are not reachable
 	 * but cause trouble when determining the entry point of a CFG they get
 	 * removed.
-	 * 
+	 *
 	 * @return a int.
 	 */
 	public int removeIsolatedNodes() {
@@ -427,7 +427,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * Returns the Set of BytecodeInstructions that can potentially be executed
 	 * from entering the method of this CFG until the given BytecodeInstruction
 	 * is reached.
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link java.util.Set} object.
@@ -457,7 +457,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * Returns the Set of BytecodeInstructions that can potentially be executed
 	 * from passing the given BytecodeInstruction until the end of the method of
 	 * this CFG is reached.
-	 * 
+	 *
 	 * @param v
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link java.util.Set} object.
@@ -491,7 +491,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * getUsesForDef
 	 * </p>
-	 * 
+	 *
 	 * @param def
 	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @return a {@link java.util.Set} object.
@@ -534,7 +534,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * hasDefClearPathToMethodExit
 	 * </p>
-	 * 
+	 *
 	 * @param duVertex
 	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @return a boolean.
@@ -553,7 +553,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * hasDefClearPathFromMethodEntry
 	 * </p>
-	 * 
+	 *
 	 * @param duVertex
 	 *            a {@link org.evosuite.coverage.dataflow.Use} object.
 	 * @return a boolean.
@@ -660,7 +660,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	/**
 	 * Checks if the given DefUse has a definition-clear path to its methods
 	 * exit
-	 * 
+	 *
 	 * @param targetDU
 	 *            a {@link org.evosuite.coverage.dataflow.DefUse} object.
 	 * @param handle
@@ -762,7 +762,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * determineMethodCalls
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<BytecodeInstruction> determineMethodCalls() {
@@ -779,7 +779,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 * <p>
 	 * determineMethodCallsToOwnClass
 	 * </p>
-	 * 
+	 *
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<BytecodeInstruction> determineMethodCallsToOwnClass() {

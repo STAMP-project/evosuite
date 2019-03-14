@@ -36,7 +36,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 	private static Logger logger = LoggerFactory.getLogger(ControlDependenceGraph.class);
 
-	private final ActualControlFlowGraph cfg;
+	protected final ActualControlFlowGraph cfg;
 
 	private final String className;
 	private final String methodName;
@@ -61,7 +61,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 	 * Convenience method redirecting to getControlDependentBranches(BasicBlock)
 	 * if the given instruction is known to this CDG. Otherwise an
 	 * IllegalArgumentException will be thrown.
-	 * 
+	 *
 	 * Should no longer be used: rather ask a BasicBlock for its CDs, so it can
 	 * cache it.
 	 */
@@ -418,7 +418,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 			BasicBlock inBlock = getEdgeSource(in);
 			if(inBlock.equals(insBlock))
 				continue;
-			
+
 			if (isRootDependent(inBlock))
 				return true;
 		}
@@ -488,7 +488,7 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 
 	}
 
-	private void computeControlDependence() {
+	protected void computeControlDependence() {
 
 		ActualControlFlowGraph rcfg = cfg.computeReverseCFG();
 		DominatorTree<BasicBlock> dt = new DominatorTree<BasicBlock>(rcfg);
