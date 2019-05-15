@@ -30,6 +30,7 @@ import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private int maxCoveredLines = 0;
 	private double bestFitness = Double.MAX_VALUE;
 
-	public OnlyLineCoverageSuiteFitness() {
+	public OnlyLineCoverageSuiteFitness(AbstractFitnessFactory<LineCoverageTestFitness> goalFactory) {
 		@SuppressWarnings("unused")
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
@@ -62,7 +63,7 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 //		}
 //		logger.info("Total line coverage goals: " + lines);
 
-		List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
+		List<LineCoverageTestFitness> goals = goalFactory.getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
 			lineGoals.put(goal.getLine(), goal);
 			if(Properties.TEST_ARCHIVE)

@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 @SuppressWarnings("unused")
-class ClassExecutionCounts {
+public class ClassExecutionCounts {
 
   public String className;
   public List<Method> methods;

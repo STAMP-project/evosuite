@@ -19,6 +19,10 @@
  */
 package org.evosuite.coverage;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
@@ -29,6 +33,8 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
+import org.evosuite.coverage.cbehaviour.ClassExecutionCounts;
+import org.evosuite.coverage.cbehaviour.CommonBehaviourCoverageFactory;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
@@ -148,7 +154,7 @@ public class FitnessFunctions {
 		case METHODNOEXCEPTION:
 			return new MethodNoExceptionCoverageSuiteFitness();
 		case ONLYLINE:
-			return new OnlyLineCoverageSuiteFitness();
+			return new OnlyLineCoverageSuiteFitness(new LineCoverageFactory());
 		case LINE:
 			return new LineCoverageSuiteFitness();
 		case OUTPUT:
@@ -157,6 +163,13 @@ public class FitnessFunctions {
 			return new InputCoverageSuiteFitness();
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
+		case CBEHAVIOUR:
+			try {
+				return new OnlyLineCoverageSuiteFitness(new CommonBehaviourCoverageFactory(
+						ClassExecutionCounts.readCounts(new Scanner(new File("counts.json")).useDelimiter("\\Z").next())));
+			} catch (FileNotFoundException e) {
+				assert false;
+			}
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();
@@ -218,6 +231,13 @@ public class FitnessFunctions {
 			return new InputCoverageFactory();
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
+		case CBEHAVIOUR:
+			try {
+				new CommonBehaviourCoverageFactory(
+						ClassExecutionCounts.readCounts(new Scanner(new File("counts.json")).useDelimiter("\\Z").next()));
+			} catch (FileNotFoundException e) {
+				assert false;
+			}
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");

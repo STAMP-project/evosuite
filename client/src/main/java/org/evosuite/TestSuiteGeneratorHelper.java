@@ -113,6 +113,9 @@ public class TestSuiteGeneratorHelper {
       case REGRESSION:
         LoggingUtils.getEvoLogger().info("  - Regression");
         break;
+      case CBEHAVIOUR:
+        LoggingUtils.getEvoLogger().info("  - Common behaviour coverage");
+        break;
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
     }
