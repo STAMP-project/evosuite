@@ -1474,6 +1474,9 @@ public class Properties {
 	@Parameter(key = "exclude_ibranches_cut", group = "Runtime", description = "Exclude ibranches in the cut, to speed up ibranch as secondary criterion")
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
 
+	@Parameter(key = "exe_count_file", group = "Runtime", description = "File in which execution count data is stored")
+	public static String EXE_COUNT_FILE = "counts.json";
+
 
 	/*** Evosuite regression testing properties ***/
 

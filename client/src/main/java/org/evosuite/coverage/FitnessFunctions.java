@@ -166,7 +166,7 @@ public class FitnessFunctions {
 		case CBEHAVIOUR:
 			try {
 				return new OnlyLineCoverageSuiteFitness(new CommonBehaviourCoverageFactory(
-						ClassExecutionCounts.readCounts(new Scanner(new File("counts.json")).useDelimiter("\\Z").next())));
+						ClassExecutionCounts.readCounts(new Scanner(new File(Properties.EXE_COUNT_FILE)).useDelimiter("\\Z").next())));
 			} catch (FileNotFoundException e) {
 				assert false;
 			}
@@ -234,7 +234,7 @@ public class FitnessFunctions {
 		case CBEHAVIOUR:
 			try {
 				new CommonBehaviourCoverageFactory(
-						ClassExecutionCounts.readCounts(new Scanner(new File("counts.json")).useDelimiter("\\Z").next()));
+						ClassExecutionCounts.readCounts(new Scanner(new File(Properties.EXE_COUNT_FILE)).useDelimiter("\\Z").next()));
 			} catch (FileNotFoundException e) {
 				assert false;
 			}
