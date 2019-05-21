@@ -154,7 +154,7 @@ public class FitnessFunctions {
 		case METHODNOEXCEPTION:
 			return new MethodNoExceptionCoverageSuiteFitness();
 		case ONLYLINE:
-			return new OnlyLineCoverageSuiteFitness(new LineCoverageFactory());
+			return new OnlyLineCoverageSuiteFitness();
 		case LINE:
 			return new LineCoverageSuiteFitness();
 		case OUTPUT:

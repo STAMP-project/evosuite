@@ -53,6 +53,10 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private int maxCoveredLines = 0;
 	private double bestFitness = Double.MAX_VALUE;
 
+	public OnlyLineCoverageSuiteFitness() {
+		this(new LineCoverageFactory());
+	}
+
 	public OnlyLineCoverageSuiteFitness(AbstractFitnessFactory<LineCoverageTestFitness> goalFactory) {
 		@SuppressWarnings("unused")
 		String prefix = Properties.TARGET_CLASS_PREFIX;
