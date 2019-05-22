@@ -37,10 +37,13 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Contains logic to compute suite fitness values based on input line execution counts.
+ * Lines that are executed more often are weighted more in computing the fitness value.
+ *
+ * This class is largely the same as OnlyLineCoverageSuiteFitness as it is now.
+ */
 public class CommonBehaviourCoverageSuiteFitness extends TestSuiteFitnessFunction {
-
-	private static final long serialVersionUID = -6369027784777941998L;
-
 	private final static Logger logger = LoggerFactory.getLogger(CommonBehaviourCoverageSuiteFitness.class);
 
 	// Coverage targets
@@ -60,12 +63,6 @@ public class CommonBehaviourCoverageSuiteFitness extends TestSuiteFitnessFunctio
 			ClassExecutionCounts counts) {
 		@SuppressWarnings("unused")
 		String prefix = Properties.TARGET_CLASS_PREFIX;
-
-		/* TODO: Would be nice to use a prefix here */
-//		for(String className : LinePool.getKnownClasses()) {		
-//			lines.addAll(LinePool.getLines(className));
-//		}
-//		logger.info("Total line coverage goals: " + lines);
 
 		List<LineCoverageTestFitness> goals = goalFactory.getCoverageGoals();
 		for (LineCoverageTestFitness goal : goals) {
@@ -98,14 +95,7 @@ public class CommonBehaviourCoverageSuiteFitness extends TestSuiteFitnessFunctio
 
 		return true;
 	}
-	
-	/**
-	 * Iterate over all execution results and summarize statistics
-	 * 
-	 * @param results
-	 * @param coveredLines
-	 * @return
-	 */
+
 	private boolean analyzeTraces(List<ExecutionResult> results, Set<Integer> coveredLines) {
 		boolean hasTimeoutOrTestException = false;
 
@@ -135,11 +125,6 @@ public class CommonBehaviourCoverageSuiteFitness extends TestSuiteFitnessFunctio
 		return hasTimeoutOrTestException;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Execute all tests and count covered branches
-	 */
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
@@ -152,7 +137,7 @@ public class CommonBehaviourCoverageSuiteFitness extends TestSuiteFitnessFunctio
 		Set<Integer> coveredLines = new LinkedHashSet<Integer>();
 		boolean hasTimeoutOrTestException = analyzeTraces(results, coveredLines);
 
-		int coveredWeight = counts.weightOfLines(coveredLines) + counts.weightOfLines(this.removedLines);
+		int coveredWeight = counts.numberOfExecutions(coveredLines) + counts.numberOfExecutions(this.removedLines);
 		
 		logger.debug("Covered weight" + coveredWeight + " out of total weight" + this.totalWeight + ", "+removedLines.size() +" weight in archive");
 		fitness += normalize(this.totalWeight - coveredWeight);
@@ -184,12 +169,6 @@ public class CommonBehaviourCoverageSuiteFitness extends TestSuiteFitnessFunctio
 		return fitness;
 	}
 
-	/**
-	 * Some useful debug information
-	 * 
-	 * @param coveredLines
-	 * @param fitness
-	 */
 	private void printStatusMessages(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
 	        int coveredLines, double fitness) {
