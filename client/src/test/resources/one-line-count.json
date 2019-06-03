@@ -1,0 +1,16 @@
+[
+    {
+        "className": "org.apache.commons.math3.geometry.euclidean.threed.Line",
+        "methods": [
+            {
+                "methodName": "reset",
+                "executionCounts": [
+                    {
+                        "line": 97,
+                        "count": 1
+                    }
+                ]
+            }
+        ]
+    }
+]

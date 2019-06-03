@@ -46,6 +46,7 @@ import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.ClassStatisticsPrinter;
+import org.evosuite.coverage.cbehaviour.ClassExecutionCounts;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;

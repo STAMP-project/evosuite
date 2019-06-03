@@ -209,7 +209,6 @@ public class OnlyLineCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			bestFitness = fitness;
 			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
 			        + suite.totalLengthOfTestCases());
-
 		}
 	}
 }

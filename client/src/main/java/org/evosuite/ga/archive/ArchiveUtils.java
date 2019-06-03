@@ -175,6 +175,11 @@ public final class ArchiveUtils {
             return true;
           }
           break;
+        case ONLYCBEHAVIOUR:
+          if (goal instanceof LineCoverageTestFitness) {
+            return true;
+          }
+          break;
         default:
           AtMostOnceLogger.warn(logger, "Unknown criterion '" + criterion.name() + "'");
           break;

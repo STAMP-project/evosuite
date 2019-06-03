@@ -410,7 +410,7 @@ public class Properties {
 		EVOSUITE_SOLVER, Z3_SOLVER, CVC4_SOLVER;
 	}
 
-	@Parameter(key = "dse_solver", group = "DSE", description = "Specify which constraint solver to use. Note: external solver will need to be installed and cofigured separately")
+	@Parameter(key = "dse_solver", group = "DSE", description = "Specify which constraint solver to use. Note: external solver will need to be installed and configured separately")
 	public static SolverType DSE_SOLVER = SolverType.EVOSUITE_SOLVER;
 
 	@Parameter(key = "z3_path", group = "DSE", description = "Indicates the path to the Z3 solver")
@@ -1412,7 +1412,7 @@ public class Properties {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
-        REGRESSION,	REGRESSIONTESTS, TRYCATCH, CBEHAVIOUR
+		REGRESSION, REGRESSIONTESTS, TRYCATCH, ONLYCBEHAVIOUR
 	}
 
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
@@ -1475,7 +1475,7 @@ public class Properties {
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
 
 	@Parameter(key = "exe_count_file", group = "Runtime", description = "File in which execution count data is stored")
-	public static String EXE_COUNT_FILE = "counts.json";
+	public static String EXE_COUNT_FILE = null;
 
 
 	/*** Evosuite regression testing properties ***/
@@ -1714,6 +1714,14 @@ public class Properties {
 	 * loading
 	 */
 	private static Set<String> changedFields = new HashSet<String>();
+
+	/**
+	 * Returns true if the specified property has been changed since starting the EvoSuite application
+	 * , and false otherwise.
+	 */
+	public boolean hasChanged(String property) {
+		return changedFields.contains(property);
+	}
 
 	/**
 	 * Get class of parameter

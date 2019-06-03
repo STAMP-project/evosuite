@@ -1,0 +1,38 @@
+[
+    {
+        "className": "org.apache.commons.math3.geometry.euclidean.threed.Line",
+        "methods": [
+            {
+                "methodName": "getTolerance",
+                "executionCounts": [
+                    {
+                        "line": 109,
+                        "count": 2
+                    }
+                ]
+            },
+            {
+                "methodName": "reset",
+                "executionCounts": [
+                    {
+                        "line": 97,
+                        "count": 5
+                    },
+                    {
+                        "line": 99,
+                        "count": 1
+                    }
+                ]
+            },
+            {
+                "methodName": "revert",
+                "executionCounts": [
+                    {
+                        "line": 117,
+                        "count": 3
+                    }
+                ]
+            }
+        ]
+    }
+]

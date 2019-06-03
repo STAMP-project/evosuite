@@ -305,6 +305,14 @@ public class EvoSuite {
                 return Continuous.execute(options, javaOpts, line);
             }
 
+            if (Properties.EXE_COUNT_FILE != null) {
+                logger.info("Checking if execution count file exists");
+                File executionCountFile = new File(Properties.EXE_COUNT_FILE);
+                if (!executionCountFile.exists()) {
+                    throw new ParseException("Specified execution count file does not exist");
+                }
+            }
+
             return TestGeneration.executeTestGeneration(options, javaOpts, line);
 
         } catch (ParseException exp) {
@@ -316,7 +324,6 @@ public class EvoSuite {
 
         return null;
     }
-
 
     public static boolean hasLegacyTargets() {
         File directory = new File(Properties.OUTPUT_DIR);
