@@ -30,7 +30,7 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
-import org.evosuite.coverage.cbehaviour.CommonBehaviourCoverageFactory;
+import org.evosuite.coverage.cbehaviour.OnlyCommonBehaviourCoverageFactory;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
@@ -161,7 +161,7 @@ public class FitnessFunctions {
 			return new TryCatchCoverageSuiteFitness();
 		case ONLYCBEHAVIOUR:
 			return new OnlyLineCoverageSuiteFitness(
-					CommonBehaviourCoverageFactory.fromExecutionCountFile(
+					OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
 							new File(Properties.EXE_COUNT_FILE)));
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
@@ -225,7 +225,7 @@ public class FitnessFunctions {
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
 		case ONLYCBEHAVIOUR:
-			return CommonBehaviourCoverageFactory.fromExecutionCountFile(
+			return OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
 					new File(Properties.EXE_COUNT_FILE));
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit

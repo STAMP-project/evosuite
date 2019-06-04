@@ -18,20 +18,20 @@ import org.slf4j.LoggerFactory;
  * execution count JSON file.
  */
 @SuppressWarnings("WeakerAccess")
-public class CommonBehaviourCoverageFactory extends
+public class OnlyCommonBehaviourCoverageFactory extends
     AbstractFitnessFactory<LineCoverageTestFitness> {
 
   private final LineCoverageFactory delegateFactory;
   private final List<ClassExecutionCounts> executionCounts;
 
   private static final Logger logger =
-      LoggerFactory.getLogger(CommonBehaviourCoverageFactory.class);
+      LoggerFactory.getLogger(OnlyCommonBehaviourCoverageFactory.class);
 
   /**
    * Constructs a new factory using the execution counts in the list that is provided.
    */
   @SuppressWarnings("unused")
-  public CommonBehaviourCoverageFactory(List<ClassExecutionCounts> executionCounts) {
+  public OnlyCommonBehaviourCoverageFactory(List<ClassExecutionCounts> executionCounts) {
     delegateFactory = new LineCoverageFactory();
     this.executionCounts = executionCounts;
   }
@@ -66,12 +66,12 @@ public class CommonBehaviourCoverageFactory extends
     return executedLines;
   }
 
-  public static CommonBehaviourCoverageFactory fromExecutionCountFile(File file) {
+  public static OnlyCommonBehaviourCoverageFactory fromExecutionCountFile(File file) {
     if (!file.exists()) {
       throw new IllegalArgumentException("Input file does not exist: " + file.getAbsolutePath());
     }
     try {
-      return new CommonBehaviourCoverageFactory(
+      return new OnlyCommonBehaviourCoverageFactory(
           ClassExecutionCounts.readCounts(new Scanner(file).useDelimiter("\\Z").next()));
     } catch (FileNotFoundException e) {
       throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);
