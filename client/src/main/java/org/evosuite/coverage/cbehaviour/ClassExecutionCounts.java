@@ -2,6 +2,7 @@ package org.evosuite.coverage.cbehaviour;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +15,7 @@ import org.evosuite.coverage.cbehaviour.ClassExecutionCounts.Method.Line;
  * input file. This class is used by gson to deserialize the input file.
  */
 @SuppressWarnings("unused")
-public class ClassExecutionCounts {
+public class ClassExecutionCounts implements Serializable {
 
   private final String className;
   private final List<Method> methods;
@@ -100,7 +101,7 @@ public class ClassExecutionCounts {
   }
 
   @SuppressWarnings("unused")
-  public static class Method {
+  public static class Method implements Serializable {
 
     private final String methodName;
     private final List<Line> executionCounts;
@@ -153,7 +154,7 @@ public class ClassExecutionCounts {
     }
 
     @SuppressWarnings("unused")
-    public static class Line {
+    public static class Line implements Serializable {
 
       private final int line;
       private final int count;

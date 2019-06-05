@@ -182,6 +182,8 @@ public enum RuntimeVariable {
     ExceptionFitnessTimeline,
     ExceptionCoverageTimeline,
     ExceptionCoverageBitString,
+	/**	The obtained weighted common behaviour coverage */
+	WeightedCBehaviourCoverage,
 	/** The obtained score for weak mutation testing */
 	WeakMutationScore,
 	WeakMutationCoverageTimeline,

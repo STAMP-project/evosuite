@@ -46,22 +46,9 @@ public class OnlyCommonBehaviourCoverageFactory extends
     List<LineCoverageTestFitness> allLines = delegateFactory.getCoverageGoals();
     logger.trace("All lines in class: " + allLines);
 
-    // Filter the list that is provided by the LineCoverageFactory so only lines are retained that
-    // appear in the input execution counts.
-    // In more low-level terms: for each line goal, it is first checked whether it corresponds to
-    // a class present in the execution counts, then whether it corresponds to a method present in
-    // the execution counts, and finally whether it corresponds to a line present in the execution
-    // counts. If all three are true, the line goal is retained, otherwise it is discarded.
     logger.trace("Using execution counts: " + executionCounts);
-    List<LineCoverageTestFitness> executedLines = allLines.stream()
-        .filter(line -> executionCounts.stream().anyMatch(
-            count -> line.getClassName().equals(count.getClassName()) && count.getMethods().stream()
-                .anyMatch(method ->
-                    line.getMethod().split(Pattern.quote("("))[0].equals(method.getMethodName())
-                        && method.getExecutionCounts().stream()
-                        .anyMatch(executionCount ->
-                            line.getLine() == executionCount.getLine()
-                        )))).collect(Collectors.toList());
+    List<LineCoverageTestFitness> executedLines =
+        CommonBehaviourUtil.retainExecutedLines(allLines, executionCounts);
     logger.trace("Executed lines: " + executedLines);
     return executedLines;
   }

@@ -31,6 +31,9 @@ import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
 import org.evosuite.coverage.cbehaviour.OnlyCommonBehaviourCoverageFactory;
+import org.evosuite.coverage.cbehaviour.WeightedCommonBehaviourCoverageFactory;
+import org.evosuite.coverage.cbehaviour.WeightedCommonBehaviourCoverageSuiteFitness;
+import org.evosuite.coverage.cbehaviour.WeightedCommonBehaviourCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
@@ -163,6 +166,8 @@ public class FitnessFunctions {
 			return new OnlyLineCoverageSuiteFitness(
 					OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
 							new File(Properties.EXE_COUNT_FILE)));
+    case WEIGHTEDCBEHAVIOUR:
+      return new WeightedCommonBehaviourCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();
@@ -227,6 +232,8 @@ public class FitnessFunctions {
 		case ONLYCBEHAVIOUR:
 			return OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
 					new File(Properties.EXE_COUNT_FILE));
+    case WEIGHTEDCBEHAVIOUR:
+      return new WeightedCommonBehaviourCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
@@ -293,6 +300,8 @@ public class FitnessFunctions {
 				return TryCatchCoverageTestFitness.class;
 		case ONLYCBEHAVIOUR:
 				return LineCoverageTestFitness.class;
+    case WEIGHTEDCBEHAVIOUR:
+        return WeightedCommonBehaviourCoverageTestFitness.class;
 		default:
 				throw new RuntimeException("No criterion defined for " + criterion.name());
 		}
