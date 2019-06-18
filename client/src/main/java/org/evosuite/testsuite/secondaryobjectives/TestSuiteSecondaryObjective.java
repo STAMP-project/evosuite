@@ -19,12 +19,10 @@
  */
 package org.evosuite.testsuite.secondaryobjectives;
 
-import java.io.File;
 import org.evosuite.Properties;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
-import org.evosuite.testcase.secondaryobjectives.MaximizePathExecutionCountSecondaryObjective;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -61,7 +59,14 @@ public class TestSuiteSecondaryObjective {
           secondaryObjectiveInstance = new RhoTestSuiteSecondaryObjective();
           break;
         case MAX_EXEC_COUNT:
-          secondaryObjectiveInstance = new MaximizeSuiteExecutionCountSecondaryObjectiveDummy();
+          secondaryObjectiveInstance = new DummySecondaryObjective(
+              Properties.SecondaryObjective.MAX_EXEC_COUNT, "For use in MOSA, which does not"
+              + "use suite secondary objectives");
+          break;
+        case MIN_EXEC_COUNT:
+          secondaryObjectiveInstance = new DummySecondaryObjective(
+              Properties.SecondaryObjective.MIN_EXEC_COUNT, "For use in MOSA, which does not"
+              + "use suite secondary objectives");
           break;
         default:
           throw new RuntimeException(

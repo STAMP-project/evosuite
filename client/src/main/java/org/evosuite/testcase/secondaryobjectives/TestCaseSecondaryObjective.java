@@ -49,6 +49,10 @@ public class TestCaseSecondaryObjective {
             secondaryObjectiveInstance = MaximizePathExecutionCountSecondaryObjective
                 .fromExecutionCountFile(new File(Properties.EXE_COUNT_FILE));
             break;
+          case MIN_EXEC_COUNT:
+            secondaryObjectiveInstance = MinimizePathExecutionCountSecondaryObjective
+                .fromExecutionCountFile(new File(Properties.EXE_COUNT_FILE));
+            break;
           default:
             throw new RuntimeException("ERROR: asked for unknown secondary objective \""
                 + secondaryObjective.name() + "\"");
