@@ -35,7 +35,9 @@ public class WeightedCommonBehaviourCoverageTestFitness extends TestFitnessFunct
   @Override
   public double getFitness(TestChromosome individual, ExecutionResult result) {
     return lineGoals.stream().mapToDouble(goal -> goal.getFitness(individual, result) *
-        getExecutionCount(goal)).sum();
+        getExecutionCount(goal)).sum()
+        + Double.MIN_VALUE; //This is added so the goal is never satisfied, which is most often
+    // what one wants when using this goal.
   }
 
   private int getExecutionCount(LineCoverageTestFitness goal) {
