@@ -645,11 +645,13 @@ public class Properties {
 	public static MutationProbabilityDistribution MUTATION_PROBABILITY_DISTRIBUTION = MutationProbabilityDistribution.UNIFORM;
 
 	public enum SecondaryObjective {
-		AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO
+		AVG_LENGTH, MAX_LENGTH, TOTAL_LENGTH, SIZE, EXCEPTIONS, IBRANCH, RHO, MAX_EXEC_COUNT
 	}
 
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
-	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[] { SecondaryObjective.TOTAL_LENGTH };
+	public static SecondaryObjective[] SECONDARY_OBJECTIVE = new SecondaryObjective[]{
+			SecondaryObjective.MAX_EXEC_COUNT, SecondaryObjective.TOTAL_LENGTH
+	};
 
 	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;

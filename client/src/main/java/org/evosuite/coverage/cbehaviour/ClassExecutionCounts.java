@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -20,6 +21,12 @@ public class ClassExecutionCounts implements Serializable {
   private final String className;
   private final List<Method> methods;
 
+  /**
+   * Constructs an execution counts object for the given class using the given list of counts for
+   * methods in the class.
+   *
+   * @param className fully qualified class name
+   */
   public ClassExecutionCounts(String className,
       List<Method> methods) {
     if (className == null) {
@@ -31,6 +38,15 @@ public class ClassExecutionCounts implements Serializable {
 
     this.className = className;
     this.methods = methods;
+  }
+
+  /**
+   * Constructs an execution counts object without any counts for the given class name.
+   *
+   * @param className Fully qualified class name
+   */
+  public ClassExecutionCounts(String className) {
+    this(className, Collections.emptyList());
   }
 
   public String getClassName() {

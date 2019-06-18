@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.secondaryobjectives;
 
+import java.io.File;
 import org.evosuite.Properties;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
@@ -43,6 +44,10 @@ public class TestCaseSecondaryObjective {
             break;
           case EXCEPTIONS:
             secondaryObjectiveInstance = new MinimizeExceptionsSecondaryObjective();
+            break;
+          case MAX_EXEC_COUNT:
+            secondaryObjectiveInstance = MaximizePathExecutionCountSecondaryObjective
+                .fromExecutionCountFile(new File(Properties.EXE_COUNT_FILE));
             break;
           default:
             throw new RuntimeException("ERROR: asked for unknown secondary objective \""

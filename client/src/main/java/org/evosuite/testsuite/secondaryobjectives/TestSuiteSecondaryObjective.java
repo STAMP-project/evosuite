@@ -19,10 +19,12 @@
  */
 package org.evosuite.testsuite.secondaryobjectives;
 
+import java.io.File;
 import org.evosuite.Properties;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.testcase.secondaryobjectives.MaximizePathExecutionCountSecondaryObjective;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -57,6 +59,9 @@ public class TestSuiteSecondaryObjective {
           break;
         case RHO:
           secondaryObjectiveInstance = new RhoTestSuiteSecondaryObjective();
+          break;
+        case MAX_EXEC_COUNT:
+          secondaryObjectiveInstance = new MaximizeSuiteExecutionCountSecondaryObjectiveDummy();
           break;
         default:
           throw new RuntimeException(
