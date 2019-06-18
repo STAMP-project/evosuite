@@ -18,8 +18,32 @@ public class WeightedCommonBehaviourCoverageTestFitness extends TestFitnessFunct
   private List<ClassExecutionCounts> executionCounts;
   private List<LineCoverageTestFitness> lineGoals;
 
+  /**
+   * Indicates whether the fitness function should favor common or uncommon behaviours.
+   */
+  private boolean forCommonBehaviours;
+
+  /**
+   * Constructs this fitness function with the given execution counts and factory for line coverage
+   * goals. It will favor common behaviours.
+   *
+   * @param executionCounts the execution counts containing counts for the class under test
+   */
   public WeightedCommonBehaviourCoverageTestFitness(List<ClassExecutionCounts> executionCounts,
       LineCoverageFactory lineFactory) {
+    this(executionCounts, lineFactory, true);
+  }
+
+  /**
+   * Constructs this fitness function with the given execution counts and factory for line coverage
+   * goals. It can be constructed for favoring either common or uncommon behaviours.
+   *
+   * @param executionCounts the execution counts containing counts for the class under test
+   * @param forCommonBehaviours {@code true} if the function should favor common behaviours, {@code
+   * false} if it should favor uncommon behaviours
+   */
+  public WeightedCommonBehaviourCoverageTestFitness(List<ClassExecutionCounts> executionCounts,
+      LineCoverageFactory lineFactory, boolean forCommonBehaviours) {
     if (executionCounts == null) {
       throw new IllegalArgumentException("executionCounts parameter must be non-null");
     }
@@ -30,6 +54,7 @@ public class WeightedCommonBehaviourCoverageTestFitness extends TestFitnessFunct
     this.executionCounts = executionCounts;
     this.lineGoals =
         CommonBehaviourUtil.retainExecutedLines(lineFactory.getCoverageGoals(), executionCounts);
+    this.forCommonBehaviours = forCommonBehaviours;
   }
 
   @Override
@@ -85,14 +110,38 @@ public class WeightedCommonBehaviourCoverageTestFitness extends TestFitnessFunct
     return lineGoals.get(0).getTargetMethod();
   }
 
+  @Override
+  public boolean isMaximizationFunction() {
+    return !forCommonBehaviours;
+  }
+
+  /**
+   * Creates an instance of this fitness function using the execution count file specified. Common
+   * behaviours will be favored.
+   * @param file an execution count file. It must exist.
+   */
   public static WeightedCommonBehaviourCoverageTestFitness fromExecutionCountFile(File file) {
+    return WeightedCommonBehaviourCoverageTestFitness.fromExecutionCountFile(file, true);
+  }
+
+  /**
+   * Creates an instance of this fitness function using the execution count file specified. It will
+   * favor either common or uncommon behaviours depending on the value of {@code
+   * forCommonBehaviours}.
+   *
+   * @param file an execution count file. It must exist.
+   * @param forCommonBehaviours {@code true} to favor common behaviours, {@code false} to favor
+   * uncommon behaviours.
+   */
+  public static WeightedCommonBehaviourCoverageTestFitness fromExecutionCountFile(File file,
+      boolean forCommonBehaviours) {
     if (!file.exists()) {
       throw new IllegalArgumentException("Input file does not exist: " + file.getAbsolutePath());
     }
     try {
       return new WeightedCommonBehaviourCoverageTestFitness(
           ClassExecutionCounts.readCounts(new Scanner(file).useDelimiter("\\Z").next()),
-          new LineCoverageFactory());
+          new LineCoverageFactory(), forCommonBehaviours);
     } catch (FileNotFoundException e) {
       throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);
     } catch (JsonSyntaxException e) {

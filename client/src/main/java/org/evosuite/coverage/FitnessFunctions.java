@@ -233,7 +233,7 @@ public class FitnessFunctions {
 			return OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
 					new File(Properties.EXE_COUNT_FILE));
     case WEIGHTEDCBEHAVIOUR:
-      return new WeightedCommonBehaviourCoverageFactory();
+			return new WeightedCommonBehaviourCoverageFactory(Properties.FOR_COMMON_BEHAVIOURS);
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");

@@ -1422,6 +1422,8 @@ public class Properties {
             //these are basic criteria that should be always on by default
             Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
+	@Parameter(key = "for_common_behaviours", group = "Runtime", description = "Determines whether common or uncommon behaviours should be favored when using the CBEHAVIOUR criterion")
+	public static boolean FOR_COMMON_BEHAVIOURS = true;
 
     /** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;

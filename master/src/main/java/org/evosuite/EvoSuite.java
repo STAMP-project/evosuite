@@ -35,6 +35,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -311,6 +312,15 @@ public class EvoSuite {
                 if (!executionCountFile.exists()) {
                     throw new ParseException("Specified execution count file does not exist");
                 }
+            }
+
+            if (line.getOptionProperties("D").stringPropertyNames()
+                .contains("for_common_behaviours") && !Arrays.stream(Properties.CRITERION)
+                .anyMatch(criterion ->
+                    criterion == Criterion.WEIGHTEDCBEHAVIOUR)) {
+                logger.warn(
+                    "The property for_common_behaviours is specified without enabling the relevant"
+                        + "criterion weightedcbehaviour. The property is being ignored.");
             }
 
             return TestGeneration.executeTestGeneration(options, javaOpts, line);
