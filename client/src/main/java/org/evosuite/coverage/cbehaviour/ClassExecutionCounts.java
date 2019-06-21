@@ -18,6 +18,9 @@ import org.evosuite.coverage.cbehaviour.ClassExecutionCounts.Method.Line;
 @SuppressWarnings("unused")
 public class ClassExecutionCounts implements Serializable {
 
+  /**
+   * Fully qualified class name
+   */
   private final String className;
   private final List<Method> methods;
 
@@ -43,12 +46,15 @@ public class ClassExecutionCounts implements Serializable {
   /**
    * Constructs an execution counts object without any counts for the given class name.
    *
-   * @param className Fully qualified class name
+   * @param className fully qualified class name
    */
   public ClassExecutionCounts(String className) {
     this(className, Collections.emptyList());
   }
 
+  /**
+   * Returns the fully qualified class name of the class for which counts are stored.
+   */
   public String getClassName() {
     return className;
   }
@@ -86,7 +92,7 @@ public class ClassExecutionCounts implements Serializable {
    * Computes the total number of executions over the given set of lines.
    */
   public int numberOfExecutions(Set<Integer> lineNumbers) {
-    return lineList().stream().filter(line -> lineNumbers.contains(line.line))
+    return lineList().stream().filter(line -> lineNumbers.contains(line.lineNumber))
         .mapToInt(line -> line.count).sum();
   }
 
@@ -119,9 +125,16 @@ public class ClassExecutionCounts implements Serializable {
   @SuppressWarnings("unused")
   public static class Method implements Serializable {
 
+    /**
+     * Plain method name without parentheses and arguments
+     */
     private final String methodName;
     private final List<Line> executionCounts;
 
+    /**
+     * Instantiates a method with provided method name and execution counts for separate lines.
+     * @param methodName simple method name without parentheses or arguments
+     */
     public Method(String methodName,
         List<Line> executionCounts) {
       if (methodName == null) {
@@ -135,6 +148,9 @@ public class ClassExecutionCounts implements Serializable {
       this.executionCounts = executionCounts;
     }
 
+    /**
+     * Returns the plain method name, without parentheses or arguments.
+     */
     public String getMethodName() {
       return methodName;
     }
@@ -172,23 +188,23 @@ public class ClassExecutionCounts implements Serializable {
     @SuppressWarnings("unused")
     public static class Line implements Serializable {
 
-      private final int line;
+      private final int lineNumber;
       private final int count;
 
-      public Line(int line, int count) {
-        if (line <= 0) {
-          throw new IllegalArgumentException("line parameter must be larger than 0");
+      public Line(int lineNumber, int count) {
+        if (lineNumber <= 0) {
+          throw new IllegalArgumentException("lineNumber parameter must be larger than 0");
         }
         if (count <= 0) {
           throw new IllegalArgumentException("count parameter must be larger than 0");
         }
 
-        this.line = line;
+        this.lineNumber = lineNumber;
         this.count = count;
       }
 
-      public int getLine() {
-        return line;
+      public int getLineNumber() {
+        return lineNumber;
       }
 
       public int getCount() {
@@ -204,19 +220,19 @@ public class ClassExecutionCounts implements Serializable {
           return false;
         }
         Line line1 = (Line) o;
-        return line == line1.line &&
+        return lineNumber == line1.lineNumber &&
             count == line1.count;
       }
 
       @Override
       public int hashCode() {
-        return Objects.hash(line, count);
+        return Objects.hash(lineNumber, count);
       }
 
       @Override
       public String toString() {
         return "Line{" +
-            "line=" + line +
+            "lineNumber=" + lineNumber +
             ", count=" + count +
             '}';
       }

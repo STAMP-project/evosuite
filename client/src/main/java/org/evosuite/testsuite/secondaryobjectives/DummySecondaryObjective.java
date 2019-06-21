@@ -12,8 +12,15 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 public class DummySecondaryObjective extends
     SecondaryObjective<TestSuiteChromosome> {
 
-  private Properties.SecondaryObjective objective;
-  private String reason;
+  /**
+   * The secondary objective for which this dummy has been created.
+   */
+  private final Properties.SecondaryObjective objective;
+
+  /**
+   * The reason for which an actual secondary objective has not been implemented.
+   */
+  private final String reason;
 
   /**
    * Constructs this dummy objective for the specified objective and reason.

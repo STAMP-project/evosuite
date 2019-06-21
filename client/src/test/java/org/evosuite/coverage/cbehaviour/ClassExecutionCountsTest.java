@@ -13,6 +13,10 @@ import org.evosuite.coverage.cbehaviour.ClassExecutionCounts.Method;
 import org.evosuite.coverage.cbehaviour.ClassExecutionCounts.Method.Line;
 import org.junit.Test;
 
+/**
+ * Contains JUnit tests for the {@link ClassExecutionCounts} class. It reads input stored as files
+ * for testing.
+ */
 public class ClassExecutionCountsTest {
 
   @Test

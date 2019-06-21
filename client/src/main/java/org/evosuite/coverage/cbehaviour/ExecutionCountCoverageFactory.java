@@ -6,10 +6,15 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
+/**
+ * Factory that supplies fitness functions of type {@link ExecutionCountCoverageTestFitness}.
+ * Depending on how this factory is constructed, the supplied fitness functions will value either
+ * test cases that exercise often executed code, or test cases that don't.
+ */
 public class ExecutionCountCoverageFactory extends
     AbstractFitnessFactory<ExecutionCountCoverageTestFitness> {
 
-  private boolean forCommonBehaviours;
+  private final boolean forCommonBehaviours;
 
   /**
    * Creates an instance supplying a fitness function favoring either common or uncommon behaviours

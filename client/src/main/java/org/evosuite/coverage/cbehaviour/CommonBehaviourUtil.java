@@ -26,7 +26,7 @@ class CommonBehaviourUtil {
                     line.getMethod().split(Pattern.quote("("))[0].equals(method.getMethodName())
                         && method.getExecutionCounts().stream()
                         .anyMatch(executionCount ->
-                            line.getLine() == executionCount.getLine()
+                            line.getLine() == executionCount.getLineNumber()
                         )))).collect(Collectors.toList());
   }
 }

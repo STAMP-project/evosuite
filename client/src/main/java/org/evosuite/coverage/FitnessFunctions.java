@@ -30,7 +30,7 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
-import org.evosuite.coverage.cbehaviour.OnlyCommonBehaviourCoverageFactory;
+import org.evosuite.coverage.cbehaviour.OnlyExecutedLinesCoverageFactory;
 import org.evosuite.coverage.cbehaviour.ExecutionCountCoverageFactory;
 import org.evosuite.coverage.cbehaviour.HighExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
@@ -163,8 +163,8 @@ public class FitnessFunctions {
 			return new TryCatchCoverageSuiteFitness();
 		case ONLYCBEHAVIOUR:
 			return new OnlyLineCoverageSuiteFitness(
-					OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
-							new File(Properties.EXE_COUNT_FILE)));
+					OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
+							new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory()));
     case WEIGHTEDCBEHAVIOUR:
 			return new DummySuiteFitness("This criterion is currently only implemented for MOSA, "
 					+ "which does not use suite fitness functions.");
@@ -230,8 +230,8 @@ public class FitnessFunctions {
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
 		case ONLYCBEHAVIOUR:
-			return OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
-					new File(Properties.EXE_COUNT_FILE));
+			return OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
+					new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory());
     case WEIGHTEDCBEHAVIOUR:
 			return new ExecutionCountCoverageFactory(Properties.FOR_COMMON_BEHAVIOURS);
 		default:

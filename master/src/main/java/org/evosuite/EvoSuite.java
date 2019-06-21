@@ -306,6 +306,8 @@ public class EvoSuite {
                 return Continuous.execute(options, javaOpts, line);
             }
 
+            // Check if the execution count file exists if a path for it has been provided.
+            // If the file does not exist, it is considered as invalid command line input.
             if (Properties.EXE_COUNT_FILE != null) {
                 logger.info("Checking if execution count file exists");
                 File executionCountFile = new File(Properties.EXE_COUNT_FILE);
@@ -314,6 +316,9 @@ public class EvoSuite {
                 }
             }
 
+            // If the -Dfor_common_behaviours switch is used on the command line, but the
+            // corresponding WEIGHTEDCBEHAVIOUR criterion is not enabled, it is probably a mistake
+            // by the user.
             if (line.getOptionProperties("D").stringPropertyNames()
                 .contains("for_common_behaviours") && !Arrays.stream(Properties.CRITERION)
                 .anyMatch(criterion ->

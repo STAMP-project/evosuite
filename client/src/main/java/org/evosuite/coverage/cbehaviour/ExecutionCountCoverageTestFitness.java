@@ -18,12 +18,12 @@ import org.evosuite.testcase.TestFitnessFunction;
  */
 public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunction {
 
-  protected List<ClassExecutionCounts> executionCounts;
+  protected final List<ClassExecutionCounts> executionCounts;
 
   /**
    * Contains line goals only for lines that appear in the list of execution counts.
    */
-  protected List<LineCoverageTestFitness> lineGoals;
+  protected final List<LineCoverageTestFitness> lineGoals;
 
   /**
    * Constructs this fitness function using the given list of execution counts and the given line
@@ -94,7 +94,7 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
             method.getMethodName().equals(goal.getMethod().split(
                 Pattern.quote("("))[0]))
         .findAny().get()
-        .getExecutionCounts().stream().filter(line -> line.getLine() == goal.getLine())
+        .getExecutionCounts().stream().filter(line -> line.getLineNumber() == goal.getLine())
         .findAny().get().getCount();
   }
 
