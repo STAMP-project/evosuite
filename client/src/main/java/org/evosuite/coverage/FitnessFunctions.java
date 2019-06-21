@@ -32,7 +32,6 @@ import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
 import org.evosuite.coverage.cbehaviour.OnlyCommonBehaviourCoverageFactory;
 import org.evosuite.coverage.cbehaviour.ExecutionCountCoverageFactory;
-import org.evosuite.coverage.cbehaviour.WeightedCommonBehaviourCoverageSuiteFitness;
 import org.evosuite.coverage.cbehaviour.HighExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
@@ -167,7 +166,8 @@ public class FitnessFunctions {
 					OnlyCommonBehaviourCoverageFactory.fromExecutionCountFile(
 							new File(Properties.EXE_COUNT_FILE)));
     case WEIGHTEDCBEHAVIOUR:
-      return new WeightedCommonBehaviourCoverageSuiteFitness();
+			return new DummySuiteFitness("This criterion is currently only implemented for MOSA, "
+					+ "which does not use suite fitness functions.");
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();
