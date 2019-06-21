@@ -6,26 +6,31 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 
 /**
- * An {@link ExecutionCountCoverageTestFitness} that prefers test cases that exercise commonly
- * executed code.
+ * An {@link ExecutionCountCoverageTestFitness} that prefers test cases that do not exercise
+ * commonly executed code.
  */
-public class WeightedCommonBehaviourCoverageTestFitness extends ExecutionCountCoverageTestFitness {
+public class WeightedUncommonBehaviourCoverageTestFitness extends
+    ExecutionCountCoverageTestFitness {
+
   /**
    * Constructs this fitness function with the given execution counts and factory for line coverage
    * goals.
    *
    * @param executionCounts the execution counts containing counts for the class under test
    */
-  public WeightedCommonBehaviourCoverageTestFitness(List<ClassExecutionCounts> executionCounts,
+  public WeightedUncommonBehaviourCoverageTestFitness(List<ClassExecutionCounts> executionCounts,
       LineCoverageFactory lineFactory) {
     super(executionCounts, lineFactory);
   }
 
   @Override
   public double getFitness(TestChromosome individual, ExecutionResult result) {
-    return lineGoals.stream().mapToDouble(goal -> goal.getFitness(individual, result) *
-        getExecutionCount(goal)).sum()
-        + Double.MIN_VALUE; //This is added so the goal is never satisfied, which is most often
-    // what one wants when using this goal.
+    double weightedSum = lineGoals.stream()
+        .mapToDouble(goal -> goal.getFitness(individual, result) *
+            getExecutionCount(goal)).sum();
+    if (weightedSum == 0) {
+      return Double.MAX_VALUE; //To prevent division by 0
+    }
+    return 1 / weightedSum;
   }
 }

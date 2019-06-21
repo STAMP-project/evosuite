@@ -6,8 +6,8 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
-public class WeightedCommonBehaviourCoverageFactory extends
-    AbstractFitnessFactory<WeightedCommonBehaviourCoverageTestFitness> {
+public class ExecutionCountCoverageFactory extends
+    AbstractFitnessFactory<ExecutionCountCoverageTestFitness> {
 
   private boolean forCommonBehaviours;
 
@@ -18,20 +18,20 @@ public class WeightedCommonBehaviourCoverageFactory extends
    * @param forCommonBehaviours favors common behaviours if {@code true}, and uncommon behaviours if
    * {@code false}
    */
-  public WeightedCommonBehaviourCoverageFactory(boolean forCommonBehaviours) {
+  public ExecutionCountCoverageFactory(boolean forCommonBehaviours) {
     this.forCommonBehaviours = forCommonBehaviours;
   }
 
   /**
    * Creates an instance supplying a fitness function favoring common behaviours.
    */
-  public WeightedCommonBehaviourCoverageFactory() {
+  public ExecutionCountCoverageFactory() {
     this(true);
   }
 
   @Override
-  public List<WeightedCommonBehaviourCoverageTestFitness> getCoverageGoals() {
-    return Collections.singletonList(WeightedCommonBehaviourCoverageTestFitness
+  public List<ExecutionCountCoverageTestFitness> getCoverageGoals() {
+    return Collections.singletonList(ExecutionCountCoverageTestFitness
         .fromExecutionCountFile(new File(Properties.EXE_COUNT_FILE), forCommonBehaviours));
   }
 }
