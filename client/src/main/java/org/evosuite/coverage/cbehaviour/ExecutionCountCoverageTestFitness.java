@@ -70,10 +70,10 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
       List<ClassExecutionCounts> executionCounts = ClassExecutionCounts
           .readCounts(new Scanner(file).useDelimiter("\\Z").next());
       if (forCommonBehaviours) {
-        return new WeightedCommonBehaviourCoverageTestFitness(
+        return new HighExecutionCountCoverageTestFitness(
             executionCounts, new LineCoverageFactory());
       }
-      return new WeightedUncommonBehaviourCoverageTestFitness(
+      return new LowExecutionCountCoverageTestFitness(
           executionCounts, new LineCoverageFactory());
     } catch (FileNotFoundException e) {
       throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);

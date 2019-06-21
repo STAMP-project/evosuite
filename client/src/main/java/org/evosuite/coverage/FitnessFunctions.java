@@ -33,7 +33,7 @@ import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
 import org.evosuite.coverage.cbehaviour.OnlyCommonBehaviourCoverageFactory;
 import org.evosuite.coverage.cbehaviour.ExecutionCountCoverageFactory;
 import org.evosuite.coverage.cbehaviour.WeightedCommonBehaviourCoverageSuiteFitness;
-import org.evosuite.coverage.cbehaviour.WeightedCommonBehaviourCoverageTestFitness;
+import org.evosuite.coverage.cbehaviour.HighExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
@@ -301,7 +301,7 @@ public class FitnessFunctions {
 		case ONLYCBEHAVIOUR:
 				return LineCoverageTestFitness.class;
     case WEIGHTEDCBEHAVIOUR:
-        return WeightedCommonBehaviourCoverageTestFitness.class;
+        return HighExecutionCountCoverageTestFitness.class;
 		default:
 				throw new RuntimeException("No criterion defined for " + criterion.name());
 		}
