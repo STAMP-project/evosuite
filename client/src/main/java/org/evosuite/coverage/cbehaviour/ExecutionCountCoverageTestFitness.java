@@ -6,7 +6,8 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.evosuite.Properties;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -18,7 +19,7 @@ import org.evosuite.testcase.TestFitnessFunction;
  */
 public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunction {
 
-  protected final List<ClassExecutionCounts> executionCounts;
+  protected final ClassExecutionCounts executionCounts;
 
   /**
    * Contains line goals only for lines that appear in the list of execution counts.
@@ -30,7 +31,7 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
    * goals factory.
    */
   protected ExecutionCountCoverageTestFitness(
-      List<ClassExecutionCounts> executionCounts, LineCoverageFactory lineFactory) {
+      ClassExecutionCounts executionCounts, LineCoverageFactory lineFactory) {
     if (executionCounts == null) {
       throw new IllegalArgumentException("executionCounts parameter must be non-null");
     }
@@ -38,8 +39,9 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
       throw new IllegalArgumentException("lineFactory parameter must be non-null");
     }
     this.executionCounts = executionCounts;
-    this.lineGoals =
-        CommonBehaviourUtil.retainExecutedLines(lineFactory.getCoverageGoals(), executionCounts);
+    this.lineGoals = lineFactory.getCoverageGoals().stream()
+        .filter(goal -> executionCounts.executedLineNumbers().contains(goal.getLine())).collect(
+            Collectors.toList());
   }
 
   /**
@@ -67,8 +69,15 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
       throw new IllegalArgumentException("Input file does not exist: " + file.getAbsolutePath());
     }
     try {
-      List<ClassExecutionCounts> executionCounts = ClassExecutionCounts
-          .readCounts(new Scanner(file).useDelimiter("\\Z").next());
+      ClassExecutionCounts executionCounts = ClassExecutionCounts
+          .readCounts(new Scanner(file).useDelimiter("\\Z").next()).stream()
+          .filter(classCounts -> classCounts.getClassName().equals(
+              Properties.TARGET_CLASS)).findAny().orElseGet(() -> {
+                logger.warn("No execution count information found for " + Properties.TARGET_CLASS
+                    + ". Using empty execution counts.");
+                return new ClassExecutionCounts(Properties.TARGET_CLASS);
+              }
+          );
       if (forCommonBehaviours) {
         return new HighExecutionCountCoverageTestFitness(
             executionCounts, new LineCoverageFactory());
@@ -84,17 +93,11 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
   }
 
   /**
-   * Gets the execution count for the speicified line as determined by the execution count field.
+   * Gets the execution count for the specified line as determined by the execution count field.
    */
   protected int getExecutionCount(LineCoverageTestFitness goal) {
-    return executionCounts.stream().filter(count ->
-        count.getClassName().equals(goal.getClassName()))
-        .findAny().get()
-        .getMethods().stream().filter(method ->
-            method.getMethodName().equals(goal.getMethod().split(
-                Pattern.quote("("))[0]))
-        .findAny().get()
-        .getExecutionCounts().stream().filter(line -> line.getLineNumber() == goal.getLine())
+    return executionCounts.lineList().stream()
+        .filter(line -> line.getLineNumber() == goal.getLine())
         .findAny().get().getCount();
   }
 

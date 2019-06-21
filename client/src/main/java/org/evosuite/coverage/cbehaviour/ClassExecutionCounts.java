@@ -89,6 +89,14 @@ public class ClassExecutionCounts implements Serializable {
   }
 
   /**
+   * Returns all line numbers that appear in the execution counts, or in other words, those lines in
+   * the class that have been executed at least once.
+   */
+  public Set<Integer> executedLineNumbers() {
+    return lineList().stream().map(line -> line.getLineNumber()).collect(Collectors.toSet());
+  }
+
+  /**
    * Computes the total number of executions over the given set of lines.
    */
   public int numberOfExecutions(Set<Integer> lineNumbers) {
@@ -155,6 +163,9 @@ public class ClassExecutionCounts implements Serializable {
       return methodName;
     }
 
+    /**
+     * Returns execution counts for all lines in the method as a list.
+     */
     public List<Line> getExecutionCounts() {
       return executionCounts;
     }

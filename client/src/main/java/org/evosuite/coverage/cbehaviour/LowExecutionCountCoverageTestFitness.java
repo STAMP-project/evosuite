@@ -1,6 +1,5 @@
 package org.evosuite.coverage.cbehaviour;
 
-import java.util.List;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -18,7 +17,7 @@ public class LowExecutionCountCoverageTestFitness extends
    *
    * @param executionCounts the execution counts containing counts for the class under test
    */
-  public LowExecutionCountCoverageTestFitness(List<ClassExecutionCounts> executionCounts,
+  public LowExecutionCountCoverageTestFitness(ClassExecutionCounts executionCounts,
       LineCoverageFactory lineFactory) {
     super(executionCounts, lineFactory);
   }

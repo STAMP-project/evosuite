@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import org.evosuite.Properties;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -23,7 +25,7 @@ public class OnlyExecutedLinesCoverageFactory extends
    * Factory that supplies line goals which are filtered by this class
    */
   private final LineCoverageFactory delegateFactory;
-  private final List<ClassExecutionCounts> executionCounts;
+  private final ClassExecutionCounts executionCounts;
 
   private static final Logger logger =
       LoggerFactory.getLogger(OnlyExecutedLinesCoverageFactory.class);
@@ -33,10 +35,11 @@ public class OnlyExecutedLinesCoverageFactory extends
    * provided delegate factory that provides the line goals that are filtered by this factory.
    */
   @SuppressWarnings("unused")
-  public OnlyExecutedLinesCoverageFactory(List<ClassExecutionCounts> executionCounts,
+  public OnlyExecutedLinesCoverageFactory(
+      ClassExecutionCounts executionCounts,
       LineCoverageFactory delegateFactory) {
-    this.delegateFactory = delegateFactory;
     this.executionCounts = executionCounts;
+    this.delegateFactory = delegateFactory;
   }
 
   /**
@@ -50,8 +53,9 @@ public class OnlyExecutedLinesCoverageFactory extends
     logger.trace("All lines in class: " + allLines);
 
     logger.trace("Using execution counts: " + executionCounts);
-    List<LineCoverageTestFitness> executedLines =
-        CommonBehaviourUtil.retainExecutedLines(allLines, executionCounts);
+    List<LineCoverageTestFitness> executedLines = allLines.stream()
+        .filter(goal -> executionCounts.executedLineNumbers().contains(goal.getLine())).collect(
+            Collectors.toList());
     logger.trace("Executed lines: " + executedLines);
     return executedLines;
   }
@@ -69,7 +73,14 @@ public class OnlyExecutedLinesCoverageFactory extends
     }
     try {
       return new OnlyExecutedLinesCoverageFactory(
-          ClassExecutionCounts.readCounts(new Scanner(file).useDelimiter("\\Z").next()),
+          ClassExecutionCounts.readCounts(new Scanner(file).useDelimiter("\\Z").next())
+              .stream()
+              .filter(classCount -> classCount.getClassName().equals(Properties.TARGET_CLASS))
+              .findAny().orElseGet(() -> {
+            logger.warn("No execution count information found for " + Properties.TARGET_CLASS
+                + ". Using empty execution counts.");
+            return new ClassExecutionCounts(Properties.TARGET_CLASS);
+          }),
           delegateFactory);
     } catch (FileNotFoundException e) {
       throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);
