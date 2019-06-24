@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.SecondaryObjective;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.SimpleMutationAssertionGenerator;
@@ -121,6 +122,36 @@ public class TestSuiteGeneratorHelper {
         break;
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
+    }
+  }
+
+  /**
+   * Returns for each secondary objective defined in the enum {@link Properties.SecondaryObjective}
+   * a short description of what it does.
+   */
+  private static String getSecondaryObjectiveDescription(SecondaryObjective objective) {
+    switch (objective) {
+      case AVG_LENGTH:
+        return "Minimum average length";
+      case MAX_LENGTH:
+        return "Minimize maximum test length";
+      case TOTAL_LENGTH:
+        return "Minimize total suite length";
+      case SIZE:
+        return "Minimum test case size";
+      case EXCEPTIONS:
+        return "Minimize number of triggered exceptions";
+      case IBRANCH:
+        return "Maximize total branch coverage for all classes (not only CUT)";
+      case RHO:
+        return "Minimize Rho fitness value";
+      case MAX_EXEC_COUNT:
+        return "Maximize coverage of code lines that have been executed the most";
+      case MIN_EXEC_COUNT:
+        return "Minimize coverage of code lines that have been executed the most";
+      default:
+        assert false : "All possible cases should be listed in this switch statement";
+        return null;
     }
   }
 
@@ -249,6 +280,24 @@ public class TestSuiteGeneratorHelper {
     }
     for (int i = 0; i < Properties.CRITERION.length; i++) {
       printTestCriterion(Properties.CRITERION[i]);
+    }
+  }
+
+  /**
+   * Prints a short description of all activated secondary objectives to the user command line
+   * output.
+   */
+  static void printSecondaryObjectives() {
+    if (Properties.SECONDARY_OBJECTIVE.length > 1) {
+      LoggingUtils.getEvoLogger()
+          .info("* " + ClientProcess.getPrettyPrintIdentifier() + "Secondary objectives:");
+    } else {
+      LoggingUtils.getEvoLogger()
+          .info("* " + ClientProcess.getPrettyPrintIdentifier() + "Secondary objective:");
+    }
+    for (int i = 0; i < Properties.SECONDARY_OBJECTIVE.length; i++) {
+      LoggingUtils.getEvoLogger()
+          .info("  - " + getSecondaryObjectiveDescription(Properties.SECONDARY_OBJECTIVE[i]));
     }
   }
 

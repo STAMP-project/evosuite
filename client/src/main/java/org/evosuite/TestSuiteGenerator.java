@@ -196,6 +196,7 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* " + ClientProcess.getPrettyPrintIdentifier() + "Generating tests for class "
                 + Properties.TARGET_CLASS);
 		TestSuiteGeneratorHelper.printTestCriterion();
+		TestSuiteGeneratorHelper.printSecondaryObjectives();
 
 		if (!Properties.hasTargetClassBeenLoaded()) {
 			// initialization failed, then build error message
