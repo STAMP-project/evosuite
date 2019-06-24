@@ -19,6 +19,7 @@
  */
 package org.evosuite;
 
+import java.util.Arrays;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.lm.MutationType;
 import org.evosuite.regression.RegressionMeasure;
@@ -2142,22 +2143,29 @@ public class Properties {
 		else if (f.getType().isArray()) {
 			if (f.getType().isAssignableFrom(String[].class)) {
 				setValue(key, value.split(":"));
-			} else if (f.getType().getComponentType().equals(Criterion.class)) {
+			}
+			// Handles properties that are arrays of enum values
+			else if (enumArrayProperties.contains(key)) {
 				String[] values = value.split(":");
-				Criterion[] criteria = new Criterion[values.length];
+				Class<Enum> type = (Class<Enum>) f.getType().getComponentType();
+				Object[] propertyValues = (Object[]) Array.newInstance(type, values.length);
 
-				int pos = 0;
-				for (String stringValue : values) {
-					criteria[pos++] = Enum.valueOf(Criterion.class,
-							stringValue.toUpperCase());
+				for (int i = 0; i < values.length; i++) {
+					propertyValues[i] = Enum.valueOf(type, values[i].toUpperCase());
 				}
-
-				f.set(this, criteria);
+				f.set(this, propertyValues);
 			}
 		} else {
 			f.set(null, value);
 		}
 	}
+
+	/**
+	 * Set of property keys of properties that should be changeable from the command line using
+	 * colon-separated syntax. These can only be properties that are arrays of enum values.
+	 */
+	private static final Set<String> enumArrayProperties = new HashSet<>(Arrays.asList(
+			"criterion", "secondary_objectives"));
 
 	/**
 	 * we need this strict function because Boolean.parseBoolean silently
