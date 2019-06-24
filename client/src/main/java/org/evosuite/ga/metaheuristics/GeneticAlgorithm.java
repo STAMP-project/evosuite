@@ -1001,7 +1001,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 				return;
 			}
 		}
-		logger.debug("Adding new stopping condition");
+		logger.debug("Adding new stopping condition: " + condition);
 		stoppingConditions.add(condition);
 		addListener(condition);
 	}

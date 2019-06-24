@@ -11,6 +11,8 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Fitness function that looks values test cases based on the execution count of the code they
@@ -18,6 +20,8 @@ import org.evosuite.testcase.TestFitnessFunction;
  * or those that exercise less often executed code.
  */
 public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunction {
+
+  protected static final Logger logger = LoggerFactory.getLogger(ExecutionCountCoverageTestFitness.class);
 
   protected final ClassExecutionCounts executionCounts;
 
@@ -39,6 +43,8 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
       throw new IllegalArgumentException("lineFactory parameter must be non-null");
     }
     this.executionCounts = executionCounts;
+
+    logger.debug("Filtering line goals to only contain executed lines");
     this.lineGoals = lineFactory.getCoverageGoals().stream()
         .filter(goal -> executionCounts.executedLineNumbers().contains(goal.getLine())).collect(
             Collectors.toList());
