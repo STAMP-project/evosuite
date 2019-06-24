@@ -6,7 +6,7 @@
                 "methodName": "injectMembers",
                 "executionCounts": [
                     {
-                        "line": 73,
+                        "lineNumber": 73,
                         "count": 3
                     }
                 ]
@@ -20,7 +20,7 @@
                 "methodName": "notify",
                 "executionCounts": [
                     {
-                        "line": 274,
+                        "lineNumber": 274,
                         "count": 5
                     }
                 ]
@@ -34,11 +34,11 @@
                 "methodName": "addAndWatchForChanges",
                 "executionCounts": [
                     {
-                        "line": 94,
+                        "lineNumber": 94,
                         "count": 1
                     },
                     {
-                        "line": 99,
+                        "lineNumber": 99,
                         "count": 1
                     }
                 ]
@@ -52,7 +52,7 @@
                 "methodName": "createCitationStyleFromFile",
                 "executionCounts": [
                     {
-                        "line": 98,
+                        "lineNumber": 98,
                         "count": 1
                     }
                 ]

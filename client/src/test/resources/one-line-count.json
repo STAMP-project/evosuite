@@ -6,7 +6,7 @@
                 "methodName": "reset",
                 "executionCounts": [
                     {
-                        "line": 97,
+                        "lineNumber": 97,
                         "count": 1
                     }
                 ]
