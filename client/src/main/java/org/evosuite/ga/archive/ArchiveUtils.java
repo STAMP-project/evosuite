@@ -22,8 +22,8 @@ package org.evosuite.ga.archive;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
-import org.evosuite.coverage.execcount.HighExecutionCountCoverageTestFitness;
-import org.evosuite.coverage.execcount.LowExecutionCountCoverageTestFitness;
+import org.evosuite.coverage.execcount.MaxExecutionCountCoverageTestFitness;
+import org.evosuite.coverage.execcount.MinExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
 import org.evosuite.coverage.dataflow.AllDefsCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
@@ -183,12 +183,12 @@ public final class ArchiveUtils {
           }
           break;
         case MAX_EXEC_COUNT:
-          if (goal instanceof HighExecutionCountCoverageTestFitness) {
+          if (goal instanceof MaxExecutionCountCoverageTestFitness) {
             return true;
           }
           break;
         case MIN_EXEC_COUNT:
-          if (goal instanceof LowExecutionCountCoverageTestFitness) {
+          if (goal instanceof MinExecutionCountCoverageTestFitness) {
             return true;
           }
           break;

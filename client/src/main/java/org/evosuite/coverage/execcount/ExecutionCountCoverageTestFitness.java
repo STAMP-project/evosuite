@@ -85,10 +85,10 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
               }
           );
       if (forCommonBehaviours) {
-        return new HighExecutionCountCoverageTestFitness(
+        return new MaxExecutionCountCoverageTestFitness(
             executionCounts, new LineCoverageFactory());
       }
-      return new LowExecutionCountCoverageTestFitness(
+      return new MinExecutionCountCoverageTestFitness(
           executionCounts, new LineCoverageFactory());
     } catch (FileNotFoundException e) {
       throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);
