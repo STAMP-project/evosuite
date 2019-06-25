@@ -1,4 +1,4 @@
-package org.evosuite.coverage.cbehaviour;
+package org.evosuite.coverage.execcount;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.evosuite.coverage.cbehaviour.ClassExecutionCounts.Method.Line;
+import org.evosuite.coverage.execcount.ClassExecutionCounts.Method.Line;
 
 /**
  * The data structure for storing the execution counts, corresponding to the JSON structure of the

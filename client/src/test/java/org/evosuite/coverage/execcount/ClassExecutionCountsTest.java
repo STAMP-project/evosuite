@@ -1,4 +1,4 @@
-package org.evosuite.coverage.cbehaviour;
+package org.evosuite.coverage.execcount;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
-import org.evosuite.coverage.cbehaviour.ClassExecutionCounts.Method;
-import org.evosuite.coverage.cbehaviour.ClassExecutionCounts.Method.Line;
+import org.evosuite.coverage.execcount.ClassExecutionCounts.Method;
+import org.evosuite.coverage.execcount.ClassExecutionCounts.Method.Line;
 import org.junit.Test;
 
 /**

@@ -30,10 +30,10 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
-import org.evosuite.coverage.cbehaviour.LowExecutionCountCoverageTestFitness;
-import org.evosuite.coverage.cbehaviour.OnlyExecutedLinesCoverageFactory;
-import org.evosuite.coverage.cbehaviour.ExecutionCountCoverageFactory;
-import org.evosuite.coverage.cbehaviour.HighExecutionCountCoverageTestFitness;
+import org.evosuite.coverage.execcount.LowExecutionCountCoverageTestFitness;
+import org.evosuite.coverage.execcount.OnlyExecutedLinesCoverageFactory;
+import org.evosuite.coverage.execcount.ExecutionCountCoverageFactory;
+import org.evosuite.coverage.execcount.HighExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
@@ -162,7 +162,7 @@ public class FitnessFunctions {
 			return new InputCoverageSuiteFitness();
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
-		case ONLYCBEHAVIOUR:
+		case ONLYEXECUTED:
 			return new OnlyLineCoverageSuiteFitness(
 					OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
 							new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory()));
@@ -232,7 +232,7 @@ public class FitnessFunctions {
 			return new InputCoverageFactory();
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
-		case ONLYCBEHAVIOUR:
+		case ONLYEXECUTED:
 			return OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
 					new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory());
 		case MAX_EXEC_COUNT:
@@ -303,7 +303,7 @@ public class FitnessFunctions {
 				return InputCoverageTestFitness.class;
 		case TRYCATCH:
 				return TryCatchCoverageTestFitness.class;
-		case ONLYCBEHAVIOUR:
+		case ONLYEXECUTED:
 				return LineCoverageTestFitness.class;
 		case MAX_EXEC_COUNT:
         return HighExecutionCountCoverageTestFitness.class;

@@ -1,4 +1,4 @@
-package org.evosuite.coverage.cbehaviour;
+package org.evosuite.coverage.execcount;
 
 import com.google.gson.JsonSyntaxException;
 import java.io.File;

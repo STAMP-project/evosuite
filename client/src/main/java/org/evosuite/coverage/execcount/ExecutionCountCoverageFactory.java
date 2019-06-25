@@ -1,4 +1,4 @@
-package org.evosuite.coverage.cbehaviour;
+package org.evosuite.coverage.execcount;
 
 import java.io.File;
 import java.util.Collections;

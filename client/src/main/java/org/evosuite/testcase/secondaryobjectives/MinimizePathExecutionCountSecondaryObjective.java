@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import org.evosuite.Properties;
-import org.evosuite.coverage.cbehaviour.ClassExecutionCounts;
+import org.evosuite.coverage.execcount.ClassExecutionCounts;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package org.evosuite.coverage.cbehaviour;
+package org.evosuite.coverage.execcount;
 
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.testcase.TestChromosome;

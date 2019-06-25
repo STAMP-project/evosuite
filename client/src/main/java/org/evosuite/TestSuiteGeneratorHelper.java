@@ -114,8 +114,8 @@ public class TestSuiteGeneratorHelper {
       case REGRESSION:
         LoggingUtils.getEvoLogger().info("  - Regression");
         break;
-      case ONLYCBEHAVIOUR:
-        LoggingUtils.getEvoLogger().info("  - Only common behaviour coverage");
+      case ONLYEXECUTED:
+        LoggingUtils.getEvoLogger().info("  - Only executed lines coverage");
         break;
       case MAX_EXEC_COUNT:
         LoggingUtils.getEvoLogger().info("  - Maximum execution count coverage");

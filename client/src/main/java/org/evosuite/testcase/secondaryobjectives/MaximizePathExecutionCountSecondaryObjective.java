@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import org.evosuite.Properties;
-import org.evosuite.coverage.cbehaviour.ClassExecutionCounts;
+import org.evosuite.coverage.execcount.ClassExecutionCounts;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Secondary objective that prefers test cases that execute a path in the SUT that has a larger
  * execution count. The execution count can for example be retrieved from a file, and has to be in
- * the format of the {@link org.evosuite.coverage.cbehaviour.ClassExecutionCounts} class.
+ * the format of the {@link org.evosuite.coverage.execcount.ClassExecutionCounts} class.
  */
 public class MaximizePathExecutionCountSecondaryObjective extends
     SecondaryObjective<TestChromosome> {
