@@ -130,13 +130,25 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
     return Objects.hash(executionCounts, lineGoals);
   }
 
+  /**
+   * Dummy implementation for this method, because EvoSuite requires one
+   */
   @Override
   public String getTargetClass() {
-    return lineGoals.get(0).getTargetClass();
+    logger
+        .warn("Providing target class for a fitness function for which it makes no sense, because "
+            + "EvoSuite requires an implementation of 'getTargetClass()'");
+    return "<N/A>";
   }
 
+  /**
+   * Dummy implementation for this method, because EvoSuite requires one.
+   */
   @Override
   public String getTargetMethod() {
-    return lineGoals.get(0).getTargetMethod();
+    logger
+        .warn("Providing target method for a fitness function for which it makes no sense, because "
+            + "EvoSuite requires an implementation of 'getTargetMethod()'");
+    return "<N/A>";
   }
 }
