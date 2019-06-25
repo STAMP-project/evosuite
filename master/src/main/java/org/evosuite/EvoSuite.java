@@ -309,11 +309,15 @@ public class EvoSuite {
             // Check if the execution count file exists if a path for it has been provided.
             // If the file does not exist, it is considered as invalid command line input.
             if (Properties.EXE_COUNT_FILE != null) {
-                logger.info("Checking if execution count file exists");
                 File executionCountFile = new File(Properties.EXE_COUNT_FILE);
+                logger.info("Checking if execution count file exists: " + executionCountFile
+                    .getAbsolutePath());
                 if (!executionCountFile.exists()) {
                     throw new ParseException("Specified execution count file does not exist");
                 }
+                LoggingUtils.getEvoLogger()
+                    .info("* " + ClientProcess.getPrettyPrintIdentifier()
+                        + "Using execution count file: " + executionCountFile.getAbsolutePath());
             }
 
             return TestGeneration.executeTestGeneration(options, javaOpts, line);
