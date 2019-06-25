@@ -30,6 +30,7 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
+import org.evosuite.coverage.cbehaviour.LowExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.cbehaviour.OnlyExecutedLinesCoverageFactory;
 import org.evosuite.coverage.cbehaviour.ExecutionCountCoverageFactory;
 import org.evosuite.coverage.cbehaviour.HighExecutionCountCoverageTestFitness;
@@ -165,9 +166,11 @@ public class FitnessFunctions {
 			return new OnlyLineCoverageSuiteFitness(
 					OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
 							new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory()));
-    case WEIGHTEDCBEHAVIOUR:
-			return new DummySuiteFitness("This criterion is currently only implemented for MOSA, "
-					+ "which does not use suite fitness functions.");
+		case MAX_EXEC_COUNT:
+		case MIN_EXEC_COUNT:
+			return new DummySuiteFitness(
+					"The " + criterion + " criterion is currently only implemented for MOSA, "
+							+ "which does not use suite fitness functions.");
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();
@@ -232,8 +235,10 @@ public class FitnessFunctions {
 		case ONLYCBEHAVIOUR:
 			return OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
 					new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory());
-    case WEIGHTEDCBEHAVIOUR:
-			return new ExecutionCountCoverageFactory(Properties.FOR_COMMON_BEHAVIOURS);
+		case MAX_EXEC_COUNT:
+			return new ExecutionCountCoverageFactory(true);
+		case MIN_EXEC_COUNT:
+			return new ExecutionCountCoverageFactory(false);
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
@@ -300,8 +305,10 @@ public class FitnessFunctions {
 				return TryCatchCoverageTestFitness.class;
 		case ONLYCBEHAVIOUR:
 				return LineCoverageTestFitness.class;
-    case WEIGHTEDCBEHAVIOUR:
+		case MAX_EXEC_COUNT:
         return HighExecutionCountCoverageTestFitness.class;
+		case MIN_EXEC_COUNT:
+				return LowExecutionCountCoverageTestFitness.class;
 		default:
 				throw new RuntimeException("No criterion defined for " + criterion.name());
 		}

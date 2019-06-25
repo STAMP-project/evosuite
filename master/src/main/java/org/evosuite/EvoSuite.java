@@ -316,18 +316,6 @@ public class EvoSuite {
                 }
             }
 
-            // If the -Dfor_common_behaviours switch is used on the command line, but the
-            // corresponding WEIGHTEDCBEHAVIOUR criterion is not enabled, it is probably a mistake
-            // by the user.
-            if (line.getOptionProperties("D").stringPropertyNames()
-                .contains("for_common_behaviours") && !Arrays.stream(Properties.CRITERION)
-                .anyMatch(criterion ->
-                    criterion == Criterion.WEIGHTEDCBEHAVIOUR)) {
-                logger.warn(
-                    "The property for_common_behaviours is specified without enabling the relevant"
-                        + "criterion weightedcbehaviour. The property is being ignored.");
-            }
-
             return TestGeneration.executeTestGeneration(options, javaOpts, line);
 
         } catch (ParseException exp) {

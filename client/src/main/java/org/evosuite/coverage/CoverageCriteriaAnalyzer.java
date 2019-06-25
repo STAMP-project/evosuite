@@ -179,8 +179,10 @@ public class CoverageCriteriaAnalyzer {
                 return RuntimeVariable.BranchCoverage;
             case TRYCATCH:
                 return RuntimeVariable.TryCatchCoverage;
-            case WEIGHTEDCBEHAVIOUR:
-                return RuntimeVariable.WeightedCBehaviourCoverage;
+            case MAX_EXEC_COUNT:
+                return RuntimeVariable.MaximumExecutionCountCoverage;
+            case MIN_EXEC_COUNT:
+                return RuntimeVariable.MinimumExecutionCountCoverage;
             default:
                 throw new RuntimeException("Criterion not supported: " + criterion);
 

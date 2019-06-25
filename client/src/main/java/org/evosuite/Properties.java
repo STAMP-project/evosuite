@@ -1416,7 +1416,7 @@ public class Properties {
 		EXCEPTION, DEFUSE, ALLDEFS, BRANCH, CBRANCH, STRONGMUTATION, WEAKMUTATION,
 		MUTATION, STATEMENT, RHO, AMBIGUITY, IBRANCH, READABILITY,
         ONLYBRANCH, ONLYMUTATION, METHODTRACE, METHOD, METHODNOEXCEPTION, LINE, ONLYLINE, OUTPUT, INPUT,
-		REGRESSION, REGRESSIONTESTS, TRYCATCH, ONLYCBEHAVIOUR, WEIGHTEDCBEHAVIOUR
+		REGRESSION, REGRESSIONTESTS, TRYCATCH, ONLYCBEHAVIOUR, MAX_EXEC_COUNT, MIN_EXEC_COUNT
 	}
 
     @Parameter(key = "criterion", group = "Runtime", description = "Coverage criterion. Can define more than one criterion by using a ':' separated list")
@@ -1424,10 +1424,7 @@ public class Properties {
             //these are basic criteria that should be always on by default
             Criterion.LINE, Criterion.BRANCH, Criterion.EXCEPTION, Criterion.WEAKMUTATION, Criterion.OUTPUT, Criterion.METHOD, Criterion.METHODNOEXCEPTION, Criterion.CBRANCH  };
 
-	@Parameter(key = "for_common_behaviours", group = "Runtime", description = "Determines whether common or uncommon behaviours should be favored when using the CBEHAVIOUR criterion")
-	public static boolean FOR_COMMON_BEHAVIOURS = true;
-
-    /** Cache target class */
+	/** Cache target class */
 	private static Class<?> TARGET_CLASS_INSTANCE = null;
 	
 	/** Cache target regression class */

@@ -117,8 +117,11 @@ public class TestSuiteGeneratorHelper {
       case ONLYCBEHAVIOUR:
         LoggingUtils.getEvoLogger().info("  - Only common behaviour coverage");
         break;
-      case WEIGHTEDCBEHAVIOUR:
-        LoggingUtils.getEvoLogger().info("  - Weighted common behaviour coverage");
+      case MAX_EXEC_COUNT:
+        LoggingUtils.getEvoLogger().info("  - Maximum execution count coverage");
+        break;
+      case MIN_EXEC_COUNT:
+        LoggingUtils.getEvoLogger().info("  - Minimum execution count coverage");
         break;
       default:
         throw new IllegalArgumentException("Unrecognized criterion: " + criterion);
