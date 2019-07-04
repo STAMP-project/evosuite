@@ -22,12 +22,13 @@ public class RandomLogFileGenerator {
     Random random = new Random();
     StringBuilder logStringBuilder = new StringBuilder();
 
-    for (LineCoverageTestFitness goal : lineGoals) {
+    for (int i = 0; i < lineGoals.size(); i++) {
+      LineCoverageTestFitness goal = lineGoals.get(i);
       int numberOfExecutions = random.nextInt(1000);
-      logger.trace("Progress through line goals: " + (lineGoals.indexOf(goal) + 1) + "/" + lineGoals.size());
+      logger.trace("Progress through line goals: " + (i + 1) + "/" + lineGoals.size());
       logger.trace("Generating " + numberOfExecutions + " log messages for " + goal);
 
-      for (int i = 0; i < numberOfExecutions; i++) {
+      for (int j = 0; j < numberOfExecutions; j++) {
         logStringBuilder.append(goal.getClassName()).append("|")
             .append(goal.getMethod().split(Pattern.quote("("))[0]).append("|")
             .append(goal.getLine()).append(System.lineSeparator());
