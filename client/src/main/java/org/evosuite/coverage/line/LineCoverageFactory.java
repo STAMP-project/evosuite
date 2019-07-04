@@ -19,6 +19,9 @@
  */
 package org.evosuite.coverage.line;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +99,14 @@ public class LineCoverageFactory extends
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
+		try (PrintWriter out = new PrintWriter("randomLogFile.txt")) {
+			out.println(new RandomLogFileGenerator(goals).generateUniformRandomLogFile());
+			logger.warn("Created random log file");
+			System.exit(0);
+		} catch (FileNotFoundException e) {
+			assert false : "should not happen for now";
+		}
+
 		return goals;
 	}
 
