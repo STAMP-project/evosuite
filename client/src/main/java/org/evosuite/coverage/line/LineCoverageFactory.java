@@ -102,10 +102,10 @@ public class LineCoverageFactory extends
 		try (PrintWriter out = new PrintWriter("randomLogFile.txt")) {
 			out.print(new RandomLogFileGenerator(goals).generateUniformRandomLogFile());
 			logger.warn("Created random log file");
-			System.exit(0);
 		} catch (FileNotFoundException e) {
 			assert false : "should not happen for now";
 		}
+		System.exit(0);
 
 		return goals;
 	}
