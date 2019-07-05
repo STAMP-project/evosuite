@@ -8,6 +8,7 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.execcount.ClassExecutionCounts;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +66,14 @@ public class MaximizePathExecutionCountSecondaryObjective extends
    * Computes the weight of the path taken by the given test case.
    */
   private int getPathWeight(TestChromosome chromosome) {
+    ExecutionResult executionResult = chromosome.getLastExecutionResult();
+    if (executionResult == null) {
+      logger.debug("No execution result available. Using path weight of 0.");
+      return 0;
+    }
+
     return executionCounts.numberOfExecutions(
-        chromosome.getLastExecutionResult().getTrace().getCoveredLines());
+        executionResult.getTrace().getCoveredLines());
   }
 
   /**
