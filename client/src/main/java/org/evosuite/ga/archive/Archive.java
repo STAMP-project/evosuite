@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.evosuite.Properties;
+import org.evosuite.Properties.SecondaryObjectiveVotingMethod;
 import org.evosuite.ga.Chromosome;
+import org.evosuite.ga.RelativeChangeSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.runtime.util.AtMostOnceLogger;
 import org.evosuite.setup.TestCluster;
@@ -193,18 +195,54 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
 
     // If we try to add a test for a target we've already covered
     // and the new test is shorter, keep the shorter one
-    int timesBetter = 0;
-    for (SecondaryObjective<TestChromosome> obj : TestChromosome.getSecondaryObjectives()) {
-      if (obj.compareChromosomes(candidateSolution, currentSolution) < 0)
+    if (Properties.SECONDARY_OBJECTIVE_VOTING == SecondaryObjectiveVotingMethod.MAJORITY) {
+      int timesBetter = 0;
+      for (SecondaryObjective<TestChromosome> obj : TestChromosome.getSecondaryObjectives()) {
+        if (obj.compareChromosomes(candidateSolution, currentSolution) < 0) {
           timesBetter++;
-      else
+        } else {
           timesBetter--;
+        }
+      }
+
+      if (timesBetter > 0) {
+        return true;
+      }
+
+      return false;
+    } else if (Properties.SECONDARY_OBJECTIVE_VOTING == SecondaryObjectiveVotingMethod.WEIGHTED) {
+      double totalRelativeValue = 0;
+      List<SecondaryObjective<TestChromosome>> objectives = TestChromosome.getSecondaryObjectives();
+
+      for (int i = 0; i < objectives.size(); i++) {
+        SecondaryObjective<TestChromosome> objective = objectives.get(i);
+        RelativeChangeSecondaryObjective<TestChromosome> relativeObjective = null;
+        try {
+          relativeObjective = (RelativeChangeSecondaryObjective<TestChromosome>) objective;
+        } catch (ClassCastException e) {
+          logger.error(
+              "The WEIGHTED secondary objective voted method is enabled, but the objective "
+                  + objective + " does not extend RelativeChangeSecondaryObjective", e);
+          throw new RuntimeException(e);
+        }
+
+        double weight = 0d;
+        if (Properties.SECONDARY_OBJECTIVE_WEIGHTS != null) {
+          weight = Properties.SECONDARY_OBJECTIVE_WEIGHTS[i];
+        } else {
+          weight = 1;
+        }
+        totalRelativeValue +=
+            relativeObjective.relativeChange(candidateSolution, currentSolution) * weight;
+      }
+      double resultValue = totalRelativeValue / objectives.size();
+      logger.trace("resultValue = " + resultValue);
+
+      return resultValue >= 1d;
+    } else {
+      assert false : "all cases should be covered";
+      return false;
     }
-
-    if (timesBetter > 0)
-      return true;
-
-    return false;
   }
 
   /**

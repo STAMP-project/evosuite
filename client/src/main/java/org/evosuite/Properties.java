@@ -655,6 +655,31 @@ public class Properties {
 			SecondaryObjective.TOTAL_LENGTH
 	};
 
+	/**
+	 * Voting methods for choosing what action will be taken based on the value of the secondary
+	 * objectives.
+	 */
+	public enum SecondaryObjectiveVotingMethod {
+		/**
+		 * Chooses outcome based on voting among secondary objectives. The chromosome with the most
+		 * votes will be kept, and all secondary objectives have equal voting weight.
+		 */
+		MAJORITY,
+		/**
+		 * Chooses outcome based on relative difference between two chromosomes. Weights may be
+		 * specified, using the {@code SECONDARY_OBJECTIVE_WEIGHTS} property, to influence how much each
+		 * secondary objective influences the final decision on which chromosome is deemed better.
+		 */
+		WEIGHTED
+	}
+
+	@Parameter(key = "secondary_objective_voting", group = "Search Algorithm", description = "Voting method used among secondary objectives to decide which test chromosome or which generation should be kept")
+	public static SecondaryObjectiveVotingMethod SECONDARY_OBJECTIVE_VOTING =
+			SecondaryObjectiveVotingMethod.MAJORITY;
+
+	@Parameter(key = "secondary_objective_weights", group = "Search Algorithm", description = "Weights for secondary objectives when the weighted voting method is used")
+	public static double[] SECONDARY_OBJECTIVE_WEIGHTS = null;
+
 	@Parameter(key = "enable_secondary_objective_after", group = "Search Algorithm", description = "Activate the second secondary objective after a certain amount of search budget")
 	public static int ENABLE_SECONDARY_OBJECTIVE_AFTER = 0;
 
@@ -2140,6 +2165,8 @@ public class Properties {
 		else if (f.getType().isArray()) {
 			if (f.getType().isAssignableFrom(String[].class)) {
 				setValue(key, value.split(":"));
+			} else if (f.getType().isAssignableFrom(double[].class)) {
+				setValue(key, Arrays.stream(value.split(":")).mapToDouble(elem -> Double.parseDouble(elem)).toArray());
 			}
 			// Handles properties that are arrays of enum values
 			else if (enumArrayProperties.contains(key)) {

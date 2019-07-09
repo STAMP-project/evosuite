@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import org.evosuite.Properties;
 import org.evosuite.coverage.execcount.ClassExecutionCounts;
-import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.ga.RelativeChangeSecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * the format of the {@link org.evosuite.coverage.execcount.ClassExecutionCounts} class.
  */
 public class MaximizePathExecutionCountSecondaryObjective extends
-    SecondaryObjective<TestChromosome> {
+    RelativeChangeSecondaryObjective<TestChromosome> {
 
   private static final Logger logger = LoggerFactory
       .getLogger(MaximizePathExecutionCountSecondaryObjective.class);
@@ -40,7 +40,7 @@ public class MaximizePathExecutionCountSecondaryObjective extends
     int weight1 = getPathWeight(chromosome1);
     int weight2 = getPathWeight(chromosome2);
 
-    logger.debug("Comparing execution count weight: " + weight1 + " and " + weight2);
+    logger.trace("Comparing execution count weight: " + weight1 + " and " + weight2);
     return weight2 - weight1;
   }
 
@@ -56,7 +56,7 @@ public class MaximizePathExecutionCountSecondaryObjective extends
     int weightChild1 = getPathWeight(child1);
     int weightChild2 = getPathWeight(child2);
 
-    logger.debug(
+    logger.trace(
         "Comparing execution count weight: parents: " + weightParent1 + " and " + weightParent2
             + "; children: " + weightChild1 + " and " + weightChild2);
     return Math.max(weightChild1, weightChild2) - Math.max(weightParent1, weightParent2);
@@ -100,5 +100,19 @@ public class MaximizePathExecutionCountSecondaryObjective extends
       logger.error("Execution count file malformed", e);
       throw new JsonSyntaxException(e);
     }
+  }
+
+  @Override
+  public double relativeChange(TestChromosome chromosome1, TestChromosome chromosome2) {
+    int weight1 = getPathWeight(chromosome1);
+    int weight2 = getPathWeight(chromosome2);
+
+    logger.trace("Comparing weights: " + weight1 + " and " + weight2);
+
+    // To prevent devision by 0
+    if (weight2 == 0) {
+      return 10d;
+    }
+    return ((double) weight1) / weight2;
   }
 }

@@ -19,6 +19,7 @@
  */
 package org.evosuite.testcase.secondaryobjectives;
 
+import org.evosuite.ga.RelativeChangeSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 
@@ -27,7 +28,8 @@ import org.evosuite.testcase.TestChromosome;
  *
  * @author José Campos
  */
-public class MinimizeLengthSecondaryObjective extends SecondaryObjective<TestChromosome> {
+public class MinimizeLengthSecondaryObjective extends
+		RelativeChangeSecondaryObjective<TestChromosome> {
 
 	private static final long serialVersionUID = 7211557650429998223L;
 
@@ -63,4 +65,14 @@ public class MinimizeLengthSecondaryObjective extends SecondaryObjective<TestChr
 		        - Math.min(child1.size(), child2.size());
 	}
 
+	@Override
+	public double relativeChange(TestChromosome chromosome1, TestChromosome chromosome2) {
+		logger.trace("Comparing lengths: " + chromosome1.size() + " and " + chromosome2.size());
+
+		// To prevent division by 0
+		if (chromosome1.size() == 0) {
+			return 10d;
+		}
+		return ((double) chromosome2.size()) / chromosome1.size();
+	}
 }

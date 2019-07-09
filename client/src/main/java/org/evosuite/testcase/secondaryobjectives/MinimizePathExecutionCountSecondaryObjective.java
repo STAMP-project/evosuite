@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import org.evosuite.Properties;
 import org.evosuite.coverage.execcount.ClassExecutionCounts;
+import org.evosuite.ga.RelativeChangeSecondaryObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -18,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * the format of the {@link ClassExecutionCounts} class.
  */
 public class MinimizePathExecutionCountSecondaryObjective extends
-    SecondaryObjective<TestChromosome> {
+    RelativeChangeSecondaryObjective<TestChromosome> {
 
   private static final Logger logger = LoggerFactory
       .getLogger(MinimizePathExecutionCountSecondaryObjective.class);
@@ -40,7 +41,7 @@ public class MinimizePathExecutionCountSecondaryObjective extends
     int weight1 = getPathWeight(chromosome1);
     int weight2 = getPathWeight(chromosome2);
 
-    logger.debug("Comparing execution count weight: " + weight1 + " and " + weight2);
+    logger.trace("Comparing execution count weight: " + weight1 + " and " + weight2);
     return weight1 - weight2;
   }
 
@@ -56,7 +57,7 @@ public class MinimizePathExecutionCountSecondaryObjective extends
     int weightChild1 = getPathWeight(child1);
     int weightChild2 = getPathWeight(child2);
 
-    logger.debug(
+    logger.trace(
         "Comparing execution count weight: parents: " + weightParent1 + " and " + weightParent2
             + "; children: " + weightChild1 + " and " + weightChild2);
     return Math.min(weightParent1, weightParent2) - Math.min(weightChild1, weightChild2);
@@ -101,4 +102,17 @@ public class MinimizePathExecutionCountSecondaryObjective extends
       throw new JsonSyntaxException(e);
     }
   }
+
+  @Override
+  public double relativeChange(TestChromosome chromosome1, TestChromosome chromosome2) {
+    int weight1 = getPathWeight(chromosome1);
+    int weight2 = getPathWeight(chromosome2);
+
+    // To prevent division by 0
+    if (weight1 == 0) {
+      return 10d;
+    }
+    return ((double) weight2) / weight1;
+  }
+
 }

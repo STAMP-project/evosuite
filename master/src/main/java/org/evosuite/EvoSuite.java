@@ -36,6 +36,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.Properties.SecondaryObjectiveVotingMethod;
 import org.evosuite.classpath.ClassPathHacker;
 import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
@@ -318,6 +319,14 @@ public class EvoSuite {
                 LoggingUtils.getEvoLogger()
                     .info("* " + ClientProcess.getPrettyPrintIdentifier()
                         + "Using execution count file: " + executionCountFile.getAbsolutePath());
+            }
+
+            if (Properties.SECONDARY_OBJECTIVE_VOTING == SecondaryObjectiveVotingMethod.WEIGHTED
+                && Properties.SECONDARY_OBJECTIVE_WEIGHTS == null) {
+                logger.warn(
+                    "Property SECONDARY_OBJECTIVE_VOTING is set to WEIGHTED, but WEIGHTS are " +
+                        "not set explicitly. Default weights of 1 will be used for " +
+                        "all secondary objectives.");
             }
 
             return TestGeneration.executeTestGeneration(options, javaOpts, line);
