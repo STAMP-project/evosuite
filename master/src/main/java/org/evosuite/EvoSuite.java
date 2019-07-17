@@ -116,6 +116,9 @@ public class EvoSuite {
      * @return a {@link java.lang.Object} object.
      */
     public Object parseCommandLine(String[] args) {
+        logger.warn("Only going to generate random execution count file for target class. No tests"
+            + " will be generated.");
+
         Options options = CommandLineParameters.getCommandLineOptions();
 
         List<String> javaOpts = new ArrayList<String>();
