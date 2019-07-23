@@ -19,6 +19,8 @@
  */
 package org.evosuite;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
@@ -30,6 +32,9 @@ import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.coverage.FitnessFunctions;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import org.evosuite.coverage.line.LineCoverageFactory;
+import org.evosuite.coverage.line.LineCoverageTestFitness;
+import org.evosuite.coverage.line.RandomLogFileGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.junit.JUnitAnalyzer;
@@ -184,6 +189,26 @@ public class TestSuiteGenerator {
 			// Once class loading is complete we can start checking loops
 			// without risking to interfere with class initialisation
 			LoopCounter.getInstance().setActive(true);
+		}
+
+		if (Properties.generateRandomLog) {
+			LoggingUtils.getEvoLogger().info("* Generating random log file(s) for target class");
+
+			logger.info("Retrieving line goals for target class");
+			List<LineCoverageTestFitness> goals = new LineCoverageFactory().getCoverageGoals();
+
+			RandomLogFileGenerator generator = new RandomLogFileGenerator(goals);
+			for (int i = 0; i < Properties.numberOfGeneratedLogs; i++) {
+				String logFileName = "randomLogFile" + i + ".log";
+				try (PrintWriter out = new PrintWriter(logFileName)) {
+					out.print(generator.generateUniformRandomLogFile());
+					logger.debug("Created random log file: " + logFileName);
+				} catch (FileNotFoundException e) {
+					assert false : "assume this does not happen";
+				}
+			}
+
+			return TestGenerationResultBuilder.buildSuccessResult();
 		}
 
 		/*

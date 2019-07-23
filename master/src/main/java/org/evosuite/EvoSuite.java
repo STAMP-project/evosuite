@@ -116,9 +116,6 @@ public class EvoSuite {
      * @return a {@link java.lang.Object} object.
      */
     public Object parseCommandLine(String[] args) {
-        logger.warn("Only going to generate random execution count file for target class. No tests"
-            + " will be generated.");
-
         Options options = CommandLineParameters.getCommandLineOptions();
 
         List<String> javaOpts = new ArrayList<String>();
@@ -209,6 +206,12 @@ public class EvoSuite {
                     throw new Error("Could not set value: " + e.getMessage());
                 }
             }
+
+          if (line.hasOption("generateRandomLog")) {
+            logger.warn("Only going to generate random log file for target class. No tests"
+                + " will be generated.");
+            javaOpts.add("-DgenerateRandomLog=true");
+          }
 
 			/*
 			 * FIXME: every time in the Master we set a parameter with -D,

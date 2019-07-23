@@ -99,13 +99,6 @@ public class LineCoverageFactory extends
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
-		try (PrintWriter out = new PrintWriter("randomLogFile.txt")) {
-			out.print(new RandomLogFileGenerator(goals).generateUniformRandomLogFile());
-			logger.warn("Created random log file");
-		} catch (FileNotFoundException e) {
-			assert false : "should not happen for now";
-		}
-		System.exit(0);
 
 		return goals;
 	}
