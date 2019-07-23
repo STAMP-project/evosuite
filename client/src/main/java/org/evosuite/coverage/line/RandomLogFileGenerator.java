@@ -6,16 +6,31 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Generates random log files using supplied line goals. It does not create actual files itself, but
+ * outputs the would-be contents as a string.
+ */
 public class RandomLogFileGenerator {
 
   private static final Logger logger = LoggerFactory.getLogger(RandomLogFileGenerator.class);
 
+  /**
+   * The line goals representing all lines in the target class, which are used to generate random
+   * log file.
+   */
   private List<LineCoverageTestFitness> lineGoals;
 
+  /**
+   * Constructs a new instance using the specified line goals for generating the random log file.
+   */
   public RandomLogFileGenerator(List<LineCoverageTestFitness> lineGoals) {
     this.lineGoals = lineGoals;
   }
 
+  /**
+   * Generates a random log file, returning it as a string. For each line that is supplied, a random
+   * amount of log messages are generated.
+   */
   public String generateUniformRandomLogFile() {
     logger.info("Going to generate random log file entries based on supplied line goals");
 
