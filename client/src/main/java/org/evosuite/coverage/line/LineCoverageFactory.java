@@ -19,9 +19,6 @@
  */
 package org.evosuite.coverage.line;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,7 +96,6 @@ public class LineCoverageFactory extends
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
-
 		return goals;
 	}
 

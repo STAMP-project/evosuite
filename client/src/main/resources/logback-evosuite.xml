@@ -118,8 +118,6 @@
 		we are debugging a particular class -->
 
 	<logger name="${log.target:-NOTHING}" level="ALL" />
-	<!--<logger name="org.evosuite.coverage.line.LineCoverageFactory" level="ALL" />-->
-	<logger name="org.evosuite.coverage.line.RandomLogFileGenerator" level="ALL" />
 
 	<!-- main root logger. Note: it is turned OFF to avoid SUT using it-->
 
