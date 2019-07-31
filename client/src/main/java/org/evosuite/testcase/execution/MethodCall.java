@@ -37,6 +37,7 @@ public class MethodCall implements Cloneable {
 	public int methodId;
 	public int callingObjectID;
 	public int callDepth;
+	public int callerId = -1;
 
 	/**
 	 * <p>Constructor for MethodCall.</p>
@@ -60,6 +61,13 @@ public class MethodCall implements Cloneable {
 		this.callingObjectID = callingObjectID;
 		this.callDepth = callDepth;
 	}
+
+	public MethodCall(String className, String methodName, int methodId,
+					  int callingObjectID, int callDepth,int callerId) {
+		this(className,methodName,methodId,callingObjectID,callDepth);
+		this.callerId = callerId;
+	}
+
 
 	/** {@inheritDoc} */
 	@Override
@@ -155,7 +163,7 @@ public class MethodCall implements Cloneable {
 	@Override
 	public MethodCall clone() {
 		MethodCall copy = new MethodCall(className, methodName, methodId,
-		        callingObjectID, callDepth);
+		        callingObjectID, callDepth,callerId);
 		copy.lineTrace = new ArrayList<Integer>(lineTrace);
 		copy.branchTrace = new ArrayList<Integer>(branchTrace);
 		copy.trueDistanceTrace = new ArrayList<Double>(trueDistanceTrace);

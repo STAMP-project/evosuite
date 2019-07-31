@@ -45,7 +45,7 @@ import javax.persistence.Entity;
  * <em>Note:</em> Do not inadvertently use multiple instances of this class in
  * the application! This may lead to hard to detect and debug errors. Yet this
  * class cannot be an singleton as it might be necessary to do so...
- * 
+ *
  * @author roessler
  * @author Gordon Fraser
  */
@@ -57,7 +57,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<>();
 	private boolean isRegression = false;
-	
+
 	/**
 	 * <p>
 	 * Constructor for InstrumentingClassLoader.
@@ -68,7 +68,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 		logger.debug("STANDARD classloader running now");
 	}
-	
+
 	/**
 	 * <p>
 	 * Constructor for InstrumentingClassLoader.
@@ -85,7 +85,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	 * <p>
 	 * Constructor for InstrumentingClassLoader.
 	 * </p>
-	 * 
+	 *
 	 * @param instrumentation
 	 *            a {@link org.evosuite.instrumentation.BytecodeInstrumentation}
 	 *            object.
@@ -101,8 +101,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 		list.addAll(classes.keySet());
 		return list;
 	}
-	
-	
+
+
 	public Class<?> loadClassFromFile(String fullyQualifiedTargetClass, String fileName) throws ClassNotFoundException {
 
 		String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -123,7 +123,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			throw new ClassNotFoundException(t.getMessage(), t);
 		}
 	}
-	
+
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
         synchronized(getClassLoadingLock(name)) {
@@ -133,7 +133,7 @@ public class InstrumentingClassLoader extends ClassLoader {
                     Check if we should rather use the class version loaded when the DB was initialized.
                     This is tricky, as JPA with Hibernate uses the classes loaded when the DB was initialized.
                     If we load those classes again, when we get all kinds of exceptions in Hibernate... :(
-    
+
                     However, re-using already loaded (and instrumented) classes is not a big deal, as
                     re-loading is (so far) done only in 2 cases: assertion generation with mutation
                     and junit checks.
@@ -146,11 +146,11 @@ public class InstrumentingClassLoader extends ClassLoader {
                     return originalLoaded;
                 }
             }
-    
+
             if ("<evosuite>".equals(name)) {
                 throw new ClassNotFoundException();
             }
-    
+
             if (!RuntimeInstrumentation.checkIfCanInstrument(name)) {
                 Class<?> result = findLoadedClass(name);
                 if (result != null) {
@@ -159,7 +159,7 @@ public class InstrumentingClassLoader extends ClassLoader {
                 result = classLoader.loadClass(name);
                 return result;
             }
-    
+
             Class<?> result = classes.get(name);
             if (result != null) {
                 return result;
@@ -168,7 +168,7 @@ public class InstrumentingClassLoader extends ClassLoader {
                 Class<?> instrumentedClass = instrumentClass(name);
                 return instrumentedClass;
             }
-            
+
         }
 	}
 
@@ -185,12 +185,12 @@ public class InstrumentingClassLoader extends ClassLoader {
 					ResourceList.getInstance(TestGenerationContext.getInstance().getRegressionClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass)
 					:
 					ResourceList.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getClassAsStream(fullyQualifiedTargetClass);
-			
+
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"
 						+ "' should be in target project, but could not be found!");
 			}
-			
+
 			byte[] byteBuffer = getTransformedBytes(className,is);
 			createPackageDefinition(fullyQualifiedTargetClass);
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,byteBuffer.length);
@@ -213,7 +213,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	/**
 	 * Before a new class is defined, we need to create a package definition for it
-	 * 
+	 *
 	 * @param className
 	 */
 	private void createPackageDefinition(String className){
@@ -228,14 +228,21 @@ public class InstrumentingClassLoader extends ClassLoader {
 		    }
 	    }
 	}
-	
+
 	public BytecodeInstrumentation getInstrumentation() {
 		return instrumentation;
 	}
-	
+
 	public Set<String> getLoadedClasses() {
 		HashSet<String> loadedClasses = new HashSet<String>(this.classes.keySet());
 		return loadedClasses;
+	}
+
+
+	public void removeLoadedClass(String className){
+		if(this.classes.keySet().contains(className)){
+			this.classes.remove(className);
+		}
 	}
 
 }

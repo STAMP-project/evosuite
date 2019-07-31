@@ -38,10 +38,10 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(MethodEntryAdapter.class);
 
-	String className;
-	String methodName;
-	String fullMethodName;
-	int access;
+	protected String className;
+	protected String methodName;
+	protected String fullMethodName;
+	protected int access;
 
 	/**
 	 * <p>Constructor for MethodEntryAdapter.</p>

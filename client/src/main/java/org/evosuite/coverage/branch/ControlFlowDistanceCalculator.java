@@ -34,37 +34,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  * This class holds static methods used to calculate ControlFlowDistances or in
  * other words methods to determine, how far a given ExecutionResult was away
  * from reaching a given instruction or evaluating a certain Branch in a certain
  * way - depending on your point of view.
- * 
+ *
  * The distance to a certain Branch evaluating in a certain way is calculated as
  * follows:
- * 
+ *
  * If the given result had a Timeout, the worst possible ControlFlowDistance for
  * the method at hand is returned
- * 
+ *
  * Otherwise, if the given branch was null, meaning the distance to the root
  * branch of a method should be calculated, either the 0-distance is returned,
  * should the method at hand be called in the given ExecutionResult, or
  * otherwise the 1-distance is returned
- * 
+ *
  * Otherwise, the distance from the given ExecutionResult to evaluating the
  * given Branch to either jump (given value being true) or not jump (given value
  * being false) is calculated as follows:
- * 
+ *
  * If the given Branch was passed in the given ExecutionResult, the respective
  * true- or false-distance - depending on the given value- is taken as the
  * returned distance's branch distance with an approach level of 0. Otherwise
  * the minimum over all distances for evaluating one of the Branches that the
  * given Branch is control dependent on is returned, after adding one to that
  * distance's approach level.
- * 
+ *
  * TODO make method that just takes a BytecodeInstruction and returns the
  * minimum over all distances to it's control dependent branches
- * 
+ *
  * @author Andre Mis
  */
 public class ControlFlowDistanceCalculator {
@@ -73,16 +73,16 @@ public class ControlFlowDistanceCalculator {
 
 	// DONE hold intermediately calculated ControlFlowDistances in
 	// ExecutionResult during computation in order to speed up things -
-	// experiment at least 
-	// ... did that, but no real speed up observed 
+	// experiment at least
+	// ... did that, but no real speed up observed
 
 	/**
 	 * Calculates the ControlFlowDistance indicating how far away the given
 	 * ExecutionResult was from executing the given Branch in a certain way,
 	 * depending on the given value.
-	 * 
+	 *
 	 * For more information look at this class's class comment
-	 * 
+	 *
 	 * @param result
 	 *            a {@link org.evosuite.testcase.execution.ExecutionResult} object.
 	 * @param branch
@@ -135,7 +135,7 @@ public class ControlFlowDistanceCalculator {
 		return nonRootDistance;
 	}
 
-	private static ControlFlowDistance getTimeoutDistance(ExecutionResult result,
+	protected static ControlFlowDistance getTimeoutDistance(ExecutionResult result,
 	        Branch branch) {
 
 		if (!TestCoverageGoal.hasTimeout(result))
@@ -144,7 +144,7 @@ public class ControlFlowDistanceCalculator {
 		return worstPossibleDistanceForMethod(branch);
 	}
 
-	private static ControlFlowDistance worstPossibleDistanceForMethod(Branch branch) {
+	protected static ControlFlowDistance worstPossibleDistanceForMethod(Branch branch) {
 		ControlFlowDistance d = new ControlFlowDistance();
 		if (branch == null) {
 			d.setApproachLevel(20);
@@ -157,11 +157,11 @@ public class ControlFlowDistanceCalculator {
 	/**
 	 * If there is an exception in a superconstructor, then the corresponding
 	 * constructor might not be included in the execution trace
-	 * 
+	 *
 	 * @param results
 	 * @param callCount
 	 */
-	private static boolean hasConstructorException(ExecutionResult result,
+	protected static boolean hasConstructorException(ExecutionResult result,
 			String className, String methodName) {
 
 		if (result.hasTimeout() || result.hasTestException()
@@ -181,12 +181,12 @@ public class ControlFlowDistanceCalculator {
 			if(constructorClassName.equals(className) && constructorMethodName.equals(methodName)) {
 				return true;
 			}
-	
+
 		}
 		return false;
 	}
-	
-	private static ControlFlowDistance getRootDistance(ExecutionResult result,
+
+	protected static ControlFlowDistance getRootDistance(ExecutionResult result,
 	        String className, String methodName) {
 
 		ControlFlowDistance d = new ControlFlowDistance();
@@ -202,7 +202,7 @@ public class ControlFlowDistanceCalculator {
 		return d;
 	}
 
-	private static ControlFlowDistance getNonRootDistance(ExecutionResult result,
+	protected static ControlFlowDistance getNonRootDistance(ExecutionResult result,
 	        Branch branch, boolean value) {
 
 		if (branch == null)
@@ -232,7 +232,7 @@ public class ControlFlowDistanceCalculator {
 		return r;
 	}
 
-	private static ControlFlowDistance getNonRootDistance(ExecutionResult result,
+	protected static ControlFlowDistance getNonRootDistance(ExecutionResult result,
 	        MethodCall call, Branch branch, boolean value, String className,
 	        String methodName, Set<Branch> handled) {
 
@@ -299,7 +299,7 @@ public class ControlFlowDistanceCalculator {
 		return controlDependenceDistance;
 	}
 
-	private static ControlFlowDistance getControlDependenceDistancesFor(
+	protected static ControlFlowDistance getControlDependenceDistancesFor(
 	        ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
 	        String className, String methodName, Set<Branch> handled) {
 
@@ -319,10 +319,10 @@ public class ControlFlowDistanceCalculator {
 	/**
 	 * Returns a set containing the ControlFlowDistances in the given result for
 	 * all branches the given instruction is control dependent on
-	 * 
+	 *
 	 * @param handled
 	 */
-	private static Set<ControlFlowDistance> getDistancesForControlDependentBranchesOf(
+	protected static Set<ControlFlowDistance> getDistancesForControlDependentBranchesOf(
 	        ExecutionResult result, MethodCall call, BytecodeInstruction instruction,
 	        String className, String methodName, Set<Branch> handled) {
 
@@ -355,7 +355,7 @@ public class ControlFlowDistanceCalculator {
 		return r;
 	}
 
-	private static Set<Integer> determineBranchTracePositions(MethodCall call,
+	protected static Set<Integer> determineBranchTracePositions(MethodCall call,
 	        Branch branch) {
 
 		Set<Integer> r = new HashSet<Integer>();

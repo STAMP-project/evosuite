@@ -35,12 +35,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
- * 
+ *
+ *
  * @author Annibale Panichella
  */
 public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<T>>{
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(BranchFitnessGraph.class);
 
 	protected DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge> graph = new DefaultDirectedGraph<FitnessFunction<T>, DependencyEdge>(DependencyEdge.class);
@@ -52,18 +52,23 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 		for (FitnessFunction<T> fitness : goals){
 			graph.addVertex(fitness);
 		}
+		deriveDependencies(goals);
 
+	}
+
+
+	public void deriveDependencies(Set<FitnessFunction<T>> goals){
 		// derive dependencies among branches
 		for (FitnessFunction<T> fitness : goals){
 			Branch branch = ((BranchCoverageTestFitness) fitness).getBranch();
 			if (branch==null){
-				this.rootBranches.add(fitness); 
+				this.rootBranches.add(fitness);
 				continue;
 			}
 
 			if (branch.getInstruction().isRootBranchDependent())
-					//|| branch.getInstruction().getControlDependentBranchIds().contains(-1))
-				this.rootBranches.add(fitness); 
+				//|| branch.getInstruction().getControlDependentBranchIds().contains(-1))
+				this.rootBranches.add(fitness);
 			// see dependencies for all true/false branches
 			ActualControlFlowGraph rcfg = branch.getInstruction().getActualCFG();
 			Set<BasicBlock> visitedBlock = new HashSet<BasicBlock>();
@@ -74,7 +79,7 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 					this.rootBranches.add(fitness);
 					continue;
 				}
-				
+
 				BranchCoverageGoal goal = new BranchCoverageGoal(newB, true, newB.getClassName(), newB.getMethodName());
 				BranchCoverageTestFitness newFitness = new BranchCoverageTestFitness(goal);
 				graph.addEdge((FitnessFunction<T>) newFitness, fitness);
@@ -85,8 +90,8 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 			}
 		}
 	}
-	
-	
+
+
 	public Set<BasicBlock> lookForParent(BasicBlock block, ActualControlFlowGraph acfg, Set<BasicBlock> visitedBlock){
 		Set<BasicBlock> realParent = new HashSet<BasicBlock>();
 		Set<BasicBlock> parents = acfg.getParents(block);
@@ -100,7 +105,7 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 			visitedBlock.add(bb);
 			if (containsBranches(bb))
 				realParent.add(bb);
-			else 
+			else
 				realParent.addAll(lookForParent(bb, acfg, visitedBlock));
 		}
 		return realParent;
@@ -120,7 +125,7 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 	}
 
 	/**
-	 * Utility method that extracts a branch ({@link Branch}) from a basic block 
+	 * Utility method that extracts a branch ({@link Branch}) from a basic block
 	 * (@link {@link BasicBlock}).
 	 * @param block object of {@link BasicBlock}
 	 * @return an object of {@link Branch} representing the branch in the block
@@ -131,11 +136,11 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 				return inst.toBranch();
 		return null;
 	}
-	
+
 	public Set<FitnessFunction<T>> getRootBranches(){
 		return this.rootBranches;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Set<FitnessFunction<T>> getStructuralChildren(FitnessFunction<T> parent){
 		Set<DependencyEdge> outgoingEdges = this.graph.outgoingEdgesOf(parent);
@@ -145,7 +150,7 @@ public class BranchFitnessGraph<T extends Chromosome, V extends FitnessFunction<
 		}
 		return children;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public Set<FitnessFunction<T>> getStructuralParents(FitnessFunction<T> parent){
 		Set<DependencyEdge> incomingEdges = this.graph.incomingEdgesOf(parent);

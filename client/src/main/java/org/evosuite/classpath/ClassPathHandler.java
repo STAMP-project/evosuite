@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * Note that (2) and (3) can indeed be different: eg if EvoSuite is
  * not run from command line, and rather run from Maven/Eclipse that
  * use their own classloaders.
- * 
+ *
  * @author arcuri
  *
  */
@@ -54,7 +54,7 @@ public class ClassPathHandler {
 	 * its dependencies
 	 */
 	private String targetClassPath;
-	
+
 	/**
 	 * When we start the client, we need to know what is the classpath of EvoSuite.
 	 * Problem is, if EvoSuite was called from Eclipse/Maven, when the classpath will
@@ -65,13 +65,13 @@ public class ClassPathHandler {
 	private String evosuiteClassPath;
 
 
-	private ClassPathHandler(){		
+	private ClassPathHandler(){
 	}
-	
+
 	public static ClassPathHandler getInstance(){
 		return singleton;
 	}
-	
+
 	public static void resetSingleton(){
 		getInstance().targetClassPath = null;
 		getInstance().evosuiteClassPath = null;
@@ -81,12 +81,12 @@ public class ClassPathHandler {
 		if(evosuiteClassPath==null){
 			evosuiteClassPath = System.getProperty("java.class.path");
 		}
-		
+
 		return evosuiteClassPath;
 	}
-	
+
 	/**
-	 * Replace current CP of EvoSuite with the given <code>elements</code> 
+	 * Replace current CP of EvoSuite with the given <code>elements</code>
 	 * @param elements
 	 * @throws IllegalArgumentException if values in <code>elements</code> are not valid classpath entries
 	 */
@@ -94,15 +94,16 @@ public class ClassPathHandler {
 		String cp = getClassPath(elements);
 		evosuiteClassPath = cp;
 	}
-	
-	
+
+
 	/**
-	 * Replace current CP for target project with the given <code>elements</code> 
+	 * Replace current CP for target project with the given <code>elements</code>
 	 * @param elements
 	 * @throws IllegalArgumentException if values in <code>elements</code> are not valid classpath entries
 	 */
 	public void changeTargetClassPath(String[] elements) throws IllegalArgumentException{
 		String cp = getClassPath(elements);
+		LoggingUtils.getEvoLogger().info("** CP: "+cp);
 		Properties.CP = cp;
 		targetClassPath = cp;
 	}
@@ -125,16 +126,16 @@ public class ClassPathHandler {
 		}
 		return cp;
 	}
-	
+
 	/**
 	 * Return the classpath of the target project.
 	 * This should include also all the third-party jars
 	 * it depends on
-	 * 
+	 *
 	 *  <p>
 	 *  If no classpath has been set so far, the one from the property file
 	 *  will be used, if it exists.
-	 * 
+	 *
 	 * @return
 	 */
 	public String getTargetProjectClasspath() {
@@ -154,7 +155,7 @@ public class ClassPathHandler {
 
 			targetClassPath = line!=null ? line : Properties.CP;
 		}
-		
+
 		return targetClassPath;
 	}
 
@@ -180,22 +181,22 @@ public class ClassPathHandler {
 
 	/**
 	 * Add classpath entry to the classpath of the target project
-	 * 
+	 *
 	 * @param element
 	 * @throws IllegalArgumentException
 	 */
 	public void addElementToTargetProjectClassPath(String element) throws IllegalArgumentException{
 		checkIfValidClasspathEntry(element);
-		
+
 		getTargetProjectClasspath(); //need to be sure it is initialized
 		if(targetClassPath==null || targetClassPath.isEmpty()){
 			targetClassPath = element;
 		} else {
-			
+
 			if(targetClassPath.contains(element)){
 				return; //already there, nothing to add
 			}
-			
+
 			targetClassPath += File.pathSeparator + element;
 			Properties.CP = targetClassPath;
 		}
@@ -205,7 +206,7 @@ public class ClassPathHandler {
 		if(element==null || element.isEmpty()){
 			throw new IllegalArgumentException("Empty input element");
 		}
-		
+
 		File file = new File(element);
 		if(!file.exists()){
 			throw new IllegalArgumentException("Classpath element does not exist on disk at: "+element);
@@ -214,10 +215,10 @@ public class ClassPathHandler {
 			throw new IllegalArgumentException("A classpath element should either be a jar or a folder: "+element);
 		}
 	}
-	
+
 	/**
 	 * Get the project classpath as an array of elements
-	 * 
+	 *
 	 * @return a non-null array
 	 */
 	public String[] getClassPathElementsForTargetProject(){
@@ -227,17 +228,17 @@ public class ClassPathHandler {
 		}
 		return cp.split(File.pathSeparator);
 	}
-	
+
 	/**
 	 * This is meant only for running the EvoSuite test cases, whose CUTs will be in the
 	 * classpath of EvoSuite itself
 	 */
 	public void changeTargetCPtoTheSameAsEvoSuite(){
-		
+
 		File outDir = new File("target"+File.separator+"classes");
 		if(outDir.exists()){
 			changeTargetClassPath(new String[]{outDir.getAbsolutePath()});
-			
+
 			File testDir = new File("target"+File.separator+"test-classes");
 			if(testDir.exists()){
 				addElementToTargetProjectClassPath(testDir.getAbsolutePath());

@@ -288,9 +288,7 @@ public class DynaMOSA<T extends Chromosome> extends AbstractMOSA<T> {
 
 
 	public void printEvaluations(){
-		LoggingUtils.getEvoLogger().info("* naaame: ");
 		for (StoppingCondition stoppingCondition: stoppingConditions){
-			LoggingUtils.getEvoLogger().info("* naaame: "+stoppingCondition.getClass().getName());
 			if (stoppingCondition.getClass().getName().contains("MaxFitnessEvaluations")){
 				LoggingUtils.getEvoLogger().info("Current fitness evaluations: "+stoppingCondition.getCurrentValue());
 			}

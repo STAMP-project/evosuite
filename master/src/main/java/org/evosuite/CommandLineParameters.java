@@ -42,19 +42,19 @@ public class CommandLineParameters {
 	/**
 	 * Validate all the "-" options set on the command line and all
 	 * the already handled -D ones in Properties
-	 * 
+	 *
 	 * @param line
 	 */
 	public static void validateInputOptionsAndParameters(CommandLine line) throws IllegalArgumentException{
-		
+
 		/*
 		 * TODO: here there is lot more that could be added
 		 */
-		
+
 		java.util.Properties properties = line.getOptionProperties("D");
 
 		String cut = line.getOptionValue("class");
-		
+
 		if(cut!=null){
 			if(cut.endsWith(".java")){
 				throw new IllegalArgumentException("The target -class should be a JVM qualifying name (e.g., org.foo.SomeClass) and not a source file");
@@ -63,8 +63,8 @@ public class CommandLineParameters {
 				throw new IllegalArgumentException("The target -class should be a JVM qualifying name (e.g., org.foo.SomeClass) and not a bytecode file");
 			}
 		}
-		
-		if(!line.hasOption(Continuous.NAME) && !line.hasOption("startedByCtg")){			
+
+		if(!line.hasOption(Continuous.NAME) && !line.hasOption("startedByCtg")){
 			for(Object p : properties.keySet()){
 				if(p.toString().startsWith("ctg_")){
 					throw new IllegalArgumentException("Option "+p+" is only valid in '-"+Continuous.NAME+"' mode");
@@ -77,11 +77,11 @@ public class CommandLineParameters {
             throw new IllegalArgumentException("A JUnit suffix should always end with a 'Test'");
         }
 	}
-	
-	
+
+
 	/**
 	 * Return all the available command line options that can be used with "-"
-	 * 
+	 *
 	 * @return
 	 */
 	public static Options getCommandLineOptions() {
@@ -98,7 +98,7 @@ public class CommandLineParameters {
 
 		Option[] generateOptions = TestGeneration.getOptions();
 
-		Option targetClass = new Option("class", true, 
+		Option targetClass = new Option("class", true,
 				"target class for test generation. A fully qualifying needs to be provided, e.g. org.foo.SomeClass");
 		Option targetPrefix = new Option("prefix", true,
 				"target package prefix for test generation. All classes on the classpath with the given package prefix " +
@@ -107,11 +107,11 @@ public class CommandLineParameters {
 				"target classpath for test generation. Either a jar file or a folder where to find the .class files");
 
 		Option projectCP = new Option("projectCP", true,
-				"classpath of the project under test and all its dependencies");		
-		
+				"classpath of the project under test and all its dependencies");
+
 		Option evosuiteCP = new Option("evosuiteCP", true,
 				"classpath of EvoSuite jar file(s). This is needed when EvoSuite is called in plugins like Eclipse/Maven");
-		
+
 		Option junitPrefix = new Option("junit", true, "junit prefix");
 		Option criterion = new Option("criterion", true,
 				"target criterion for test generation. Can define more than one criterion by using a ':' separated list");
@@ -122,8 +122,8 @@ public class CommandLineParameters {
 		Option inheritance = new Option("inheritanceTree","Cache inheritance tree during setup");
 		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
 		Option base_dir = new Option("base_dir", true, "Working directory in which tests and reports will be placed");
-		
-		Option parallel = new Option("parallel", true, "Start parallel run with n clients, communicate every i " 
+
+		Option parallel = new Option("parallel", true, "Start parallel run with n clients, communicate every i "
                 + "iteration x individuals (rate), expects #num_parallel_clients #migrants_iteration_frequency #migrants_communication_rate");
 		parallel.setArgs(3);
 		parallel.setArgName("n i x");
@@ -163,7 +163,7 @@ public class CommandLineParameters {
 
 		return options;
 	}
-	
+
 	public static void handleSeed(List<String> javaOpts, CommandLine line) throws NullPointerException{
 		if (line.hasOption("seed")) {
 			/*
@@ -174,10 +174,10 @@ public class CommandLineParameters {
 			Properties.RANDOM_SEED = Long.parseLong(seedValue);
 		}
 	}
-	
+
 	/**
 	 * Add all the properties that were set with -D
-	 * 
+	 *
 	 * @param javaOpts
 	 * @param line
 	 * @throws Error
@@ -205,7 +205,7 @@ public class CommandLineParameters {
 			}
 		}
 	}
-	
+
 	public static void handleClassPath(CommandLine line) {
 
 		String DCP = null;
@@ -215,34 +215,38 @@ public class CommandLineParameters {
 				DCP = properties.getProperty(propertyName);
 			}
 		}
-		
+
 		if(line.hasOption("projectCP") && DCP!=null){
 			throw new IllegalArgumentException("Ambiguous classpath: both -projectCP and -DCP are defined");
 		}
 
 		String[] cpEntries = null;
-				
+
 		if (line.hasOption("projectCP")) {
 			cpEntries = line.getOptionValue("projectCP").split(File.pathSeparator);
-		} else if (DCP != null) { 
+			for(String entry: cpEntries){
+				LoggingUtils.getEvoLogger().info("entry: "+entry);
+			}
+
+		} else if (DCP != null) {
 			cpEntries = DCP.split(File.pathSeparator);
 		}
 
 		if(cpEntries != null){
 			ClassPathHandler.getInstance().changeTargetClassPath(cpEntries);
 		}
-		
+
 		if (line.hasOption("target")) {
 			String target = line.getOptionValue("target");
 
-			/* 
+			/*
 			 * let's just add the target automatically to the classpath.
 			 * This is useful for when we do not want to specify the classpath,
 			 * and so just typing '-target' on command line
-			 * 
-			 */ 
+			 *
+			 */
 			ClassPathHandler.getInstance().addElementToTargetProjectClassPath(target);
-		} 
+		}
 
 		if (line.hasOption("evosuiteCP")) {
 			String entry = line.getOptionValue("evosuiteCP");
@@ -250,7 +254,7 @@ public class CommandLineParameters {
 			ClassPathHandler.getInstance().setEvoSuiteClassPath(entries);
 		}
 	}
-	
+
 	public static void handleJVMOptions(List<String> javaOpts, CommandLine line) {
 		/*
 		 * NOTE: JVM arguments will not be passed over from the master to the client. So for -Xmx, we need to use "mem"

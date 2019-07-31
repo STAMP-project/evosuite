@@ -64,7 +64,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract class for MOSA or variants of MOSA.
- * 
+ *
  * @author Annibale Panichella, Fitsum M. Kifetew
  */
 public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorithm<T> {
@@ -81,18 +81,14 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	/**
 	 * Constructor.
-	 * 
+	 *
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object
 	 */
 	public AbstractMOSA(ChromosomeFactory<T> factory) {
 		super(factory);
 
 		this.suiteFitnessFunctions = new LinkedHashMap<TestSuiteFitnessFunction, Class<?>>();
-		for (Properties.Criterion criterion : Properties.CRITERION) {
-			TestSuiteFitnessFunction suiteFit = FitnessFunctions.getFitnessFunction(criterion);
-			Class<?> testFit = FitnessFunctions.getTestFitnessFunctionClass(criterion);
-			this.suiteFitnessFunctions.put(suiteFit, testFit);
-		}
+		setupSuiteFitness();
 
 		this.budgetMonitor = new BudgetConsumptionMonitor();
 
@@ -108,10 +104,19 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 		}
 	}
 
+
+	protected void setupSuiteFitness(){
+		for (Properties.Criterion criterion : Properties.CRITERION) {
+			TestSuiteFitnessFunction suiteFit = FitnessFunctions.getFitnessFunction(criterion);
+			Class<?> testFit = FitnessFunctions.getTestFitnessFunctionClass(criterion);
+			this.suiteFitnessFunctions.put(suiteFit, testFit);
+		}
+	}
+
 	/**
 	 * This method is used to generate new individuals (offsprings) from
 	 * the current population.
-	 * 
+	 *
 	 * @return offspring population
 	 */
 	@SuppressWarnings("unchecked")
@@ -178,7 +183,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	/**
 	 * Method used to mutate an offspring.
-	 * 
+	 *
 	 * @param offspring
 	 * @param parent
 	 */
@@ -206,7 +211,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * This method checks whether the test has only primitive type statements. Indeed,
 	 * crossover and mutation can lead to tests with no method calls (methods or constructors
 	 * call), thus, when executed they will never cover something in the class under test.
-	 * 
+	 *
 	 * @param test to check
 	 * @return true if the test has at least one method or constructor call (i.e., the test may
 	 * cover something when executed; false otherwise
@@ -237,10 +242,10 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * This method clears the cached results for a specific chromosome (e.g., fitness function
 	 * values computed in previous generations). Since a test case is changed via crossover
 	 * and/or mutation, previous data must be recomputed.
-	 * 
+	 *
 	 * @param chromosome TestChromosome to clean
 	 */
-	private void clearCachedResults(T chromosome) {
+	protected void clearCachedResults(T chromosome) {
 		((TestChromosome) chromosome).clearCachedMutationResults();
 		((TestChromosome) chromosome).clearCachedResults();
 		((TestChromosome) chromosome).clearMutationHistory();
@@ -251,11 +256,11 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	 * When a test case is changed via crossover and/or mutation, it can contains some
 	 * primitive variables that are not used as input (or to store the output) of method calls.
 	 * Thus, this method removes all these "trash" statements.
-	 * 
+	 *
 	 * @param chromosome
 	 * @return true or false depending on whether "unused variables" are removed
 	 */
-	private boolean removeUnusedVariables(T chromosome) {
+	protected boolean removeUnusedVariables(T chromosome) {
 		int sizeBefore = chromosome.size();
 		TestCase t = ((TestChromosome) chromosome).getTestCase();
 		List<Integer> to_delete = new ArrayList<Integer>(chromosome.size());
@@ -288,11 +293,11 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 	/**
 	 * This method extracts non-dominated solutions (tests) according to all covered goal
 	 * (e.g., branches).
-	 * 
+	 *
 	 * @param solutions list of test cases to analyze with the "dominance" relationship
 	 * @return the non-dominated set of test cases
 	 */
-	private List<T> getNonDominatedSolutions(List<T> solutions) {
+	protected List<T> getNonDominatedSolutions(List<T> solutions) {
 		DominanceComparator<T> comparator = new DominanceComparator<T>(this.getCoveredGoals());
 		List<T> next_front = new ArrayList<T>(solutions.size());
 		boolean isDominated;
@@ -318,7 +323,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 		return next_front;
 	}
 
-	/** 
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -338,7 +343,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * Returns the goals that have been covered by the test cases stored in the archive.
-     * 
+     *
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -351,7 +356,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * Returns the number of goals that have been covered by the test cases stored in the archive.
-     * 
+     *
      * @return
      */
     protected int getNumberOfCoveredGoals() {
@@ -364,7 +369,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * Returns the goals that have not been covered by the test cases stored in the archive.
-     * 
+     *
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -377,7 +382,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * Returns the goals that have not been covered by the test cases stored in the archive.
-     * 
+     *
      * @return
      */
     protected int getNumberOfUncoveredGoals() {
@@ -386,7 +391,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * Returns the total number of goals, i.e., number of covered goals + number of uncovered goals.
-     * 
+     *
      * @return
      */
     protected int getTotalNumberOfGoals() {
@@ -395,7 +400,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * Return the test cases in the archive as a list.
-     * 
+     *
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -408,7 +413,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
     /**
      * Generates a {@link org.evosuite.testsuite.TestSuiteChromosome} object with all test cases
      * in the archive.
-     * 
+     *
      * @return
      */
     protected TestSuiteChromosome generateSuite() {
@@ -430,7 +435,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
 	/**
      * Notify all search listeners but ProgressMonitor of fitness evaluation.
-     * 
+     *
      * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
      */
     @Override
@@ -445,7 +450,7 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * Notify all search listeners but ProgressMonitor of a mutation.
-     * 
+     *
      * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
      */
     @Override
@@ -504,15 +509,15 @@ public abstract class AbstractMOSA<T extends Chromosome> extends GeneticAlgorith
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * <p>This method is used by the Progress Monitor at the and of each generation to show the total coverage reached by the algorithm.
      * Since the Progress Monitor requires a {@link org.evosuite.testsuite.TestSuiteChromosome} object, this method artificially creates
      * a {@link org.evosuite.testsuite.TestSuiteChromosome} object as the union of all solutions stored in the {@link
      * org.evosuite.ga.archive.Archive}.</p>
-     * 
+     *
      * <p>The coverage score of the {@link org.evosuite.testsuite.TestSuiteChromosome} object is given by the percentage of targets marked
      * as covered in the archive.</p>
-     * 
+     *
      * @return a {@link org.evosuite.testsuite.TestSuiteChromosome} object to be consumable by the Progress Monitor.
      */
     @SuppressWarnings("unchecked")
