@@ -35,15 +35,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Gives access to all Graphs computed during CUT analysis such as CFGs created
  * by the CFGGenerator and BytcodeAnalyzer in the CFGMethodAdapter
- * 
+ *
  * For each CUT and each of their methods a Raw- and an ActualControlFlowGraph
  * instance are stored within this pool. Additionally a ControlDependenceGraph
  * is computed and stored for each such method.
- * 
+ *
  * This pool also offers the possibility to generate the ClassCallGraph and
  * ClassControlFlowGraph for a CUT. They represents the call hierarchy and
  * interaction of different methods within a class.
- * 
+ *
  * @author Andre Mis
  */
 public class GraphPool {
@@ -73,7 +73,7 @@ public class GraphPool {
 	 * http://
 	 * asm.ow2.org/asm33/javadoc/user/org/objectweb/asm/tree/AbstractInsnNode
 	 * .html for a complete list of the nodes in this cfg
-	 * 
+	 *
 	 * Maps from classNames to methodNames to corresponding RawCFGs
 	 */
 	private final Map<String, Map<String, RawControlFlowGraph>> rawCFGs = new HashMap<String, Map<String, RawControlFlowGraph>>();
@@ -82,21 +82,21 @@ public class GraphPool {
 	 * Minimized control flow graph. This graph only contains the first and last
 	 * node (usually a LABEL and IRETURN), nodes which create branches (all
 	 * jumps/switches except GOTO) and nodes which were mutated.
-	 * 
+	 *
 	 * Maps from classNames to methodNames to corresponding ActualCFGs
 	 */
 	private final Map<String, Map<String, ActualControlFlowGraph>> actualCFGs = new HashMap<String, Map<String, ActualControlFlowGraph>>();
 
 	/**
 	 * Control Dependence Graphs for each method.
-	 * 
+	 *
 	 * Maps from classNames to methodNames to corresponding CDGs
 	 */
 	private final Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<String, Map<String, ControlDependenceGraph>>();
 
 	/**
 	 * Cache of all created CCFGs
-	 * 
+	 *
 	 * Maps from classNames to computed CCFG of that class
 	 */
 	private final Map<String, ClassControlFlowGraph> ccfgs = new HashMap<String, ClassControlFlowGraph>();
@@ -107,7 +107,7 @@ public class GraphPool {
 	 * <p>
 	 * getRawCFG
 	 * </p>
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @param methodName
@@ -129,7 +129,7 @@ public class GraphPool {
 	 * <p>
 	 * Getter for the field <code>rawCFGs</code>.
 	 * </p>
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.Map} object.
@@ -148,7 +148,7 @@ public class GraphPool {
 	 * <p>
 	 * getActualCFG
 	 * </p>
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @param methodName
@@ -167,7 +167,7 @@ public class GraphPool {
 	 * <p>
 	 * getCDG
 	 * </p>
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @param methodName
@@ -188,7 +188,7 @@ public class GraphPool {
 	 * <p>
 	 * registerRawCFG
 	 * </p>
-	 * 
+	 *
 	 * @param cfg
 	 *            a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
 	 */
@@ -216,7 +216,7 @@ public class GraphPool {
 	 * <p>
 	 * registerActualCFG
 	 * </p>
-	 * 
+	 *
 	 * @param cfg
 	 *            a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph}
 	 *            object.
@@ -267,10 +267,30 @@ public class GraphPool {
 			cd.toDot();
 	}
 
+	public void registerControlDependence(ControlDependenceGraph cd){
+
+		String className = cd.getClassName();
+		String methodName = cd.getMethodName();
+
+		if (className == null || methodName == null){
+			throw new IllegalStateException(
+					"expect class and method name of CFGs to be set before entering the GraphPool");
+		}
+
+		if (!controlDependencies.containsKey(className)){
+			controlDependencies.put(className,
+					new HashMap<String, ControlDependenceGraph>());
+		}
+
+		controlDependencies.get(className).put(methodName,cd);
+
+
+	}
+
 	/**
 	 * Ensures this GraphPool knows the CCFG for the given class and then
 	 * returns it.
-	 * 
+	 *
 	 * @param className
 	 *            the name of the class of the CCFG as a
 	 *            {@link java.lang.String}
@@ -293,10 +313,10 @@ public class GraphPool {
 
 	/**
 	 * Computes the CCFG for the given class
-	 * 
+	 *
 	 * If no CFG is known for the given class, an IllegalArgumentException is
 	 * thrown
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph} object.
@@ -332,7 +352,7 @@ public class GraphPool {
 	 * <p>
 	 * clear
 	 * </p>
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
@@ -346,7 +366,7 @@ public class GraphPool {
 	 * <p>
 	 * clear
 	 * </p>
-	 * 
+	 *
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 * @param methodName
