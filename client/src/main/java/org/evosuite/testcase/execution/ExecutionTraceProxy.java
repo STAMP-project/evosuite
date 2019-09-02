@@ -520,6 +520,16 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		trace.linePassed(className, methodName, line);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logArrayAccess(String, String, int, int, int)
+	 */
+	@Override
+	public void logArrayAccess(String className, String methodName, int line, int index, int length) {
+		copyOnWrite();
+		trace.logArrayAccess(className, methodName, line, index, length);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *

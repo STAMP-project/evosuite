@@ -199,6 +199,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections
 			.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
+	public Map<String, Map<String, Map<Integer, int[]>>> arrayIndexAndLength = Collections.synchronizedMap(new HashMap<>());
+
 	public Map<Integer, Integer> coveredFalse = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
 	public Map<String, Integer> coveredMethods = Collections.synchronizedMap(new HashMap<String, Integer>());
@@ -704,8 +706,13 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 		if (!className.isEmpty() && !methodName.isEmpty()) {
 			int callingObjectID = registerObject(caller);
-			MethodCall call = new MethodCall(className, methodName, methodId, callingObjectID, stack.size());
 			methodId++;
+			MethodCall call = new MethodCall(className,
+											 methodName,
+											 methodId,
+											 callingObjectID,
+											 stack.size(),
+											 this.stack.peek().methodId);
 			// TODO: Skip this?
 			if (traceCalls) {
 				if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
@@ -1404,6 +1411,19 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 						coverage.get(className).get(methodName).get(line) + 1);
 			}
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void logArrayAccess(String className, String methodName, int line, int index, int length) {
+		int[] value = {index, length};
+		if (!arrayIndexAndLength.containsKey(className))
+			arrayIndexAndLength.put(className, new HashMap<>());
+		if (!arrayIndexAndLength.get(className).containsKey(methodName))
+			arrayIndexAndLength.get(className).put(methodName, new HashMap<>());
+		arrayIndexAndLength.get(className).get(methodName).put(line, value);
 	}
 
 	/** {@inheritDoc} */

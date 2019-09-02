@@ -420,6 +420,24 @@ public class ExecutionTracer {
 	}
 
 	/**
+	 * Called by the instrumented code each time the target array is accessed.
+	 * @param index an int.
+	 * @param length an int.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodname a {@link java.lang.String} object.
+	 * @param line an int.
+	 */
+	public static void passedArrayAccess(int index, int length, String className, String methodname, int line) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+		if (isThreadNeqCurrentThread())
+			return;
+		checkTimeout();
+		tracer.trace.logArrayAccess(className, methodname, line, index, length);
+	}
+
+	/**
 	 * Called by the instrumented code each time an unconditional branch is
 	 * taken. This is not enabled by default, only some coverage criteria (e.g.,
 	 * LCSAJ) use it.
