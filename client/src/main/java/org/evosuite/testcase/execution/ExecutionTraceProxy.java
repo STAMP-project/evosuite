@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.util.Pair;
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
@@ -522,12 +523,12 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/**
 	 * {@inheritDoc}
-	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logArrayAccess(String, String, int, int, int)
+	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logArrayAccess(String, String, int, Pair)
 	 */
 	@Override
-	public void logArrayAccess(String className, String methodName, int line, int index, int length) {
+	public void logArrayAccess(String className, String methodName, int line, Pair<Integer, Integer> indexAndArrayLength) {
 		copyOnWrite();
-		trace.logArrayAccess(className, methodName, line, index, length);
+		trace.logArrayAccess(className, methodName, line, indexAndArrayLength);
 	}
 
 	/*

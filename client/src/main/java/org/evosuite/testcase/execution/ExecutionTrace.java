@@ -22,6 +22,7 @@
  */
 package org.evosuite.testcase.execution;
 
+import javafx.util.Pair;
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
@@ -202,6 +203,8 @@ public interface ExecutionTrace {
 	 * @return
 	 */
 	public Set<Integer> getAllCoveredLines();
+
+	// TODO: add functions to get the index-arraylength pair
 
 	/**
 	 * Retrieve detailed line coverage count
@@ -450,10 +453,9 @@ public interface ExecutionTrace {
 	 * @param className a {@link java.lang.String} object.
 	 * @param methodName a {@link java.lang.String} object.
 	 * @param line an int.
-	 * @param index an int.
-	 * @param length an int.
+	 * @param indexAndArrayLength a {@link Pair} object.
 	 */
-	public void logArrayAccess(String className, String methodName, int line, int index, int length);
+	public void logArrayAccess(String className, String methodName, int line, Pair<Integer, Integer> indexAndArrayLength);
 
 	/**
 	 * Record a mutant execution
