@@ -191,7 +191,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections
 			.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
-	public Map<String, Map<String, Map<Integer, Pair<Integer, Integer>>>> arrayIndexAndLength = Collections.synchronizedMap(new HashMap<>());
+	public Map<Integer, Pair<Integer, Integer>> arrayIndexAndLength = Collections.synchronizedMap(new HashMap<>());
 
 	public Map<Integer, Integer> coveredFalse = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
@@ -897,6 +897,18 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		return coveredLines;
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	public Map<Integer, Pair<Integer, Integer>> getArrayAccessInfo() {
+		return arrayIndexAndLength;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Pair<Integer, Integer> getArrayAccessInfo(int layer) {
+		return getArrayAccessInfo().get(layer);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -1409,12 +1421,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void logArrayAccess(String className, String methodName, int line, Pair<Integer, Integer> indexAndArrayLength) {
-		if (!arrayIndexAndLength.containsKey(className))
-			arrayIndexAndLength.put(className, new HashMap<>());
-		if (!arrayIndexAndLength.get(className).containsKey(methodName))
-			arrayIndexAndLength.get(className).put(methodName, new HashMap<>());
-		arrayIndexAndLength.get(className).get(methodName).put(line, indexAndArrayLength);
+	public void logArrayAccess(int layer, Pair<Integer, Integer> indexAndArrayLength) {
+		arrayIndexAndLength.put(layer, indexAndArrayLength);
 	}
 
 	/** {@inheritDoc} */

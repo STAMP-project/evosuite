@@ -26,6 +26,7 @@ public class ArrayIndexVisitor extends GeneratorAdapter {
     private List<Integer> skippedLines = new ArrayList<>();
     private final int targetLine;
     private int currentLine = 0;
+    private int arrayLayer = 0;
 
     public ArrayIndexVisitor(MethodVisitor mv, String className, String methodName, String desc, int targetLine) {
         super(ASM6, mv, ACC_PUBLIC, methodName, desc);
@@ -104,6 +105,7 @@ public class ArrayIndexVisitor extends GeneratorAdapter {
     public void visitLineNumber(int line, Label start) {
         super.visitLineNumber(line, start);
         currentLine = line;
+        arrayLayer = 0;
         if (methodName.equals("<clinit>"))
             return;
         if (!hadInvokeSpecial)
@@ -122,13 +124,11 @@ public class ArrayIndexVisitor extends GeneratorAdapter {
         arrayLength();  // replace array reference with array length.           Stack be like [..., index, length]
 
         LinePool.addLine(className, fullMethodName, currentLine);
-        visitLdcInsn(className);
-        visitLdcInsn(fullMethodName);
-        visitLdcInsn(currentLine);
+        visitLdcInsn(arrayLayer++);
         mv.visitMethodInsn(INVOKESTATIC,
                            PackageInfo.getNameWithSlash(ExecutionTracer.class),
                            "passedArrayAccess",
-                           "(IILjava/lang/String;Ljava/lang/String;I)V",
+                           "(III)V",
                            false);
     }
 }

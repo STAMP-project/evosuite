@@ -204,7 +204,17 @@ public interface ExecutionTrace {
 	 */
 	public Set<Integer> getAllCoveredLines();
 
-	// TODO: add functions to get the index-arraylength pair
+	/**
+	 * Retrieve the index-length Pair of the array at a specific layer.
+	 * @return a {@link Pair} object.
+	 */
+	Pair<Integer, Integer> getArrayAccessInfo(int layer);
+
+	/**
+	 * Retrieve the index-length Pair of all arrays accessed at the target line.
+	 * @return a {@link Map} object.
+	 */
+	Map<Integer, Pair<Integer, Integer>> getArrayAccessInfo();
 
 	/**
 	 * Retrieve detailed line coverage count
@@ -450,12 +460,10 @@ public interface ExecutionTrace {
 	/**
 	 * Log the query index and the length of an array when one is access.
 	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param line an int.
+	 * @param layer an int.
 	 * @param indexAndArrayLength a {@link Pair} object.
 	 */
-	public void logArrayAccess(String className, String methodName, int line, Pair<Integer, Integer> indexAndArrayLength);
+	public void logArrayAccess(int layer, Pair<Integer, Integer> indexAndArrayLength);
 
 	/**
 	 * Record a mutant execution

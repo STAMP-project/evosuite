@@ -424,18 +424,16 @@ public class ExecutionTracer {
 	 * Called by the instrumented code each time the target array is accessed.
 	 * @param index an int.
 	 * @param length an int.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param line an int.
+	 * @param layer an int.
 	 */
-	public static void passedArrayAccess(int index, int length, String className, String methodName, int line) {
+	public static void passedArrayAccess(int index, int length, int layer) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;
 		if (isThreadNeqCurrentThread())
 			return;
 		checkTimeout();
-		tracer.trace.logArrayAccess(className, methodName, line, new Pair<>(index, length));
+		tracer.trace.logArrayAccess(layer, new Pair<>(index, length));
 	}
 
 	/**
