@@ -539,6 +539,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		// finished_calls.clear();
 		stack.add(new MethodCall("", "", 0, 0, 0)); // Main method
 		coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
+		arrayIndexAndLength = new HashMap<>();
 		returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 
 		methodId = 0;
@@ -582,6 +583,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		if (coverage != null) {
 			copy.coverage.putAll(coverage);
 		}
+		copy.arrayIndexAndLength = new HashMap<>();
+		if (arrayIndexAndLength != null) 
+			copy.arrayIndexAndLength.putAll(arrayIndexAndLength);
 		copy.returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 		copy.returnData.putAll(returnData);
 		/*
