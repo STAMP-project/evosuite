@@ -27,7 +27,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.evosuite</groupId>
+            <groupId>eu.stamp-project</groupId>
             <artifactId>evosuite-standalone-runtime</artifactId>
             <version>${evosuiteVersion}</version>
         </dependency>

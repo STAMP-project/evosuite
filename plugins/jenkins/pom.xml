@@ -55,7 +55,7 @@
       <version>2.12.1</version>
     </dependency>
     <dependency>
-      <groupId>org.evosuite</groupId>
+      <groupId>eu.stamp-project</groupId>
       <artifactId>evosuite-master</artifactId>
       <version>1.0.5-SNAPSHOT</version>
     </dependency>

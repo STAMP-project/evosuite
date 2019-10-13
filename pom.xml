@@ -3,18 +3,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.evosuite</groupId>
+    <groupId>eu.stamp-project</groupId>
     <artifactId>evosuite</artifactId>
     <name>EvoSuite</name>
-    <description>n/a</description>
-    <version>1.0.7-SNAPSHOT</version>
+    <description>
+        This fork of the EvoSuite project (http://www.evosuite.org) contains the runtime amplification version
+        of EvoSuite developed within the STAMP project.
+    </description>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>http://www.evosuite.org/</url>
     <inceptionYear>2010</inceptionYear>
 
     <licenses>
         <license>
-            <name> GNU Lesser General Public License (LGPL), version 3</name>
+            <name>GNU Lesser General Public License (LGPL), version 3</name>
             <url>http://www.gnu.org/licenses/lgpl-3.0.en.html</url>
             <distribution>repo</distribution>
         </license>
@@ -22,14 +25,8 @@
 
     <issueManagement>
         <system>Github</system>
-        <url>https://github.com/EvoSuite/evosuite/issues</url>
+        <url>https://github.com/STAMP-project/evosuite-ramp/issues</url>
     </issueManagement>
-
-    <mailingLists>
-        <mailingList>
-            <archive>https://groups.google.com/forum/#!forum/evosuite</archive>
-        </mailingList>
-    </mailingLists>
 
     <modules>
         <module>master</module>
@@ -79,14 +76,14 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/EvoSuite/evosuite.git</connection>
-        <developerConnection>scm:git:https://github.com/EvoSuite/evosuite.git</developerConnection>
-        <url>https://github.com/EvoSuite/evosuite/tree/master</url>
+        <connection>scm:git:https://github.com/STAMP-project/evosuite-ramp.git</connection>
+        <developerConnection>scm:git:https://github.com/STAMP-project/evosuite-ramp.git</developerConnection>
+        <url>https://github.com/STAMP-project/evosuite-ramp/tree/master</url>
     </scm>
 
     <organization>
-        <name>EvoSuite</name>
-        <url>http://www.evosuite.org/</url>
+        <name>STAMP project</name>
+        <url>https://www.stamp-project.eu/</url>
     </organization>
 
 
@@ -168,7 +165,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>findbugs-maven-plugin</artifactId>
-                        <version>3.0.2</version>
+                        <version>3.0.5</version>
                         <configuration>
                             <xmlOutput>true</xmlOutput>
                             <!-- tmp disabled due to issues that it does not get found in the submodules, eg Maven Plugin
@@ -193,7 +190,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-report-plugin</artifactId>
-                        <version>2.20.1</version>
+                        <version>2.21.0</version>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -327,10 +324,10 @@
                             <version>0.9.0</version>
                         </dependency> -->
             <!--<dependency>-->
-                <!--&lt;!&ndash; LGPL &ndash;&gt;-->
-                <!--<groupId>com.panayotis</groupId>-->
-                <!--<artifactId>JavaPlot</artifactId>-->
-                <!--<version>0.4.0</version>-->
+            <!--&lt;!&ndash; LGPL &ndash;&gt;-->
+            <!--<groupId>com.panayotis</groupId>-->
+            <!--<artifactId>JavaPlot</artifactId>-->
+            <!--<version>0.4.0</version>-->
             <!--</dependency>-->
             <dependency>
                 <!-- BSD -->
@@ -680,7 +677,7 @@
                         <exclude>${integrationTests}</exclude>
                         <exclude>${systemTests}</exclude>
                     </excludes>
-                    <argLine> -Xms512m -Xmx4096m </argLine>
+                    <argLine>-Xms512m -Xmx4096m</argLine>
                 </configuration>
             </plugin>
             <!-- pluging to run tests after 'package' phase in 'integration-test' -->
@@ -831,7 +828,8 @@
                                         <shadedPattern>org.evosuite.shaded.org.apache</shadedPattern>
                                         <excludes>
                                             <!-- Important, otherwise AntInitializingListener would not work in Ant -->
-                                            <exclude>org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter</exclude>
+                                            <exclude>org.apache.tools.ant.taskdefs.optional.junit.JUnitResultFormatter
+                                            </exclude>
                                             <exclude>org.apache.tools.ant.taskdefs.optional.junit.JUnitTest</exclude>
                                             <exclude>org.apache.tools.ant.BuildException</exclude>
                                         </excludes>
@@ -845,12 +843,12 @@
                                         <shadedPattern>org.evosuite.shaded.org.objenesis</shadedPattern>
                                     </relocation>
                                     <!--<relocation>-->
-                                        <!--<pattern>org.slf4j</pattern>-->
-                                        <!--<shadedPattern>org.evosuite.shaded.org.slf4j</shadedPattern>-->
+                                    <!--<pattern>org.slf4j</pattern>-->
+                                    <!--<shadedPattern>org.evosuite.shaded.org.slf4j</shadedPattern>-->
                                     <!--</relocation>-->
                                     <!--<relocation>-->
-                                        <!--<pattern>ch.qos.logback</pattern>-->
-                                        <!--<shadedPattern>org.evosuite.shaded.ch.qos.logback</shadedPattern>-->
+                                    <!--<pattern>ch.qos.logback</pattern>-->
+                                    <!--<shadedPattern>org.evosuite.shaded.ch.qos.logback</shadedPattern>-->
                                     <!--</relocation>-->
                                 </relocations>
                             </configuration>

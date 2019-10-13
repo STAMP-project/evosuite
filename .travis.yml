@@ -4,6 +4,8 @@ sudo: false
 jdk:
   - oraclejdk8
 
-script:
+before_script:
   - mvn clean
-  - mvn --fail-never dependency:resolve -DskipITs  install
+
+script:
+  - mvn dependency:resolve install
