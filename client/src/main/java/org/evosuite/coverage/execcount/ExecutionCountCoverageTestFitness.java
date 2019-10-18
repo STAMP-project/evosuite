@@ -1,16 +1,16 @@
 package org.evosuite.coverage.execcount;
 
-import com.google.gson.JsonSyntaxException;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Scanner;
 import java.util.stream.Collectors;
+import org.evosuite.ExecutionCountManager;
 import org.evosuite.Properties;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageTestFitness;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,90 +21,49 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunction {
 
-  protected static final Logger logger = LoggerFactory.getLogger(ExecutionCountCoverageTestFitness.class);
-
-  protected final ClassExecutionCounts executionCounts;
+  protected static final Logger logger = LoggerFactory
+      .getLogger(ExecutionCountCoverageTestFitness.class);
 
   /**
-   * Contains line goals only for lines that appear in the list of execution counts.
+   * Used for retrieving information about execution counts for this instance.
+   */
+  private transient ExecutionCountManager executionCountManager;
+
+  /**
+   * Contains line goals only for lines that are executed at least once.
    */
   protected final List<LineCoverageTestFitness> lineGoals;
 
   /**
-   * Constructs this fitness function using the given list of execution counts and the given line
+   * Constructs this fitness function using the given execution count manager and the given line
    * goals factory.
    */
-  protected ExecutionCountCoverageTestFitness(
-      ClassExecutionCounts executionCounts, LineCoverageFactory lineFactory) {
-    if (executionCounts == null) {
-      throw new IllegalArgumentException("executionCounts parameter must be non-null");
-    }
+  protected ExecutionCountCoverageTestFitness(ExecutionCountManager executionCountManager,
+      LineCoverageFactory lineFactory) {
     if (lineFactory == null) {
       throw new IllegalArgumentException("lineFactory parameter must be non-null");
     }
-    this.executionCounts = executionCounts;
+    if (executionCountManager == null) {
+      throw new IllegalArgumentException("executionCountManager parameter must be non-null");
+    }
+    this.executionCountManager = executionCountManager;
 
     logger.debug("Filtering line goals to only contain executed lines");
     this.lineGoals = lineFactory.getCoverageGoals().stream()
-        .filter(goal -> executionCounts.executedLineNumbers().contains(goal.getLine())).collect(
+        .filter(goal -> executionCountManager.lineExecCount(goal.getLine()) > 0).collect(
             Collectors.toList());
   }
 
   /**
-   * Creates an instance of this fitness function using the execution count file specified. Common
-   * behaviours will be favored.
+   * Uses the {@code ExecutionCountManager} to retrieve the weighted average execution count for the
+   * lines in this instance.
    *
-   * @param file an execution count file. It must exist.
+   * @see org.evosuite.ExecutionCountManager#weightedAvgExecutionCount(Map)
    */
-  public static ExecutionCountCoverageTestFitness fromExecutionCountFile(File file) {
-    return ExecutionCountCoverageTestFitness.fromExecutionCountFile(file, true);
-  }
-
-  /**
-   * Creates an instance of this fitness function using the execution count file specified. It will
-   * favor either common or uncommon behaviours depending on the value of {@code
-   * forCommonBehaviours}.
-   *
-   * @param file an execution count file. It must exist.
-   * @param forCommonBehaviours {@code true} to favor common behaviours, {@code false} to favor
-   * uncommon behaviours.
-   */
-  public static ExecutionCountCoverageTestFitness fromExecutionCountFile(File file,
-      boolean forCommonBehaviours) {
-    if (!file.exists()) {
-      throw new IllegalArgumentException("Input file does not exist: " + file.getAbsolutePath());
-    }
-    try {
-      ClassExecutionCounts executionCounts = ClassExecutionCounts
-          .readCounts(new Scanner(file).useDelimiter("\\Z").next()).stream()
-          .filter(classCounts -> classCounts.getClassName().equals(
-              Properties.TARGET_CLASS)).findAny().orElseGet(() -> {
-                logger.warn("No execution count information found for " + Properties.TARGET_CLASS
-                    + ". Using empty execution counts.");
-                return new ClassExecutionCounts(Properties.TARGET_CLASS);
-              }
-          );
-      if (forCommonBehaviours) {
-        return new MaxExecutionCountCoverageTestFitness(
-            executionCounts, new LineCoverageFactory());
-      }
-      return new MinExecutionCountCoverageTestFitness(
-          executionCounts, new LineCoverageFactory());
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);
-    } catch (JsonSyntaxException e) {
-      logger.error("Execution count file malformed", e);
-      throw new RuntimeException(e);
-    }
-  }
-
-  /**
-   * Gets the execution count for the specified line as determined by the execution count field.
-   */
-  protected int getExecutionCount(LineCoverageTestFitness goal) {
-    return executionCounts.lineList().stream()
-        .filter(line -> line.getLineNumber() == goal.getLine())
-        .findAny().get().getCount();
+  protected double getWeightedAvgExecCount(TestChromosome individual, ExecutionResult result) {
+    Map<Integer, Double> lineToFitness = lineGoals.stream().collect(Collectors.toMap(
+        LineCoverageTestFitness::getLine, line -> line.getFitness(individual, result)));
+    return executionCountManager.weightedAvgExecutionCount(lineToFitness);
   }
 
   @Override
@@ -121,13 +80,13 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
       return false;
     }
     ExecutionCountCoverageTestFitness that = (ExecutionCountCoverageTestFitness) o;
-    return executionCounts.equals(that.executionCounts) &&
+    return executionCountManager.equals(that.executionCountManager) &&
         lineGoals.equals(that.lineGoals);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(executionCounts, lineGoals);
+    return Objects.hash(executionCountManager, lineGoals);
   }
 
   @Override

@@ -1,5 +1,6 @@
 package org.evosuite.coverage.execcount;
 
+import org.evosuite.ExecutionCountManager;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -8,28 +9,20 @@ import org.evosuite.testcase.execution.ExecutionResult;
  * An {@link ExecutionCountCoverageTestFitness} that prefers test cases that do not exercise
  * commonly executed code.
  */
-public class MinExecutionCountCoverageTestFitness extends
-    ExecutionCountCoverageTestFitness {
+public class MinExecutionCountCoverageTestFitness extends ExecutionCountCoverageTestFitness {
 
   /**
-   * Constructs this fitness function with the given execution counts and factory for line coverage
-   * goals.
-   *
-   * @param executionCounts the execution counts containing counts for the class under test
+   * Constructs this fitness function with the given execution count manager and factory for line
+   * coverage goals.
    */
-  public MinExecutionCountCoverageTestFitness(ClassExecutionCounts executionCounts,
+  public MinExecutionCountCoverageTestFitness(ExecutionCountManager executionCountManager,
       LineCoverageFactory lineFactory) {
-    super(executionCounts, lineFactory);
+    super(executionCountManager, lineFactory);
   }
 
   @Override
   public double getFitness(TestChromosome individual, ExecutionResult result) {
-    double weightedSum = lineGoals.stream()
-        .mapToDouble(goal -> goal.getFitness(individual, result) *
-            getExecutionCount(goal)).sum();
-    if (weightedSum == 0) {
-      return Double.MAX_VALUE; //To prevent division by 0
-    }
-    return 1 / weightedSum;
+    double weightedAvgExecCount = getWeightedAvgExecCount(individual, result);
+    return 1 / (weightedAvgExecCount > 0 ? weightedAvgExecCount : Double.MAX_VALUE);
   }
 }

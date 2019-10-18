@@ -344,7 +344,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 		for (BytecodeInstruction ins : instructions)
 			if (ins.hasLineNumberSet())
-				r = ins.getLineNumber();
+				r = Math.max(r, ins.getLineNumber());
 
 		return r;
 	}

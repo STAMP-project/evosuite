@@ -22,6 +22,9 @@ package org.evosuite.graphs;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.evosuite.Properties;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.ccg.ClassCallGraph;
@@ -142,6 +145,22 @@ public class GraphPool {
 		}
 
 		return rawCFGs.get(className);
+	}
+
+	/**
+	 * Returns a set with CFGs for the class with the specified name and all of its inner classes. For
+	 * each class, it contains a map from method name in that class to the CFG for that method.
+	 *
+	 * @param className the class name of the class for which the CFGs of itself and its subclasses
+	 * have to be fetched.
+	 * @return a set of maps from method name to Control Flow Graph for that method. The set contains
+	 * a separate map for each class.
+	 */
+	public Set<Map<String, RawControlFlowGraph>> getRawCFGsWithInner(String className) {
+		return rawCFGs.keySet().stream().filter(name -> {
+			Pattern pattern = Pattern.compile(Pattern.quote("$"));
+			return pattern.split(name)[0].equals(className);
+		}).map(name -> rawCFGs.get(name)).collect(Collectors.toSet());
 	}
 
 	/**

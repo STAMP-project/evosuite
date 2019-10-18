@@ -1,48 +1,46 @@
 package org.evosuite.testcase.secondaryobjectives;
 
-import com.google.gson.JsonSyntaxException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
-import org.evosuite.Properties;
+import org.evosuite.ExecutionCountManager;
 import org.evosuite.coverage.execcount.ClassExecutionCounts;
 import org.evosuite.ga.RelativeChangeSecondaryObjective;
-import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Secondary objective that prefers test cases that execute a path in the SUT that has a smaller
- * execution count. The execution count can for example be retrieved from a file, and has to be in
- * the format of the {@link ClassExecutionCounts} class.
+ * Secondary objective that prefers test cases that execute a path in the CUT that has a smaller
+ * execution count. Execution counts are provided by an {@link ExecutionCountManager}.
  */
 public class MinimizePathExecutionCountSecondaryObjective extends
     RelativeChangeSecondaryObjective<TestChromosome> {
 
   private static final Logger logger = LoggerFactory
       .getLogger(MinimizePathExecutionCountSecondaryObjective.class);
-  private ClassExecutionCounts executionCounts;
 
   /**
-   * Constructs this secondary objective using the given execution counts.
+   * The manager that is used to determine execution counts for lines of code
    */
-  public MinimizePathExecutionCountSecondaryObjective(ClassExecutionCounts executionCounts) {
-    this.executionCounts = executionCounts;
+
+  private transient ExecutionCountManager executionCountManager;
+
+  /**
+   * Constructs this secondary objective using the given execution count manager
+   */
+  public MinimizePathExecutionCountSecondaryObjective(ExecutionCountManager executionCountManager) {
+    this.executionCountManager = executionCountManager;
   }
 
   /**
-   * Compares two test case chromosomes, preferring the one that covers the least execution count
-   * weight.
+   * Compares two test case chromosomes, preferring the one that covers the least path weight.
    */
   @Override
   public int compareChromosomes(TestChromosome chromosome1, TestChromosome chromosome2) {
-    int weight1 = getPathWeight(chromosome1);
-    int weight2 = getPathWeight(chromosome2);
+    double weight1 = getPathWeight(chromosome1);
+    double weight2 = getPathWeight(chromosome2);
 
     logger.trace("Comparing execution count weight: " + weight1 + " and " + weight2);
-    return weight1 - weight2;
+    return Double.compare(weight1, weight2);
   }
 
   /**
@@ -52,67 +50,40 @@ public class MinimizePathExecutionCountSecondaryObjective extends
   @Override
   public int compareGenerations(TestChromosome parent1, TestChromosome parent2,
       TestChromosome child1, TestChromosome child2) {
-    int weightParent1 = getPathWeight(parent1);
-    int weightParent2 = getPathWeight(parent2);
-    int weightChild1 = getPathWeight(child1);
-    int weightChild2 = getPathWeight(child2);
+    double weightParent1 = getPathWeight(parent1);
+    double weightParent2 = getPathWeight(parent2);
+    double weightChild1 = getPathWeight(child1);
+    double weightChild2 = getPathWeight(child2);
 
     logger.trace(
         "Comparing execution count weight: parents: " + weightParent1 + " and " + weightParent2
             + "; children: " + weightChild1 + " and " + weightChild2);
-    return Math.min(weightParent1, weightParent2) - Math.min(weightChild1, weightChild2);
+    return Double
+        .compare(Math.min(weightParent1, weightParent2), Math.min(weightChild1, weightChild2));
   }
 
   /**
    * Computes the weight of the path taken by the given test case.
    */
-  private int getPathWeight(TestChromosome chromosome) {
+  private double getPathWeight(TestChromosome chromosome) {
     ExecutionResult executionResult = chromosome.getLastExecutionResult();
     if (executionResult == null) {
       logger.debug("No execution result available. Using path weight of 0.");
-      return Integer.MAX_VALUE;
+      return 0;
     }
 
-    return executionCounts.numberOfExecutions(
-        executionResult.getTrace().getCoveredLines());
-  }
-
-  /**
-   * Constructs this secondary objective using the execution counts from the given file.
-   *
-   * @param file a file containing execution counts. The file must exist.
-   */
-  public static MinimizePathExecutionCountSecondaryObjective fromExecutionCountFile(File file) {
-    if (!file.exists()) {
-      throw new IllegalArgumentException("Input file does not exist: " + file.getAbsolutePath());
-    }
-    try {
-      return new MinimizePathExecutionCountSecondaryObjective(
-          ClassExecutionCounts.readCounts(new Scanner(file).useDelimiter("\\Z").next())
-              .stream().filter(counts -> counts.getClassName().equals(Properties.TARGET_CLASS))
-              .findAny().orElseGet(() -> {
-            logger.warn("No execution count information found for " + Properties.TARGET_CLASS
-                + ". Using empty execution counts.");
-            return new ClassExecutionCounts(Properties.TARGET_CLASS);
-          }));
-    } catch (FileNotFoundException e) {
-      throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);
-    } catch (JsonSyntaxException e) {
-      logger.error("Execution count file malformed", e);
-      throw new JsonSyntaxException(e);
-    }
+    return executionCountManager.avgExecCount(executionResult.getTrace().getCoveredLines());
   }
 
   @Override
   public double relativeChange(TestChromosome chromosome1, TestChromosome chromosome2) {
-    int weight1 = getPathWeight(chromosome1);
-    int weight2 = getPathWeight(chromosome2);
+    double weight1 = getPathWeight(chromosome1);
+    double weight2 = getPathWeight(chromosome2);
 
     // To prevent division by 0
     if (weight1 == 0) {
       return 10d;
     }
-    return ((double) weight2) / weight1;
+    return weight2 / weight1;
   }
-
 }

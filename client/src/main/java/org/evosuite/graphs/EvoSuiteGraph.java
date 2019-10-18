@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  *
  * For now an EvoSuiteGraph can always be represented by a DefaultDirectedGraph
  * from the jGraph library - that is a directed graph not allowed to contain
- * multiple edges between to nodes but allowed to contain cycles
+ * multiple edges between two nodes but allowed to contain cycles
  *
  * @author Andre Mis
  */

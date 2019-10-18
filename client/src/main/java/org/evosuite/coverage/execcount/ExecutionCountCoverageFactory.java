@@ -1,9 +1,9 @@
 package org.evosuite.coverage.execcount;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
-import org.evosuite.Properties;
+import org.evosuite.ExecutionCountManager;
+import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
@@ -36,7 +36,10 @@ public class ExecutionCountCoverageFactory extends
 
   @Override
   public List<ExecutionCountCoverageTestFitness> getCoverageGoals() {
-    return Collections.singletonList(ExecutionCountCoverageTestFitness
-        .fromExecutionCountFile(new File(Properties.EXE_COUNT_FILE), forCommonBehaviours));
+    return Collections.singletonList(forCommonBehaviours ?
+        new MaxExecutionCountCoverageTestFitness(
+            ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
+        ) : new MinExecutionCountCoverageTestFitness(
+        ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()));
   }
 }

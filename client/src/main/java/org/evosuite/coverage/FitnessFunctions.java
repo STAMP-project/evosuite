@@ -19,7 +19,8 @@
  */
 package org.evosuite.coverage;
 
-import java.io.File;
+import java.util.Arrays;
+import org.evosuite.ExecutionCountManager;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageFactory;
@@ -30,10 +31,6 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageFactory;
 import org.evosuite.coverage.branch.OnlyBranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.OnlyBranchCoverageTestFitness;
-import org.evosuite.coverage.execcount.MinExecutionCountCoverageTestFitness;
-import org.evosuite.coverage.execcount.OnlyExecutedLinesCoverageFactory;
-import org.evosuite.coverage.execcount.ExecutionCountCoverageFactory;
-import org.evosuite.coverage.execcount.MaxExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.cbranch.CBranchFitnessFactory;
 import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.cbranch.CBranchTestFitness;
@@ -49,6 +46,10 @@ import org.evosuite.coverage.exception.ExceptionCoverageTestFitness;
 import org.evosuite.coverage.exception.TryCatchCoverageFactory;
 import org.evosuite.coverage.exception.TryCatchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.TryCatchCoverageTestFitness;
+import org.evosuite.coverage.execcount.ExecutionCountCoverageFactory;
+import org.evosuite.coverage.execcount.MaxExecutionCountCoverageTestFitness;
+import org.evosuite.coverage.execcount.MinExecutionCountCoverageTestFitness;
+import org.evosuite.coverage.execcount.OnlyExecutedLinesCoverageFactory;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
 import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
 import org.evosuite.coverage.ibranch.IBranchTestFitness;
@@ -91,8 +92,6 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 
 /**
  * factory class for fitness functions
@@ -163,9 +162,9 @@ public class FitnessFunctions {
 		case TRYCATCH:
 			return new TryCatchCoverageSuiteFitness();
 		case ONLYEXECUTED:
-			return new OnlyLineCoverageSuiteFitness(
-					OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
-							new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory()));
+			return new OnlyLineCoverageSuiteFitness(new OnlyExecutedLinesCoverageFactory(
+					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
+			));
 		case MAX_EXEC_COUNT:
 		case MIN_EXEC_COUNT:
 			return new DummySuiteFitness(
@@ -233,8 +232,9 @@ public class FitnessFunctions {
 		case TRYCATCH:
 			return new TryCatchCoverageFactory();
 		case ONLYEXECUTED:
-			return OnlyExecutedLinesCoverageFactory.fromExecutionCountFile(
-					new File(Properties.EXE_COUNT_FILE), new LineCoverageFactory());
+			return new OnlyExecutedLinesCoverageFactory(
+					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
+			);
 		case MAX_EXEC_COUNT:
 			return new ExecutionCountCoverageFactory(true);
 		case MIN_EXEC_COUNT:
@@ -306,7 +306,7 @@ public class FitnessFunctions {
 		case ONLYEXECUTED:
 				return LineCoverageTestFitness.class;
 		case MAX_EXEC_COUNT:
-        return MaxExecutionCountCoverageTestFitness.class;
+				return MaxExecutionCountCoverageTestFitness.class;
 		case MIN_EXEC_COUNT:
 				return MinExecutionCountCoverageTestFitness.class;
 		default:

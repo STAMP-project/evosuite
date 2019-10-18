@@ -19,8 +19,16 @@
  */
 package org.evosuite;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.TestFactory;
@@ -37,10 +45,11 @@ import org.evosuite.coverage.line.LineCoverageTestFitness;
 import org.evosuite.coverage.line.RandomLogFileGenerator;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.graphs.GraphPool;
 import org.evosuite.junit.JUnitAnalyzer;
 import org.evosuite.junit.writer.TestSuiteWriter;
-import org.evosuite.regression.bytecode.RegressionClassDiff;
 import org.evosuite.regression.RegressionSuiteMinimizer;
+import org.evosuite.regression.bytecode.RegressionClassDiff;
 import org.evosuite.result.TestGenerationResult;
 import org.evosuite.result.TestGenerationResultBuilder;
 import org.evosuite.rmi.ClientServices;
@@ -54,7 +63,7 @@ import org.evosuite.setup.ExceptionMapGenerator;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.statistics.StatisticsSender;
-import org.evosuite.strategy.*;
+import org.evosuite.strategy.TestGenerationStrategy;
 import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
@@ -72,17 +81,16 @@ import org.evosuite.testcase.statements.Statement;
 import org.evosuite.testcase.statements.StringPrimitiveStatement;
 import org.evosuite.testcase.statements.numeric.BooleanPrimitiveStatement;
 import org.evosuite.testcase.variable.VariableReference;
-import org.evosuite.testsuite.*;
+import org.evosuite.testsuite.RegressionSuiteSerializer;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.testsuite.TestSuiteMinimizer;
+import org.evosuite.testsuite.TestSuiteSerialization;
 import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.generic.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.lang.reflect.Method;
-import java.text.NumberFormat;
-import java.util.*;
 
 /**
  * Main entry point. Does all the static analysis, invokes a test generation
@@ -209,6 +217,15 @@ public class TestSuiteGenerator {
 			}
 
 			return TestGenerationResultBuilder.buildSuccessResult();
+		}
+
+		if (Properties.EXE_COUNT_FILE != null) {
+			LoggingUtils.getEvoLogger().info("* Initializing execution count manager");
+			logger.info("Initializing ExecutionCountManager using execution count file and"
+					+ " class loader for SUT");
+			ExecutionCountManager.setTargetClassExecutionCountManager(
+					new ExecutionCountManager(new File(Properties.EXE_COUNT_FILE),
+							GraphPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())));
 		}
 
 		/*
