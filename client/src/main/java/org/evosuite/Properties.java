@@ -2175,7 +2175,7 @@ public class Properties {
 				setValue(key, Arrays.stream(value.split(":")).mapToDouble(elem -> Double.parseDouble(elem)).toArray());
 			}
 			// Handles properties that are arrays of enum values
-			else if (enumArrayProperties.contains(key)) {
+			else if (Enum.class.isAssignableFrom(f.getType().getComponentType())) {
 				String[] values = value.split(":");
 				Class<Enum> type = (Class<Enum>) f.getType().getComponentType();
 				Object[] propertyValues = (Object[]) Array.newInstance(type, values.length);
@@ -2189,13 +2189,6 @@ public class Properties {
 			f.set(null, value);
 		}
 	}
-
-	/**
-	 * Set of property keys of properties that should be changeable from the command line using
-	 * colon-separated syntax. These can only be properties that are arrays of enum values.
-	 */
-	private static final Set<String> enumArrayProperties = new HashSet<>(Arrays.asList(
-			"criterion", "secondary_objectives"));
 
 	/**
 	 * we need this strict function because Boolean.parseBoolean silently
