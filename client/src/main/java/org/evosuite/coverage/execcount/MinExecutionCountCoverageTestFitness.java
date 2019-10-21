@@ -23,6 +23,6 @@ public class MinExecutionCountCoverageTestFitness extends ExecutionCountCoverage
   @Override
   public double getFitness(TestChromosome individual, ExecutionResult result) {
     double weightedAvgExecCount = getWeightedAvgExecCount(individual, result);
-    return 1 / (weightedAvgExecCount > 0 ? weightedAvgExecCount : Double.MAX_VALUE);
+    return weightedAvgExecCount > 0 ? 1 / weightedAvgExecCount : Double.MAX_VALUE;
   }
 }
