@@ -19,9 +19,6 @@
  */
 package org.evosuite.testcase.execution;
 
-import java.util.Map;
-
-import javafx.util.Pair;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
@@ -30,6 +27,8 @@ import org.evosuite.seeding.ConstantPoolManager;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 
 /**
@@ -433,7 +432,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 		checkTimeout();
-		tracer.trace.logArrayAccess(layer, new Pair<>(index, length));
+		tracer.trace.logArrayAccess(layer, new int[]{index, length});
 	}
 
 	/**

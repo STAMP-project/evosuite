@@ -22,15 +22,14 @@
  */
 package org.evosuite.testcase.execution;
 
+import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.setup.CallContext;
+import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javafx.util.Pair;
-import org.evosuite.coverage.dataflow.DefUse;
-import org.evosuite.setup.CallContext;
-import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
 /**
  * <p>
@@ -191,13 +190,13 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/** {@inheritDoc} */
 	@Override
-	public Pair<Integer, Integer> getArrayAccessInfo(int layer) {
+	public int[] getArrayAccessInfo(int layer) {
 		return trace.getArrayAccessInfo(layer);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<Integer, Pair<Integer, Integer>> getArrayAccessInfo() {
+	public Map<Integer, int[]> getArrayAccessInfo() {
 		return trace.getArrayAccessInfo();
 	}
 
@@ -536,10 +535,10 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logArrayAccess(int, Pair)
+	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logArrayAccess(int, int[])
 	 */
 	@Override
-	public void logArrayAccess(int layer, Pair<Integer, Integer> indexAndArrayLength) {
+	public void logArrayAccess(int layer, int[] indexAndArrayLength) {
 		copyOnWrite();
 		trace.logArrayAccess(layer, indexAndArrayLength);
 	}
