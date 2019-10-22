@@ -1219,6 +1219,9 @@ public class Properties {
 	@Parameter(key = "instrument_libraries", description = "Instrument the libraries used by the project under test")
 	public static boolean INSTRUMENT_LIBRARIES = false;
 
+	@Parameter(key = "instrument_array_access", description = "Instrument the access to arrays")
+	public static int TARGET_ARRAY_LINE = -1;
+
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;
 

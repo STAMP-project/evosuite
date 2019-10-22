@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.util.Pair;
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
@@ -186,6 +187,18 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	@Override
 	public Set<Integer> getCoveredLines(String className) {
 		return trace.getCoveredLines(className);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Pair<Integer, Integer> getArrayAccessInfo(int layer) {
+		return trace.getArrayAccessInfo(layer);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<Integer, Pair<Integer, Integer>> getArrayAccessInfo() {
+		return trace.getArrayAccessInfo();
 	}
 
 	@Override
@@ -518,6 +531,17 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public void linePassed(String className, String methodName, int line) {
 		copyOnWrite();
 		trace.linePassed(className, methodName, line);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logArrayAccess(int, Pair)
+	 */
+	@Override
+	public void logArrayAccess(int layer, Pair<Integer, Integer> indexAndArrayLength) {
+		copyOnWrite();
+		trace.logArrayAccess(layer, indexAndArrayLength);
 	}
 
 	/*

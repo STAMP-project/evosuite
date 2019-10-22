@@ -21,6 +21,7 @@ package org.evosuite.testcase.execution;
 
 import java.util.Map;
 
+import javafx.util.Pair;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
@@ -417,6 +418,22 @@ public class ExecutionTracer {
 		checkTimeout();
 
 		tracer.trace.linePassed(className, methodName, line);
+	}
+
+	/**
+	 * Called by the instrumented code each time the target array is accessed.
+	 * @param index an int.
+	 * @param length an int.
+	 * @param layer an int.
+	 */
+	public static void passedArrayAccess(int index, int length, int layer) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+		if (isThreadNeqCurrentThread())
+			return;
+		checkTimeout();
+		tracer.trace.logArrayAccess(layer, new Pair<>(index, length));
 	}
 
 	/**
