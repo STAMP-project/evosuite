@@ -190,7 +190,7 @@ public interface ExecutionTrace {
 
 	/**
 	 * Retrieve the set of line numbers covered of
-	 * {@link org.evosuite.Properties.TARGET_CLASS} class
+	 * {@link org.evosuite.Properties#TARGET_CLASS} class
 	 *
 	 * @return a {@link java.util.Set} object.
 	 */
@@ -204,16 +204,18 @@ public interface ExecutionTrace {
 	public Set<Integer> getAllCoveredLines();
 
 	/**
-	 * Retrieve the index-length Pair of the array at a specific layer.
+	 * Retrieve the index-length Pair of the array/String at a specific layer.
+	 *
 	 * @return an int array of size 2.
 	 */
-	int[] getArrayAccessInfo(int layer);
+	int[] getIndexedAccessInfo(int layer);
 
 	/**
-	 * Retrieve the index-length Pair of all arrays accessed at the target line.
+	 * Retrieve all the index-length Paris of array/String accessed.
+	 *
 	 * @return a {@link Map} object.
 	 */
-	Map<Integer, int[]> getArrayAccessInfo();
+	Map<Integer, int[]> getIndexedAccessInfo();
 
 	/**
 	 * Retrieve detailed line coverage count
@@ -457,13 +459,12 @@ public interface ExecutionTrace {
 	public void linePassed(String className, String methodName, int line);
 
 	/**
-	 * Log the query index and the length of an array when one is access.
+	 * Log the query index and the length of an array/String when one is access.
 	 *
 	 * @param layer an int.
-	 * @param indexAndArrayLength an int array of size 2. The first element is the accessed index and the second element
-	 *                            is the length of the array/String.
+	 * @param indexAndLength an int array of size 2.
 	 */
-	public void logArrayAccess(int layer, int[] indexAndArrayLength);
+	void logIndexedAccess(int layer, int[] indexAndLength);
 
 	/**
 	 * Record a mutant execution

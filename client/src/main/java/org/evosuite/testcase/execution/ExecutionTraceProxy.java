@@ -190,14 +190,14 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	/** {@inheritDoc} */
 	@Override
-	public int[] getArrayAccessInfo(int layer) {
-		return trace.getArrayAccessInfo(layer);
+	public int[] getIndexedAccessInfo(int layer) {
+		return trace.getIndexedAccessInfo(layer);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<Integer, int[]> getArrayAccessInfo() {
-		return trace.getArrayAccessInfo();
+	public Map<Integer, int[]> getIndexedAccessInfo() {
+		return trace.getIndexedAccessInfo();
 	}
 
 	@Override
@@ -535,12 +535,12 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logArrayAccess(int, int[])
+	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logIndexedAccess(int, int[])
 	 */
 	@Override
-	public void logArrayAccess(int layer, int[] indexAndArrayLength) {
+	public void logIndexedAccess(int layer, int[] indexAndLength) {
 		copyOnWrite();
-		trace.logArrayAccess(layer, indexAndArrayLength);
+		trace.logIndexedAccess(layer, indexAndLength);
 	}
 
 	/*

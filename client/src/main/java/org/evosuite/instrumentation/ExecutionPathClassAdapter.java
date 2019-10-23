@@ -129,8 +129,12 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 		mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
 		mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
 
-		if (Properties.TARGET_ARRAY_LINE != -1)
+		if (Properties.TARGET_ARRAY_LINE != -1) {
 			mv = new ArrayIndexVisitor(mv, className, name, descriptor, Properties.TARGET_ARRAY_LINE);
+		}
+		if (Properties.INSTRUMENT_INDEXED_STRING_ACCESS) {
+			mv = new StringIndexVisitor(mv, className, name, descriptor);
+		}
 
 		mv = new ArrayAllocationLimitMethodAdapter(mv, className, name, methodAccess,
 		        descriptor);

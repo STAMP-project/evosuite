@@ -120,15 +120,14 @@ public class ArrayIndexVisitor extends GeneratorAdapter {
      */
     private void logIndexAndArrayLength() {
         dup2();         // duplicate the array reference and the query index.   Stack be like [..., ref, index, ref, index]
-        swap();         // move array the reference to the top of the stack.    Stack be like [..., index, ref]
-        arrayLength();  // replace array reference with array length.           Stack be like [..., index, length]
+        swap();         // move array the reference to the top of the stack.    Stack be like [..., ref, index, index, ref]
+        arrayLength();  // replace array reference with array length.           Stack be like [..., ref, index, index, length]
 
         LinePool.addLine(className, fullMethodName, currentLine);
         visitLdcInsn(arrayLayer++);
-        mv.visitMethodInsn(INVOKESTATIC,
-                           PackageInfo.getNameWithSlash(ExecutionTracer.class),
-                           "passedArrayAccess",
-                           "(III)V",
-                           false);
+        mv.visitMethodInsn(INVOKESTATIC, PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedIndexedAccess",
+                "(III)V", false);
+        // after call the above method, index and length will be consumed.      Stack be like [..., ref, index]
+        // stack returns back to what it was.
     }
 }

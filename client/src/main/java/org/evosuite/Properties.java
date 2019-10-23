@@ -26,8 +26,8 @@ import org.evosuite.runtime.LoopCounter;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.RuntimeSettings;
 import org.evosuite.runtime.sandbox.Sandbox;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.FileIOUtils;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1222,6 +1222,8 @@ public class Properties {
 	@Parameter(key = "instrument_array_access", description = "Instrument the access to arrays")
 	public static int TARGET_ARRAY_LINE = -1;
 
+	@Parameter(key = "instrument_string_access", description = "Instrument indexed access to String")
+	public static boolean INSTRUMENT_INDEXED_STRING_ACCESS = false;
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;
 
