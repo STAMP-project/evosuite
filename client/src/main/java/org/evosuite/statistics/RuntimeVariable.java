@@ -385,7 +385,11 @@ public enum RuntimeVariable {
 	/* -------------------------------------------------------------------- */
 	/** Search budget needed to reach the maximum coverage */ 
 	/** Used in the comparison between LISP and MOSA */
-	Time2MaxCoverage
+	Time2MaxCoverage,
+
+	/* -------------------------------------------------------------------- */
+	/** Sum over all tests of the average execution count of the code segments they execute */
+	SummedAverageExecutionCount
 	
 	;
 	/* -------------------------------------------------- */

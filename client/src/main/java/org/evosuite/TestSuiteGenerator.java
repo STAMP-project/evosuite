@@ -516,6 +516,10 @@ public class TestSuiteGenerator {
 			CoverageCriteriaAnalyzer.analyzeCoverage(testSuite);
 		}
 
+		if (Properties.EXE_COUNT_FILE != null) {
+			CoverageCriteriaAnalyzer.analyzeExecutionCountCoverage(testSuite);
+		}
+
 		double coverage = testSuite.getCoverage();
 
 		if (ArrayUtil.contains(Properties.CRITERION, Criterion.MUTATION)

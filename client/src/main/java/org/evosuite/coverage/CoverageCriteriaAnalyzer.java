@@ -22,11 +22,19 @@
  */
 package org.evosuite.coverage;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import org.evosuite.ExecutionCountManager;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
@@ -38,9 +46,6 @@ import org.evosuite.utils.ArrayUtil;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.NumberFormat;
-import java.util.*;
 
 /**
  * @author Gordon Fraser
@@ -189,6 +194,32 @@ public class CoverageCriteriaAnalyzer {
         }
     }
 
+    /**
+     * Analyzes and logs the execution count coverage statistics of the provided test suite. The sum
+     * of the average execution count coverage over all tests in the test suite is printed. The
+     * average of that is also printed, which is the previous number divided by the total number of
+     * tests in the suite.
+     */
+    public static void analyzeExecutionCountCoverage(TestSuiteChromosome testSuite) {
+        double summedAvgExecutionCount = testSuite.getTestChromosomes().stream()
+            .mapToDouble(testCase ->
+                ExecutionCountManager.getTargetClassExecutionCountManager().avgExecCount(
+                    testCase.getLastExecutionResult().getTrace().getCoveredLines())
+            ).sum();
+
+        ClientServices.getInstance().getClientNode().trackOutputVariable(
+            RuntimeVariable.SummedAverageExecutionCount, summedAvgExecutionCount);
+
+        LoggingUtils.getEvoLogger().info("* Analyzing execution count coverage");
+
+        DecimalFormat decimalFormat = new DecimalFormat("0.000");
+        LoggingUtils.getEvoLogger().info(
+            "* Sum of average covered execution count over all tests: " + decimalFormat
+                .format(summedAvgExecutionCount));
+        LoggingUtils.getEvoLogger()
+            .info("* Average: " + decimalFormat.format(summedAvgExecutionCount / testSuite.size()));
+    }
+
     public static void analyzeCoverage(TestSuiteChromosome testSuite) {
 
         LoggingUtils.getEvoLogger().info("* Going to analyze the coverage criteria");
@@ -196,7 +227,7 @@ public class CoverageCriteriaAnalyzer {
         Properties.Criterion[] criteria = Properties.CRITERION;
 
         /*
-            As we analyze exactly the same criteria used during the search, we should do not
+            As we analyze exactly the same criteria used during the search, we should not
             need to re-instrument and re-run the tests
          */
         boolean recalculate = false;
