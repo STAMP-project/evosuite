@@ -22,7 +22,6 @@
  */
 package org.evosuite.testcase.execution;
 
-import javafx.util.Pair;
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
@@ -206,15 +205,15 @@ public interface ExecutionTrace {
 
 	/**
 	 * Retrieve the index-length Pair of the array at a specific layer.
-	 * @return a {@link Pair} object.
+	 * @return an int array of size 2.
 	 */
-	Pair<Integer, Integer> getArrayAccessInfo(int layer);
+	int[] getArrayAccessInfo(int layer);
 
 	/**
 	 * Retrieve the index-length Pair of all arrays accessed at the target line.
 	 * @return a {@link Map} object.
 	 */
-	Map<Integer, Pair<Integer, Integer>> getArrayAccessInfo();
+	Map<Integer, int[]> getArrayAccessInfo();
 
 	/**
 	 * Retrieve detailed line coverage count
@@ -461,9 +460,10 @@ public interface ExecutionTrace {
 	 * Log the query index and the length of an array when one is access.
 	 *
 	 * @param layer an int.
-	 * @param indexAndArrayLength a {@link Pair} object.
+	 * @param indexAndArrayLength an int array of size 2. The first element is the accessed index and the second element
+	 *                            is the length of the array/String.
 	 */
-	public void logArrayAccess(int layer, Pair<Integer, Integer> indexAndArrayLength);
+	public void logArrayAccess(int layer, int[] indexAndArrayLength);
 
 	/**
 	 * Record a mutant execution

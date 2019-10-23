@@ -19,7 +19,6 @@
  */
 package org.evosuite.testcase.execution;
 
-import javafx.util.Pair;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -191,7 +190,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections
 			.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
-	public Map<Integer, Pair<Integer, Integer>> arrayIndexAndLength = Collections.synchronizedMap(new HashMap<>());
+	public Map<Integer, int[]> arrayIndexAndLength = Collections.synchronizedMap(new HashMap<>());
 
 	public Map<Integer, Integer> coveredFalse = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
@@ -903,13 +902,13 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<Integer, Pair<Integer, Integer>> getArrayAccessInfo() {
+	public Map<Integer, int[]> getArrayAccessInfo() {
 		return arrayIndexAndLength;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Pair<Integer, Integer> getArrayAccessInfo(int layer) {
+	public int[] getArrayAccessInfo(int layer) {
 		return getArrayAccessInfo().get(layer);
 	}
 
@@ -1425,7 +1424,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void logArrayAccess(int layer, Pair<Integer, Integer> indexAndArrayLength) {
+	public void logArrayAccess(int layer, int[] indexAndArrayLength) {
 		arrayIndexAndLength.put(layer, indexAndArrayLength);
 	}
 
