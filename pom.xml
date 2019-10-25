@@ -73,12 +73,34 @@
                 <role>Developer</role>
             </roles>
         </developer>
+        <developer>
+            <name>Pouria Derakhshanfar</name>
+            <organization>Delft University of Technology</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Annibale Panichella</name>
+            <organization>Delft University of Technology</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Xavier Devroey</name>
+            <organization>Delft University of Technology</organization>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
     </developers>
 
     <scm>
         <connection>scm:git:https://github.com/STAMP-project/evosuite-ramp.git</connection>
         <developerConnection>scm:git:https://github.com/STAMP-project/evosuite-ramp.git</developerConnection>
         <url>https://github.com/STAMP-project/evosuite-ramp/tree/master</url>
+        <tag>HEAD</tag>
     </scm>
 
     <organization>
@@ -464,8 +486,8 @@
 
     <distributionManagement>
         <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>ossrh-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
