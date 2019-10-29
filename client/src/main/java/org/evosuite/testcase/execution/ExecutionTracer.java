@@ -249,17 +249,14 @@ public class ExecutionTracer {
 
 	/**
 	 * Called by instrumented code whenever a new method is called
-	 * 
-	 * @param classname
-	 *            a {@link java.lang.String} object.
-	 * @param methodname
-	 *            a {@link java.lang.String} object.
-	 * @param caller
-	 *            a {@link java.lang.Object} object.
-	 * @throws org.evosuite.testcase.execution.TestCaseExecutor$TimeoutExceeded
-	 *             if any.
+	 *
+	 * @param classname  a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param caller     a {@link java.lang.Object} object.
+	 *
+	 * @throws org.evosuite.testcase.execution.TestCaseExecutor.TimeoutExceeded if any.
 	 */
-	public static void enteredMethod(String classname, String methodname, Object caller)
+	public static void enteredMethod(String classname, String methodName, Object caller)
 	        throws TestCaseExecutor.TimeoutExceeded {
 		ExecutionTracer tracer = getExecutionTracer();
 
@@ -271,8 +268,8 @@ public class ExecutionTracer {
 
 		checkTimeout();
 
-		//logger.trace("Entering method " + classname + "." + methodname);
-		tracer.trace.enteredMethod(classname, methodname, caller);
+		//logger.trace("Entering method " + classname + "." + methodName);
+		tracer.trace.enteredMethod(classname, methodName, caller);
 	}
 
 	/**
@@ -421,18 +418,21 @@ public class ExecutionTracer {
 
 	/**
 	 * Called by the instrumented code each time the target array/String is accessed.
-	 * @param index an int.
-	 * @param length an int.
-	 * @param layer an int.
+	 *
+	 * @param index      an int.
+	 * @param length     an int.
+	 * @param layer      an int.
+	 * @param className  a {@link String} object.
+	 * @param methodName a {@link String} object.
 	 */
-	public static void passedIndexedAccess(int index, int length, int layer) {
+	public static void passedIndexedAccess(int index, int length, int layer, String className, String methodName) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;
 		if (isThreadNeqCurrentThread())
 			return;
 		checkTimeout();
-		tracer.trace.logIndexedAccess(layer, new int[]{index, length});
+		tracer.trace.logIndexedAccess(className, methodName, layer, new int[]{index, length});
 	}
 
 	/**

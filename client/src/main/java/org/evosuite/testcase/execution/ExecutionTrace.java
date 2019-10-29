@@ -204,25 +204,41 @@ public interface ExecutionTrace {
 	public Set<Integer> getAllCoveredLines();
 
 	/**
-	 * Retrieve the index-length Pair of the array/String at a specific layer.
-	 *
-	 * @return an int array of size 2.
-	 */
-	int[] getIndexedAccessInfo(int layer);
-
-	/**
-	 * Retrieve all the index-length Paris of array/String accessed.
-	 *
-	 * @return a {@link Map} object.
-	 */
-	Map<Integer, int[]> getIndexedAccessInfo();
-
-	/**
 	 * Retrieve detailed line coverage count
 	 *
 	 * @return a {@link java.util.Map} object.
 	 */
 	public Map<String, Map<String, Map<Integer, Integer>>> getCoverageData();
+
+	/**
+	 * Retrieve the set of index-length-pair of a specific class
+	 *
+	 * @param className a {@link String} object.
+	 *
+	 * @return a {@link Set} object.
+	 */
+	Set<int[]> getIndexedAccessInfo(String className);
+
+	/**
+	 * Retrieve the set of index-length-pair of {@link org.evosuite.Properties#TARGET_CLASS} class.
+	 *
+	 * @return a {@link Set} object.
+	 */
+	Set<int[]> getIndexedAccessInfo();
+
+	/**
+	 * Retrieve the set of index-length-pair of all classes.
+	 *
+	 * @return a {@link Set} object.
+	 */
+	Set<int[]> getAllIndexedAccessInfo();
+
+	/**
+	 * Retrieve detailed indexed access information.
+	 *
+	 * @return a {@link Map} object.
+	 */
+	Map<String, Map<String, Map<Integer, int[]>>> getIndexedAccessData();
 
 	/**
 	 * Retrieve return value data
@@ -461,10 +477,12 @@ public interface ExecutionTrace {
 	/**
 	 * Log the query index and the length of an array/String when one is access.
 	 *
-	 * @param layer an int.
+	 * @param className      a {@link String} object.
+	 * @param methodName     a {@link String} object.
+	 * @param layer          an int.
 	 * @param indexAndLength an int array of size 2.
 	 */
-	void logIndexedAccess(int layer, int[] indexAndLength);
+	void logIndexedAccess(String className, String methodName, int layer, int[] indexAndLength);
 
 	/**
 	 * Record a mutant execution
