@@ -40,30 +40,9 @@ public class IndexedAccessVisitor extends GeneratorAdapter {
     public void visitInsn(int opcode) {
         if (currentLine == targetLine) {
             if (opcode == IALOAD || opcode == LALOAD || opcode == FALOAD || opcode == DALOAD || opcode == AALOAD || opcode == BALOAD || opcode == CALOAD || opcode == SALOAD) {
-                /*
-                 * Byte code for loading an element from an array:
-                 * ALOAD [arg]                                                          // load the array reference from the stack, where arg is the stack frame
-                 * ILOAD [arg] / ICONST_* / BIPUSH [arg] / SIPUSH [arg] / LDC [arg]     // index of the element in the array
-                 * *ALOAD                                                               // load the element to stack
-                 *
-                 * There are four different ways to represent the index:
-                 *      1. ILOAD [arg]          // load an integer variable from the stack, arg is the index in the stack
-                 *      2. ICONST_*             // If index is in range [0, 5], push an integer const to stack
-                 *      3. BIPUSH/SIPUSH [arg]  // If index is in range [6, 32767], push an integer const to stack
-                 *      4. LDC [arg]            // If index is larger, load it to stack
-                 */
-
                 // [..., arrayRef, index]
-                logIndexAndArrayLength();
+                logIndexAndLength(null);
             } else if (opcode == IASTORE || opcode == LASTORE || opcode == FASTORE || opcode == DASTORE || opcode == AASTORE || opcode == BASTORE || opcode == CASTORE || opcode == SASTORE) {
-                /*
-                 * Byte code for storing an element to an array:
-                 * ALOAD [arg]                                                          // load the array reference from the stack, where arg is the stack frame
-                 * ILOAD [arg] / ICONST_* / BIPUSH [arg] / SIPUSH [arg] / LDC [arg]     // same way to deal with the index as in loading above
-                 * *LOAD [arg] / *CONST_* / B*PUSH [arg] / S*PUSH [arg] / LDC [arg]     // element to store
-                 * *ASTORE                                                              // store the element to array
-                 */
-
                 // [..., arrayRef, index, element]
                 int element;
                 if (opcode == IASTORE) {
@@ -84,7 +63,7 @@ public class IndexedAccessVisitor extends GeneratorAdapter {
                     element = newLocal(Type.getType(Object.class));
                 }
                 storeLocal(element);    // [..., arrayRef, index]
-                logIndexAndArrayLength();
+                logIndexAndLength(null);
                 loadLocal(element);     // [..., arrayRef, index, element]
             }
         }
@@ -122,31 +101,31 @@ public class IndexedAccessVisitor extends GeneratorAdapter {
                     case "codePointAt":
                     case "charAt":
                         // [..., StringRef, index]
-                        logIndexAndStringLength();
+                        logIndexAndLength(String.class);
                         break;
                     case "codePointBefore":
                         // [..., StringRef, indexToCheck+1]
                         mv.visitInsn(ICONST_M1);    // [..., StringRef, indexToCheck+1, -1]
                         mv.visitInsn(IADD);         // [..., StringRef, indexToCheck]
-                        logIndexAndStringLength();
+                        logIndexAndLength(String.class);
                         mv.visitInsn(ICONST_1);     // [..., StringRef, indexToCheck, 1]
                         mv.visitInsn(IADD);         // [..., StringRef, indexToCheck+1]
                         break;
                     case "substring":
                         if (desc.equals("(I)Ljava/lang/String;")) {
                             // [..., StringRef, strIndex]
-                            logIndexAndStringLength();
+                            logIndexAndLength(String.class);
                         } else {
                             // [..., StringRef, strIndex, endIndex]
                             dup2X1();   // [..., strIndex, endIndex, StringRef, strIndex, endIndex]
                             pop();      // [..., strIndex, endIndex, StringRef, strIndex]
-                            logIndexAndStringLength();
+                            logIndexAndLength(String.class);
                             pop();      // [..., strIndex, endIndex, StringRef]
 
                             dupX2();    // [..., StringRef, strIndex, endIndex, StringRef]
                             swap();     // [..., StringRef, strIndex, StringRef, endIndex]
                             dupX1();    // [..., StringRef, strIndex, endIndex, StringRef, endIndex]
-                            logIndexAndStringLength();
+                            logIndexAndLength(String.class);
                             pop2();     // [..., StringRef, strIndex, endIndex]
                         }
                         break;
@@ -162,17 +141,17 @@ public class IndexedAccessVisitor extends GeneratorAdapter {
                         swap();                     // [..., StringRef, strIndex, endIndex,  dstArray, strIndex, StringRef]
                         dupX1();                    // [..., StringRef, strIndex, endIndex,  dstArray, StringRef, strIndex, StringRef]
                         loadLocal(endIndex);        // [..., StringRef, strIndex, endIndex,  dstArray, StringRef, strIndex, StringRef, endIndex]
-                        logIndexAndStringLength();
+                        logIndexAndLength(String.class);
                         pop2();                     // [..., StringRef, strIndex, endIndex,  dstArray, StringRef, strIndex]
-                        logIndexAndStringLength();
+                        logIndexAndLength(String.class);
                         pop2();                     // [..., StringRef, strIndex, endIndex,  dstArray]
                         loadLocal(dstStrIndex);     // [..., StringRef, strIndex, endIndex,  dstArray, dstStrIndex]
                         break;
                 }
             } else if (owner.equals(PackageInfo.getNameWithSlash(CharSequence.class))) {
                 if (name.equals("charAt")) {
-                    // [..., StringRef, index]
-                    logIndexAndStringLength();
+                    // [..., charSequenceRef, index]
+                    logIndexAndLength(CharSequence.class);
                 }
             }
         }
@@ -187,72 +166,60 @@ public class IndexedAccessVisitor extends GeneratorAdapter {
     }
 
     /**
-     * When this method is called, the stack should be like [..., arrayRef, index]. <b>It's important that afterwards,
-     * the stack maintains the same.</b>
+     * When this method is called, the stack should be like [..., ref, index]. <b>It's important that afterwards, the
+     * stack maintains the same.</b>
      * <p>
-     * It will get the length of the array and call a static function to store the index and the array length into the
-     * {@link ExecutionTracer}.
+     * It will get the length of the ref and call a static function to store the index and the length into the {@link
+     * ExecutionTracer}.
+     *
+     * @param clazz The class of the reference to be logged. If it refers to an array of primitive types, it's set to
+     *              null. This parameter is related to how we calculate the length of the reference.
      */
-    private void logIndexAndArrayLength() {
-        dup2();         // [..., arrayRef, index, arrayRef, index]
-        swap();         // [..., arrayRef, index, index, arrayRef]
-        arrayLength();  // [..., arrayRef, index, index, length]
-
-        LinePool.addLine(className, fullMethodName, currentLine);
+    private void logIndexAndLength(Class clazz) {
+        dup2();
+        swap();
+        if (clazz == null) {
+            arrayLength();
+        } else if (clazz.equals(String.class)) {
+            mv.visitMethodInsn(INVOKEVIRTUAL, PackageInfo.getNameWithSlash(String.class), "length", "()I", false);
+        } else if (clazz.equals(CharSequence.class)) {
+            mv.visitMethodInsn(INVOKEINTERFACE, PackageInfo.getNameWithSlash(CharSequence.class), "length", "()I",
+                    true);
+        }
         visitLdcInsn(layer++);
         visitLdcInsn(className);
         visitLdcInsn(fullMethodName);
         mv.visitMethodInsn(INVOKESTATIC, PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedIndexedAccess",
                 "(IIILjava/lang/String;Ljava/lang/String;)V", false);
-        // [..., arrayRef, index]
+        // [..., ref, index]
     }
 
     /**
      * When this method is called, the stack should be like [..., arrayRef, offset, counter]. <b>It's important that
      * afterwards, the stack maintains the same.</b>
      * <p>
-     * It will use {@link #logIndexAndArrayLength()} to log three index-length pairs into the {@link ExecutionTracer}:
+     * It will use {@link #logIndexAndLength(Class)} to log three index-length pairs into the {@link ExecutionTracer}:
      * <ol>
      *     <li>(offset + counter) to array length.</li>
      *     <li>counter to array length.</li>
      *     <li>offset to array length.</li>
      * </ol>
      *
-     * @see #logIndexAndArrayLength()
+     * @see #logIndexAndLength(Class)
      */
     private void logStringCheckBounds() {
         dup2X1();           // [..., offset, counter, arrayRef, offset, counter]
         mv.visitInsn(IADD); // [..., offset, counter, arrayRef, offset+counter]
-        logIndexAndStringLength();
+        logIndexAndLength(String.class);
         pop();              // [..., offset, counter, arrayRef]
         dupX2();            // [..., arrayRef, offset, counter, arrayRef]
         swap();             // [..., arrayRef, offset, arrayRef, counter]
-        logIndexAndStringLength();
+        logIndexAndLength(String.class);
         dupX2();            // [..., arrayRef, counter, offset, arrayRef, counter]
         pop();              // [..., arrayRef, counter, offset, arrayRef]
         swap();             // [..., arrayRef, counter, arrayRef, offset]
-        logIndexAndStringLength();
+        logIndexAndLength(String.class);
         swap();             // [..., arrayRef, counter, offset, arrayRef]
         pop();              // [..., arrayRef, counter, offset]
-    }
-
-    /**
-     * When this method is called, the stack should be like [..., StringRef, index]. <b>It's important that afterwards,
-     * the stack maintains the same.</b>
-     * <p>
-     * It will get the length of the String by calling {@link String#length()} and then call a static function to store
-     * the index and the String length into the {@link ExecutionTracer}.
-     */
-    private void logIndexAndStringLength() {
-        dup2();     // [..., StringRef, index, StringRef, index]
-        swap();     // [..., StringRef, index, index, StringRef]
-        mv.visitMethodInsn(INVOKEVIRTUAL, PackageInfo.getNameWithSlash(String.class), "length", "()I", false);
-        // [..., StringRef, index, index, StringLength]
-        visitLdcInsn(layer++);
-        visitLdcInsn(className);
-        visitLdcInsn(fullMethodName);
-        mv.visitMethodInsn(INVOKESTATIC, PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedIndexedAccess",
-                "(IIILjava/lang/String;Ljava/lang/String;)V", false);
-        // [..., StringRef, index]
     }
 }
