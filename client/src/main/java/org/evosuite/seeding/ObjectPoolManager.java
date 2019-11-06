@@ -171,6 +171,9 @@ public class ObjectPoolManager extends ObjectPool {
 	private boolean modelExists(GenericClass clazz, File folder) {
 		String className = clazz.getClassName();
 		File[] listOfModels = folder.listFiles();
+		if (listOfModels == null){
+			return false;
+		}
 		for (File file : listOfModels) {
 			if (file.isFile() && !file.getName().startsWith(".") && file.getName().endsWith(".xml")) {
 				String xmlClassName = file.getName().substring(0, file.getName().length() - 4);
