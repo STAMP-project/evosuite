@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.com/STAMP-project/evosuite-ramp.svg?branch=master)](https://travis-ci.com/STAMP-project/evosuite-ramp)
-
 [![Maven Central](https://img.shields.io/maven-central/v/eu.stamp-project/evosuite.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22eu.stamp-project%22%20AND%20a:%22evosuite%22)
 
 # EvoSuite Runtime Amplification
