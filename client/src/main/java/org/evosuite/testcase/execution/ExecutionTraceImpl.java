@@ -190,7 +190,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, Map<String, Map<Integer, Integer>>> coverage = Collections
 			.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
 
-	public Map<Integer, int[]> arrayIndexAndLength = Collections.synchronizedMap(new HashMap<>());
+	public Map<String, Map<String, Map<Integer, int[]>>> indexAndLengthMap =
+			Collections.synchronizedMap(new HashMap<>());
 
 	public Map<Integer, Integer> coveredFalse = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
@@ -538,7 +539,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		// finished_calls.clear();
 		stack.add(new MethodCall("", "", 0, 0, 0)); // Main method
 		coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
-		arrayIndexAndLength = new HashMap<>();
+		indexAndLengthMap = Collections.synchronizedMap(new HashMap<>());
 		returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 
 		methodId = 0;
@@ -582,9 +583,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		if (coverage != null) {
 			copy.coverage.putAll(coverage);
 		}
-		copy.arrayIndexAndLength = new HashMap<>();
-		if (arrayIndexAndLength != null) 
-			copy.arrayIndexAndLength.putAll(arrayIndexAndLength);
+		copy.indexAndLengthMap = Collections.synchronizedMap(new HashMap<>());
+		if (indexAndLengthMap != null)
+			copy.indexAndLengthMap.putAll(indexAndLengthMap);
 		copy.returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 		copy.returnData.putAll(returnData);
 		/*
@@ -902,14 +903,40 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	/** {@inheritDoc} */
 	@Override
-	public Map<Integer, int[]> getArrayAccessInfo() {
-		return arrayIndexAndLength;
+	public Set<int[]> getIndexedAccessInfo(String className) {
+		Set<int[]> indexedAccessInfo = new HashSet<>();
+		for (Entry<String, Map<String, Map<Integer, int[]>>> entry : indexAndLengthMap.entrySet()) {
+			if ((entry.getKey().equals(className)) || (entry.getKey().startsWith(className + "$"))) {
+				for (Map<Integer, int[]> methodEntry : entry.getValue().values()) {
+					indexedAccessInfo.addAll(methodEntry.values());
+				}
+			}
+		}
+		return indexedAccessInfo;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public int[] getArrayAccessInfo(int layer) {
-		return getArrayAccessInfo().get(layer);
+	public Set<int[]> getIndexedAccessInfo() {
+		return getIndexedAccessInfo(Properties.TARGET_CLASS);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Set<int[]> getAllIndexedAccessInfo() {
+		Set<int[]> indexedAccessInfo = new HashSet<>();
+		for (Entry<String, Map<String, Map<Integer, int[]>>> entry : indexAndLengthMap.entrySet()) {
+			for (Map<Integer, int[]> methodEntry : entry.getValue().values()) {
+				indexedAccessInfo.addAll(methodEntry.values());
+			}
+		}
+		return indexedAccessInfo;
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<String, Map<String, Map<Integer, int[]>>> getIndexedAccessData() {
+		return indexAndLengthMap;
 	}
 
 	/*
@@ -1420,12 +1447,16 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
-	public void logArrayAccess(int layer, int[] indexAndArrayLength) {
-		arrayIndexAndLength.put(layer, indexAndArrayLength);
+	public void logIndexedAccess(String className, String methodName, int layer, int[] indexAndLength) {
+		if (!indexAndLengthMap.containsKey(className)) {
+			indexAndLengthMap.put(className, new HashMap<>());
+		}
+		if (!indexAndLengthMap.containsKey(methodName)) {
+			indexAndLengthMap.get(className).put(methodName, new HashMap<>());
+		}
+		indexAndLengthMap.get(className).get(methodName).put(layer, indexAndLength);
 	}
 
 	/** {@inheritDoc} */
