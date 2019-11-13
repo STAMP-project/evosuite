@@ -1222,6 +1222,9 @@ public class Properties {
 	@Parameter(key = "instrument_indexed_access", description = "Instrument the indexed access to an array or a String")
 	public static int TARGET_INDEXED_ACCESS_LINE = -1;
 
+	@Parameter(key = "instrument_branching_variables", description = "Instrument the branching variables")
+	public static boolean INSTRUMENT_BRANCHING_VARIABLES = false;
+
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;
 
