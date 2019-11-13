@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import static org.objectweb.asm.Opcodes.*;
 
 public class IndexedAccessVisitor extends GeneratorAdapter {
-    private static Logger logger = LoggerFactory.getLogger(IndexedAccessVisitor.class);
+    private static final Logger logger = LoggerFactory.getLogger(IndexedAccessVisitor.class);
 
     private final String fullMethodName;
     private final String className;

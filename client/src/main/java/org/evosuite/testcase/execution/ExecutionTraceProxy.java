@@ -222,6 +222,30 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 		return trace.getIndexedAccessData();
 	}
 
+	/** {@inheritDoc} */
+	@Override
+	public Map<Integer, Map<String, Object>> getBranchingVariables(String className, String methodName) {
+		return trace.getBranchingVariables(className, methodName);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<Integer, Map<String, Object>> getBranchingVariables(String className) {
+		return trace.getBranchingVariables(className);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<Integer, Map<String, Object>> getBranchingVariables() {
+		return trace.getBranchingVariables();
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public Map<String, Map<String, Map<Integer, Map<String, Object>>>> getBranchingVariableData() {
+		return trace.getBranchingVariableData();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -547,12 +571,23 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @see org.evosuite.testcase.execution.ExecutionTraceImpl#logIndexedAccess(String, String, int, int[])
+	 * @see ExecutionTraceImpl#logIndexedAccess(String, String, int, int[])
 	 */
 	@Override
 	public void logIndexedAccess(String className, String methodName, int layer, int[] indexAndLength) {
 		copyOnWrite();
 		trace.logIndexedAccess(className, methodName, layer, indexAndLength);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @see ExecutionTraceImpl#logBranchingVariable(String, String, int, String, Object)
+	 */
+	@Override
+	public void logBranchingVariable(String className, String methodName, int line, String variableName, Object val) {
+		copyOnWrite();
+		trace.logBranchingVariable(className, methodName, line, variableName, val);
 	}
 
 	/*

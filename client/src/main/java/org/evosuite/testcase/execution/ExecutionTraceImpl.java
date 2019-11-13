@@ -193,6 +193,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, Map<String, Map<Integer, int[]>>> indexAndLengthMap =
 			Collections.synchronizedMap(new HashMap<>());
 
+	public Map<String, Map<String, Map<Integer, Map<String, Object>>>> branchingVariables =
+			Collections.synchronizedMap(new HashMap<>());
+
 	public Map<Integer, Integer> coveredFalse = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
 	public Map<String, Integer> coveredMethods = Collections.synchronizedMap(new HashMap<String, Integer>());
@@ -540,6 +543,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		stack.add(new MethodCall("", "", 0, 0, 0)); // Main method
 		coverage = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 		indexAndLengthMap = Collections.synchronizedMap(new HashMap<>());
+		branchingVariables = Collections.synchronizedMap(new HashMap<>());
 		returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 
 		methodId = 0;
@@ -586,6 +590,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.indexAndLengthMap = Collections.synchronizedMap(new HashMap<>());
 		if (indexAndLengthMap != null)
 			copy.indexAndLengthMap.putAll(indexAndLengthMap);
+		copy.branchingVariables = Collections.synchronizedMap(new HashMap<>());
+		if (branchingVariables != null) {
+			copy.branchingVariables.putAll(branchingVariables);
+		}
 		copy.returnData = new HashMap<String, Map<String, Map<Integer, Integer>>>();
 		copy.returnData.putAll(returnData);
 		/*
@@ -937,6 +945,42 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Map<String, Map<String, Map<Integer, int[]>>> getIndexedAccessData() {
 		return indexAndLengthMap;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<Integer, Map<String, Object>> getBranchingVariables(String className, String methodName) {
+		return this.branchingVariables.get(className).get(methodName);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<Integer, Map<String, Object>> getBranchingVariables(String className) {
+		HashMap<Integer, Map<String, Object>> branchingVariables = new HashMap<>();
+		for (Map<Integer, Map<String, Object>> map : this.branchingVariables.get(className).values()) {
+			branchingVariables.putAll(map);
+		}
+		return branchingVariables;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<Integer, Map<String, Object>> getBranchingVariables() {
+		return getBranchingVariables(Properties.TARGET_CLASS);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Map<String, Map<String, Map<Integer, Map<String, Object>>>> getBranchingVariableData() {
+		return branchingVariables;
 	}
 
 	/*
@@ -1457,6 +1501,21 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			indexAndLengthMap.get(className).put(methodName, new HashMap<>());
 		}
 		indexAndLengthMap.get(className).get(methodName).put(layer, indexAndLength);
+	}
+
+	/** {@inheritDoc} */
+	@Override
+	public void logBranchingVariable(String className, String methodName, int line, String variableName, Object val) {
+		if (!branchingVariables.containsKey(className)) {
+			branchingVariables.put(className, new HashMap<>());
+		}
+		if (!branchingVariables.get(className).containsKey(methodName)) {
+			branchingVariables.get(className).put(methodName, new HashMap<>());
+		}
+		if (!branchingVariables.get(className).get(methodName).containsKey(line)) {
+			branchingVariables.get(className).get(methodName).put(line, new HashMap<>());
+		}
+		branchingVariables.get(className).get(methodName).get(line).put(variableName, val);
 	}
 
 	/** {@inheritDoc} */
