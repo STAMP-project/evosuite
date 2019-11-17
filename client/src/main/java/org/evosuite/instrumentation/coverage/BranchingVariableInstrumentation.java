@@ -2,6 +2,7 @@ package org.evosuite.instrumentation.coverage;
 
 import org.evosuite.PackageInfo;
 import org.evosuite.testcase.execution.ExecutionTracer;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +14,19 @@ import static org.objectweb.asm.Opcodes.*;
 
 public class BranchingVariableInstrumentation implements MethodInstrumentation {
     private static final Logger logger = LoggerFactory.getLogger(BranchingVariableInstrumentation.class);
+    private MethodNode methodNode;
+    private String methodName;
+    private String className;
+    private int currentLine;
 
     @Override
-    public void analyze(ClassLoader classLoader, MethodNode mn, String className, String methodName, int access) {
-        mn.localVariables.sort(Comparator.comparingInt(o -> o.index));
-        int currentLine = 0;
-        ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
+    public void analyze(ClassLoader classLoader, MethodNode methodNode, String className, String methodName,
+                        int access) {
+        this.methodNode = methodNode;
+        this.methodName = methodName;
+        this.className = className;
+        this.methodNode.localVariables.sort(Comparator.comparingInt(o -> o.index));
+        ListIterator<AbstractInsnNode> iterator = this.methodNode.instructions.iterator();
         while (iterator.hasNext()) {
             AbstractInsnNode instruction = iterator.next();
             int opcode = instruction.getOpcode();
@@ -26,453 +34,26 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
             if (instruction instanceof LineNumberNode) {
                 currentLine = ((LineNumberNode) instruction).line;
             } else if (opcode == DCMPL || opcode == DCMPG) {
-                // comparing two double values:
-                int count = 0;
-                AbstractInsnNode current = instruction;
-                while (count < 2) {
-                    current = current.getPrevious();
-                    switch (current.getOpcode()) {
-                        // region One of the doubles is a constant, which we don't care about. Just increase the
-                        // counter.
-                        case DCONST_0:
-                        case DCONST_1:
-                        case LDC:
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the doubles is a field of the object or a static field of the class
-                        case GETSTATIC:
-                        case GETFIELD:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the doubles is a return value from a method call
-                        case INVOKEVIRTUAL:
-                        case INVOKESPECIAL:
-                        case INVOKESTATIC:
-                        case INVOKEINTERFACE:
-                        case INVOKEDYNAMIC:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the doubles is a local variable, we log it into the ExecutionTracer
-                        case DLOAD:
-                            InsnList insnList = new InsnList();
-                            insnList.add(new InsnNode(DUP));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC, PackageInfo.getNameWithSlash(Double.class),
-                                    "valueOf", "(D)Ljava/lang/Double;", false));
-                            insnList.add(new LdcInsnNode(className));
-                            insnList.add(new LdcInsnNode(methodName));
-                            insnList.add(new LdcInsnNode(currentLine));
-                            insnList.add(new LdcInsnNode(mn.localVariables.get(((VarInsnNode) current).var).name));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                    PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedBranchingVariable",
-                                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
-                                    false));
-                            mn.instructions.insert(current, insnList);
-                            count++;
-                            mn.maxStack += 5;
-                            break;
-                        // endregion
-                        // region We don't care about all the other instructions.
-                        default:
-                            break;
-                        // endregion
-                    }
-                }
+                logger.info("Comparing two double values");
+                logBranchingVariables(instruction, 2);
             } else if (opcode == FCMPL || opcode == FCMPG) {
-                // comparing two float values:
-                int count = 0;
-                AbstractInsnNode current = instruction;
-                while (count < 2) {
-                    current = current.getPrevious();
-                    switch (current.getOpcode()) {
-                        // region One of the floats is a constant, which we don't care about. Just increase the counter.
-                        case FCONST_0:
-                        case FCONST_1:
-                        case FCONST_2:
-                        case LDC:
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the floats is a field of the object or a static field of the class
-                        case GETSTATIC:
-                        case GETFIELD:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the floats is a return value from a method call
-                        case INVOKEVIRTUAL:
-                        case INVOKESPECIAL:
-                        case INVOKESTATIC:
-                        case INVOKEINTERFACE:
-                        case INVOKEDYNAMIC:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the longs is a local variable, we log it into the ExecutionTracer
-                        case FLOAD:
-                            InsnList insnList = new InsnList();
-                            insnList.add(new InsnNode(DUP));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC, PackageInfo.getNameWithSlash(Float.class),
-                                    "valueOf", "(F)Ljava/lang/Float;", false));
-                            insnList.add(new LdcInsnNode(className));
-                            insnList.add(new LdcInsnNode(methodName));
-                            insnList.add(new LdcInsnNode(currentLine));
-                            insnList.add(new LdcInsnNode(mn.localVariables.get(((VarInsnNode) current).var).name));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                    PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedBranchingVariable",
-                                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
-                                    false));
-                            mn.instructions.insert(current, insnList);
-                            count++;
-                            mn.maxStack += 5;
-                            break;
-                        // endregion
-                        // region We don't care about all the other instructions.
-                        default:
-                            break;
-                        // endregion
-                    }
-                }
+                logger.info("Comparing two float values");
+                logBranchingVariables(instruction, 2);
             } else if (opcode == LCMP) {
-                // comparing two long values:
-                int count = 0;
-                AbstractInsnNode current = instruction;
-                while (count < 2) {
-                    current = current.getPrevious();
-                    switch (current.getOpcode()) {
-                        // region One of the longs is a constant, which we don't care about. Just increase the counter.
-                        case LCONST_0:
-                        case LCONST_1:
-                        case LDC:
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the longs is a field of the object or a static field of the class
-                        case GETSTATIC:
-                        case GETFIELD:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the longs is a return value from a method call
-                        case INVOKEVIRTUAL:
-                        case INVOKESPECIAL:
-                        case INVOKESTATIC:
-                        case INVOKEINTERFACE:
-                        case INVOKEDYNAMIC:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the longs is a local variable, we log it into the ExecutionTracer
-                        case LLOAD:
-                            InsnList insnList = new InsnList();
-                            insnList.add(new InsnNode(DUP));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC, PackageInfo.getNameWithSlash(Long.class),
-                                    "valueOf", "(J)Ljava/lang/Long;", false));
-                            insnList.add(new LdcInsnNode(className));
-                            insnList.add(new LdcInsnNode(methodName));
-                            insnList.add(new LdcInsnNode(currentLine));
-                            insnList.add(new LdcInsnNode(mn.localVariables.get(((VarInsnNode) current).var).name));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                    PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedBranchingVariable",
-                                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
-                                    false));
-                            mn.instructions.insert(current, insnList);
-                            count++;
-                            mn.maxStack += 5;
-                            break;
-                        // endregion
-                        // region We don't care about all the other instructions.
-                        default:
-                            break;
-                        // endregion
-                    }
-                }
+                logger.info("Comparing two long values");
+                logBranchingVariables(instruction, 2);
             } else if (opcode >= IF_ICMPEQ && opcode <= IF_ICMPLE) {
-                // comparing two byte/char/int/short/boolean values:
-                int count = 0;
-                AbstractInsnNode current = instruction;
-                while (count < 2) {
-                    current = current.getPrevious();
-                    switch (current.getOpcode()) {
-                        // region One of the integers is a constant, which we don't care about. Just increase the
-                        // counter.
-                        case ICONST_M1:
-                        case ICONST_0:
-                        case ICONST_1:
-                        case ICONST_2:
-                        case ICONST_3:
-                        case ICONST_4:
-                        case ICONST_5:
-                        case BIPUSH:
-                        case SIPUSH:
-                        case LDC:
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the integers is a field of the object or a static field of the class
-                        case GETSTATIC:
-                        case GETFIELD:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the integers is a return value from a method call
-                        case INVOKEVIRTUAL:
-                        case INVOKESPECIAL:
-                        case INVOKESTATIC:
-                        case INVOKEINTERFACE:
-                        case INVOKEDYNAMIC:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region One of the integers is a local variable, we log it into the ExecutionTracer
-                        case ILOAD:
-                            LocalVariableNode localVariable = mn.localVariables.get(((VarInsnNode) current).var);
-                            String variableType = localVariable.desc;
-                            String variableName = localVariable.name;
-
-                            InsnList insnList = new InsnList();
-                            insnList.add(new InsnNode(DUP));
-                            // region Primitive types have to be turned into a wrapper class object
-                            switch (variableType) {
-                                case "B":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Byte.class), "valueOf", "(B)Ljava/lang/Byte;"
-                                            , false));
-                                    break;
-                                case "C":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Character.class), "valueOf",
-                                            "(C)Ljava/lang" + "/Character;", false));
-                                    break;
-                                case "S":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Short.class), "valueOf", "(S)Ljava/lang" +
-                                            "/Short;", false));
-                                    break;
-                                case "I":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Integer.class), "valueOf",
-                                            "(I)Ljava/lang" + "/Integer;", false));
-                                    break;
-                                case "Z":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Boolean.class), "valueOf",
-                                            "(Z)Ljava/lang" + "/Boolean;", false));
-                                    break;
-                            }
-                            // endregion
-                            insnList.add(new LdcInsnNode(className));
-                            insnList.add(new LdcInsnNode(methodName));
-                            insnList.add(new LdcInsnNode(currentLine));
-                            insnList.add(new LdcInsnNode(variableName));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                    PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedBranchingVariable",
-                                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
-                                    false));
-                            mn.instructions.insert(current, insnList);
-                            count++;
-                            mn.maxStack += 5;
-                            break;
-                        // endregion
-                        // region We don't care about all the other instructions.
-                        default:
-                            break;
-                        // endregion
-                    }
-                }
+                logger.info("Comparing two byte/char/int/short/boolean values");
+                logBranchingVariables(instruction, 2);
             } else if (opcode == IF_ACMPEQ || opcode == IF_ACMPNE) {
-                // comparing two references
-                int count = 0;
-                AbstractInsnNode current = instruction;
-                while (count < 2) {
-                    current = current.getPrevious();
-                    switch (current.getOpcode()) {
-                        case ACONST_NULL:
-                            count++;
-                            break;
-                        case GETSTATIC:
-                        case GETFIELD:
-                            count++;
-                            break;
-                        case INVOKEVIRTUAL:
-                        case INVOKESPECIAL:
-                        case INVOKESTATIC:
-                        case INVOKEINTERFACE:
-                        case INVOKEDYNAMIC:
-                            count++;
-                            break;
-                        case ALOAD:
-                            InsnList insnList = new InsnList();
-                            insnList.add(new InsnNode(DUP));
-                            insnList.add(new LdcInsnNode(className));
-                            insnList.add(new LdcInsnNode(methodName));
-                            insnList.add(new LdcInsnNode(currentLine));
-                            insnList.add(new LdcInsnNode(mn.localVariables.get(((VarInsnNode) current).var).name));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                    PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedBranchingVariable",
-                                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
-                                    false));
-                            mn.instructions.insert(current, insnList);
-                            count++;
-                            mn.maxStack += 5;
-                            break;
-                        case NEW:
-                            // todo new object maybe should be logged as well?
-                            count++;
-                            break;
-                    }
-                }
+                logger.info("Comparing two references");
+                logBranchingVariables(instruction, 2);
             } else if (opcode >= IFEQ && opcode <= IFLE) {
-                // comparing one integer with 0
-                int count = 0;
-                AbstractInsnNode current = instruction;
-                while (count < 1) {
-                    current = current.getPrevious();
-                    switch (current.getOpcode()) {
-                        // region The integer is a result of a previous comparision, increase the counter and ignore it.
-                        case LCMP:
-                        case FCMPL:
-                        case FCMPG:
-                        case DCMPL:
-                        case DCMPG:
-                            count++;
-                            break;
-                        // endregion
-                        // region The integer is a field of the object or a static field of the class
-                        case GETSTATIC:
-                        case GETFIELD:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region The integer is a return value from a method call
-                        case INVOKEVIRTUAL:
-                        case INVOKESPECIAL:
-                        case INVOKESTATIC:
-                        case INVOKEINTERFACE:
-                        case INVOKEDYNAMIC:
-                            // todo for now we only increase the counter, but maybe they should be dealt with
-                            //  differently as they may be related to crashes
-                            count++;
-                            break;
-                        // endregion
-                        // region The integer is a local variable, we log it into the ExecutionTracer
-                        case ILOAD:
-                            LocalVariableNode localVariable = mn.localVariables.get(((VarInsnNode) current).var);
-                            String variableType = localVariable.desc;
-                            String variableName = localVariable.name;
-
-                            InsnList insnList = new InsnList();
-                            insnList.add(new InsnNode(DUP));
-                            // region Primitive types have to be turned into a wrapper class object
-                            switch (variableType) {
-                                case "B":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Byte.class), "valueOf", "(B)Ljava/lang/Byte;"
-                                            , false));
-                                    break;
-                                case "C":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Character.class), "valueOf",
-                                            "(C)Ljava/lang" + "/Character;", false));
-                                    break;
-                                case "S":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Short.class), "valueOf", "(S)Ljava/lang" +
-                                            "/Short;", false));
-                                    break;
-                                case "I":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Integer.class), "valueOf",
-                                            "(I)Ljava/lang" + "/Integer;", false));
-                                    break;
-                                case "Z":
-                                    insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                            PackageInfo.getNameWithSlash(Boolean.class), "valueOf",
-                                            "(Z)Ljava/lang" + "/Boolean;", false));
-                                    break;
-                            }
-                            // endregion
-                            insnList.add(new LdcInsnNode(className));
-                            insnList.add(new LdcInsnNode(methodName));
-                            insnList.add(new LdcInsnNode(currentLine));
-                            insnList.add(new LdcInsnNode(variableName));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                    PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedBranchingVariable",
-                                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
-                                    false));
-                            mn.instructions.insert(current, insnList);
-                            count++;
-                            mn.maxStack += 5;
-                            break;
-                        // endregion
-                        // region We don't care about all the other instructions.
-                        default:
-                            break;
-                        // endregion
-                    }
-                }
+                logger.info("Comparing one byte/char/int/short/boolean against 0");
+                logBranchingVariables(instruction, 1);
             } else if (opcode == IFNULL || opcode == IFNONNULL) {
-                // comparing one references with null
-                int count = 0;
-                AbstractInsnNode current = instruction;
-                while (count < 1) {
-                    current = current.getPrevious();
-                    switch (current.getOpcode()) {
-                        case ACONST_NULL:
-                            count++;
-                            break;
-                        case GETSTATIC:
-                        case GETFIELD:
-                            count++;
-                            break;
-                        case INVOKEVIRTUAL:
-                        case INVOKESPECIAL:
-                        case INVOKESTATIC:
-                        case INVOKEINTERFACE:
-                        case INVOKEDYNAMIC:
-                            count++;
-                            break;
-                        case ALOAD:
-                            InsnList insnList = new InsnList();
-                            insnList.add(new InsnNode(DUP));
-                            insnList.add(new LdcInsnNode(className));
-                            insnList.add(new LdcInsnNode(methodName));
-                            insnList.add(new LdcInsnNode(currentLine));
-                            insnList.add(new LdcInsnNode(mn.localVariables.get(((VarInsnNode) current).var).name));
-                            insnList.add(new MethodInsnNode(INVOKESTATIC,
-                                    PackageInfo.getNameWithSlash(ExecutionTracer.class), "passedBranchingVariable",
-                                    "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang/String;)V",
-                                    false));
-                            mn.instructions.insert(current, insnList);
-                            count++;
-                            mn.maxStack += 5;
-                            break;
-                        case NEW:
-                            // todo new object maybe should be logged as well?
-                            count++;
-                            break;
-                    }
-                }
+                logger.info("Comparing one reference against NULL");
+                logBranchingVariables(instruction, 1);
             }
         }
     }
@@ -485,5 +66,130 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
     @Override
     public boolean executeOnExcludedMethods() {
         return false;
+    }
+
+    /**
+     * If the local variable type is one of the primitive types, return a {@link MethodInsnNode} to call its
+     * corresponding <b><i>valueOf</i></b> method, so it can be wrapped into an object. If it is already an object,
+     * return a {@link Opcodes#NOP NOP} instruction to do nothing.
+     *
+     * @param variable The instruction node of the local variable.
+     */
+    private static AbstractInsnNode valueOf(LocalVariableNode variable) {
+        switch (variable.desc) {
+            case "B":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+            case "C":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",
+                        false);
+            case "D":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+            case "F":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+            case "I":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",
+                        false);
+            case "J":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+            case "S":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+            case "Z":
+                return new MethodInsnNode(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",
+                        false);
+            default:
+                return new InsnNode(NOP);
+        }
+    }
+
+    /**
+     * Get the instrumentation to log a local variable into the {@link ExecutionTracer}.
+     *
+     * @param variable The instruction node of the local variable.
+     *
+     * @return A list of instructions to perform the logging process.
+     */
+    private InsnList getInstrumentation(LocalVariableNode variable) {
+        InsnList insnList = new InsnList();
+        insnList.add(new InsnNode(DUP));
+        insnList.add(valueOf(variable));
+        insnList.add(new LdcInsnNode(className));
+        insnList.add(new LdcInsnNode(methodName));
+        insnList.add(new LdcInsnNode(currentLine));
+        insnList.add(new LdcInsnNode(variable.name));
+        insnList.add(new MethodInsnNode(INVOKESTATIC, PackageInfo.getNameWithSlash(ExecutionTracer.class),
+                "passedBranchingVariable", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang" +
+                "/String;)V", false));
+        return insnList;
+    }
+
+    private void logBranchingVariables(AbstractInsnNode instruction, int numOfVariables) {
+        int count = 0;
+        AbstractInsnNode current = instruction;
+        while (count < numOfVariables) {
+            current = current.getPrevious();
+            switch (current.getOpcode()) {
+                // region The variable is a field of the object or a static field of the class
+                case GETSTATIC:
+                case GETFIELD:
+                    // todo For now we only increase the counter, but maybe they should be treated differently as they may be related to crashes
+                // endregion
+                // region The variable is a return value from a method call
+                case INVOKEVIRTUAL:
+                case INVOKESPECIAL:
+                case INVOKESTATIC:
+                case INVOKEINTERFACE:
+                case INVOKEDYNAMIC:
+                    // todo For now we only increase the counter, but maybe they should be treated differently as they may be related to crashes
+                    // todo For now we haven't considered the arguments of the method call. They should be excluded as well.
+                // endregion
+                case NEW: // todo New object maybe should be logged as well?
+                // region The variable is a constant, we don't care about it, just increase the counter.
+                case ACONST_NULL:
+                case ICONST_M1:
+                case ICONST_0:
+                case ICONST_1:
+                case ICONST_2:
+                case ICONST_3:
+                case ICONST_4:
+                case ICONST_5:
+                case LCONST_0:
+                case LCONST_1:
+                case FCONST_0:
+                case FCONST_1:
+                case FCONST_2:
+                case DCONST_0:
+                case DCONST_1:
+                case BIPUSH:
+                case SIPUSH:
+                case LDC:
+                // endregion
+                // region The variable is a result of a previous comparision, increase the counter and ignore it.
+                case LCMP:
+                case FCMPL:
+                case FCMPG:
+                case DCMPL:
+                case DCMPG:
+                // endregion
+                    count++;
+                    break;
+                // region The variable is a local variable, we log it into the ExecutionTracer
+                case ILOAD:
+                case LLOAD:
+                case FLOAD:
+                case DLOAD:
+                case ALOAD:
+                    LocalVariableNode variable = methodNode.localVariables.get(((VarInsnNode) current).var);
+                    InsnList insnList = getInstrumentation(variable);
+                    methodNode.instructions.insert(current, insnList);
+                    count++;
+                    methodNode.maxStack += 5;
+                    break;
+                // endregion
+                // region We don't care about all the other instructions.
+                default:
+                    break;
+                // endregion
+            }
+        }
     }
 }
