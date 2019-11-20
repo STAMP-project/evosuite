@@ -19,25 +19,20 @@
  */
 package org.evosuite.graphs.cfg;
 
-import java.util.*;
-
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * <p>
  * BytecodeInstructionPool class.
  * </p>
- * 
+ *
  * @author Andre Mis
  */
 public class BytecodeInstructionPool {
@@ -64,7 +59,7 @@ public class BytecodeInstructionPool {
 	// BytecodeInstructions
 	private final Map<String, Map<String, List<BytecodeInstruction>>> instructionMap = new LinkedHashMap<>();
 
-	private final List<MethodNode> knownMethodNodes = new ArrayList<>();
+	private final Map<String, Set<MethodNode>> knownMethodNodes = new HashMap<>();
 
 	// fill the pool
 
@@ -89,7 +84,7 @@ public class BytecodeInstructionPool {
 	 */
 	public List<BytecodeInstruction> registerMethodNode(MethodNode node,
 	        String className, String methodName) {
-		registerMethodNode(node);
+		registerMethodNode(className, node);
 
 		int lastLineNumber = -1;
 		int bytecodeOffset = 0;
@@ -217,12 +212,11 @@ public class BytecodeInstructionPool {
 		return 0;
 	}
 
-	private void registerMethodNode(MethodNode node) {
-		for (MethodNode mn : knownMethodNodes)
-			if (mn == node)
-				logger.debug("CFGGenerator.analyze() apparently got called for the same MethodNode twice");
-
-		knownMethodNodes.add(node);
+	private void registerMethodNode(String className, MethodNode node) {
+		if (!knownMethodNodes.containsKey(className))
+			knownMethodNodes.put(className, new HashSet<>());
+		if (!knownMethodNodes.get(className).add(node))
+			logger.debug("CFGGenerator.analyze() apparently got called for the same MethodNode twice");
 	}
 
 	/**
@@ -238,24 +232,22 @@ public class BytecodeInstructionPool {
 		String methodName = instruction.getMethodName();
 
 		if (!instructionMap.containsKey(className))
-			instructionMap.put(className,
-			                   new LinkedHashMap<>());
+			instructionMap.put(className, new LinkedHashMap<>());
 		if (!instructionMap.get(className).containsKey(methodName))
-			instructionMap.get(className).put(methodName,
-			                                  new ArrayList<>());
+			instructionMap.get(className).put(methodName, new ArrayList<>());
 
 		instructionMap.get(className).get(methodName).add(instruction);
-		logger.debug("Registering instruction "+instruction);
+		logger.debug("Registering instruction " + instruction);
 		List<BytecodeInstruction> instructions = instructionMap.get(className).get(methodName);
-		if(instructions.size() > 1) {
+		if (instructions.size() > 1) {
 			BytecodeInstruction previous = instructions.get(instructions.size() - 2);
-			if(previous.isLabel()) {
-				LabelNode ln = (LabelNode)previous.asmNode;
+			if (previous.isLabel()) {
+				LabelNode ln = (LabelNode) previous.asmNode;
 				if (ln.getLabel() instanceof AnnotatedLabel) {
 					AnnotatedLabel aLabel = (AnnotatedLabel) ln.getLabel();
-					if(aLabel.isStartTag()) {
-						if(aLabel.shouldIgnore()) {
-							logger.debug("Ignoring artificial branch: "+instruction);
+					if (aLabel.isStartTag()) {
+						if (aLabel.shouldIgnore()) {
+							logger.debug("Ignoring artificial branch: " + instruction);
 							return;
 						}
 					}
@@ -412,34 +404,29 @@ public class BytecodeInstructionPool {
 	}
 
 	/**
-	 * <p>
-	 * getInstructionsIn
-	 * </p>
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @param methodName
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link java.util.List} object.
+	 * @param className  The name of the given class. Notice it is dot separated.
+	 * @param methodName The name of the given method. Notice it is full name with descriptors.
+	 *
+	 * @return The {@link List} of {@link BytecodeInstruction} of the given method in the given class.
 	 */
 	public List<BytecodeInstruction> getInstructionsIn(String className, String methodName) {
-		if (instructionMap.get(className) == null
-		        || instructionMap.get(className).get(methodName) == null)
+		if (instructionMap.get(className) == null || instructionMap.get(className).get(methodName) == null)
 			return null;
-
-		List<BytecodeInstruction> r = new ArrayList<>();
-		r.addAll(instructionMap.get(className).get(methodName));
-
-		return r;
+		return new ArrayList<>(instructionMap.get(className).get(methodName));
 	}
-	
+
+	/**
+	 * @param className The name of the given class. Notice it is dot separated.
+	 *
+	 * @return A {@link List} of all {@link BytecodeInstruction}s in the given class.
+	 */
 	public List<BytecodeInstruction> getInstructionsIn(String className) {
 		if (instructionMap.get(className) == null)
 			return null;
 
 		List<BytecodeInstruction> r = new ArrayList<>();
 		Map<String, List<BytecodeInstruction>> methodMap = instructionMap.get(className);
-		for(List<BytecodeInstruction> methodInstructions : methodMap.values()) {
+		for (List<BytecodeInstruction> methodInstructions : methodMap.values()) {
 			r.addAll(methodInstructions);
 		}
 		
@@ -456,6 +443,44 @@ public class BytecodeInstructionPool {
 		}
 		
 		return r;
+	}
+
+	/**
+	 * Retrieve a registered {@link MethodNode} from {@link #knownMethodNodes}
+	 *
+	 * @param className  The name of the class, separated by dots.
+	 * @param methodName The name of the class, with descriptors.
+	 *
+	 * @return The corresponding {@link MethodNode}. Null if not found.
+	 */
+	public MethodNode getMethodNode(String className, String methodName) {
+		for (MethodNode methodNode : knownMethodNodes.get(className)) {
+			if (methodName.equals(methodNode.name + methodNode.desc)) {
+				return methodNode;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Retrieve registered {@link MethodNode}s of a given class.
+	 *
+	 * @param className The name of the class, separated by dots.
+	 *
+	 * @return A {@link Set} of {@link MethodNode}s in that class.
+	 */
+	public Set<MethodNode> getMethodNodesIn(String className) {
+		return knownMethodNodes.get(className);
+	}
+
+	/**
+	 * Retrieve all registered {@link MethodNode}s.
+	 *
+	 * @return A {@link Map} where the key is the name of a class, separated by dots, and the value is a {@link Set} of
+	 * registered {@link MethodNode}s from that class.
+	 */
+	public Map<String, Set<MethodNode>> getAllMethodNodes() {
+		return knownMethodNodes;
 	}
 
 	/**

@@ -228,11 +228,11 @@ public class InputCoverageTestFitness extends TestFitnessFunction {
 
               double distanceToOther = 0.0; // TODO distanceToOther is never used!
               if (charValue > '0' && charValue < '9') {
-                  distanceToAlpha = Math.min(charValue - '0', '9' - charValue);
+                  distanceToOther = Math.min(charValue - '0', '9' - charValue);
               } else if (charValue > 'A' && charValue < 'Z') {
-                  distanceToAlpha = Math.min(charValue - 'A', 'Z' - charValue);
+                  distanceToOther = Math.min(charValue - 'A', 'Z' - charValue);
               } else if (charValue > 'a' && charValue < 'z') {
-                  distanceToAlpha = Math.min(charValue - 'A', 'Z' - charValue);
+                  distanceToOther = Math.min(charValue - 'A', 'Z' - charValue);
               }
 
               if (coveredGoal.getValueDescriptor().equals(CHAR_ALPHA)) {

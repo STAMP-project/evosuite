@@ -189,14 +189,10 @@ public class TestClusterUtils {
 	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
 		Map<String, Constructor<?>> helper = new TreeMap<>();
 
-		Set<Constructor<?>> constructors = new LinkedHashSet<>();
 		for (Constructor<?> c : Reflection.getDeclaredConstructors(clazz)) {
-			helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
+			helper.put(Type.getConstructorDescriptor(c), c);
 		}
-		for (Constructor<?> c : helper.values()) {
-			constructors.add(c);
-		}
-		return constructors;
+		return new LinkedHashSet<>(helper.values());
 	}
 
 	/**
