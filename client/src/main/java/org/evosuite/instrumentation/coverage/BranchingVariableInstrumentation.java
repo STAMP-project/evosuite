@@ -15,7 +15,6 @@ import static org.objectweb.asm.Opcodes.*;
 public class BranchingVariableInstrumentation implements MethodInstrumentation {
     private static final Logger logger = LoggerFactory.getLogger(BranchingVariableInstrumentation.class);
     private MethodNode methodNode;
-    private String methodName;
     private String className;
     private int currentLine;
 
@@ -23,7 +22,6 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
     public void analyze(ClassLoader classLoader, MethodNode methodNode, String className, String methodName,
                         int access) {
         this.methodNode = methodNode;
-        this.methodName = methodName;
         this.className = className;
         this.methodNode.localVariables.sort(Comparator.comparingInt(o -> o.index));
         ListIterator<AbstractInsnNode> iterator = this.methodNode.instructions.iterator();
@@ -113,12 +111,10 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
         insnList.add(new InsnNode(DUP));
         insnList.add(valueOf(variable));
         insnList.add(new LdcInsnNode(className));
-        insnList.add(new LdcInsnNode(methodName));
         insnList.add(new LdcInsnNode(currentLine));
         insnList.add(new LdcInsnNode(variable.name));
         insnList.add(new MethodInsnNode(INVOKESTATIC, PackageInfo.getNameWithSlash(ExecutionTracer.class),
-                "passedBranchingVariable", "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;ILjava/lang" +
-                "/String;)V", false));
+                "passedBranchingVariable", "(Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;)V", false));
         return insnList;
     }
 
@@ -128,6 +124,17 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
         while (count < numOfVariables) {
             current = current.getPrevious();
             switch (current.getOpcode()) {
+                // region The variable is a local variable, we log it into the ExecutionTracer
+                case ILOAD:
+                case LLOAD:
+                case FLOAD:
+                case DLOAD:
+                case ALOAD:
+                    LocalVariableNode variable = methodNode.localVariables.get(((VarInsnNode) current).var);
+                    InsnList insnList = getInstrumentation(variable);
+                    methodNode.instructions.insert(current, insnList);
+                    methodNode.maxStack += 5;
+                // endregion
                 // region The variable is a field of the object or a static field of the class
                 case GETSTATIC:
                 case GETFIELD:
@@ -171,20 +178,6 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
                 case DCMPG:
                 // endregion
                     count++;
-                    break;
-                // region The variable is a local variable, we log it into the ExecutionTracer
-                case ILOAD:
-                case LLOAD:
-                case FLOAD:
-                case DLOAD:
-                case ALOAD:
-                    LocalVariableNode variable = methodNode.localVariables.get(((VarInsnNode) current).var);
-                    InsnList insnList = getInstrumentation(variable);
-                    methodNode.instructions.insert(current, insnList);
-                    count++;
-                    methodNode.maxStack += 5;
-                    break;
-                // endregion
                 // region We don't care about all the other instructions.
                 default:
                     break;

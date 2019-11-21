@@ -242,16 +242,6 @@ public interface ExecutionTrace {
 	Map<String, Map<String, Map<Integer, int[]>>> getIndexedAccessData();
 
 	/**
-	 * Retrieve the branching variables of a specific method in a specific class.
-	 *
-	 * @param className  a {@link String} object.
-	 * @param methodName a {@link String} object.
-	 *
-	 * @return a {@link Map} object.
-	 */
-	Map<Integer, Map<String, Object>> getBranchingVariables(String className, String methodName);
-
-	/**
 	 * Retrieve the branching variables of a specific class.
 	 *
 	 * @param className a {@link String} object.
@@ -267,12 +257,12 @@ public interface ExecutionTrace {
 	 */
 	Map<Integer, Map<String, Object>> getBranchingVariables();
 
-	/**
-	 * Retrieve detailed branching variable data.
-	 *
-	 * @return a {@link Map} object.
-	 */
-	Map<String, Map<String, Map<Integer, Map<String, Object>>>> getBranchingVariableData();
+    /**
+     * Retrieve detailed branching variable data.
+     *
+     * @return a {@link Map} object.
+     */
+    Map<String, Map<Integer, Map<String, Object>>> getBranchingVariableData();
 
 	/**
 	 * Retrieve return value data
@@ -518,16 +508,15 @@ public interface ExecutionTrace {
 	 */
 	void logIndexedAccess(String className, String methodName, int layer, int[] indexAndLength);
 
-	/**
-	 * Log the local variable used in a branching condition.
-	 *
-	 * @param className    a {@link String} object.
-	 * @param methodName   a {@link String} object.
-	 * @param line         an int.
-	 * @param variableName a {@link String} object.
-	 * @param val          a {@link Object} object.
-	 */
-	void logBranchingVariable(String className, String methodName, int line, String variableName, Object val);
+    /**
+     * Log the local variable used in a branching condition.
+     *
+     * @param className    a {@link String} object.
+     * @param line         an int.
+     * @param variableName a {@link String} object.
+     * @param val          a {@link Object} object.
+     */
+    void logBranchingVariable(String className, int line, String variableName, Object val);
 
 	/**
 	 * Record a mutant execution

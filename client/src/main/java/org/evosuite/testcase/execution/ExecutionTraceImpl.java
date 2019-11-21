@@ -193,8 +193,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, Map<String, Map<Integer, int[]>>> indexAndLengthMap =
 			Collections.synchronizedMap(new HashMap<>());
 
-	public Map<String, Map<String, Map<Integer, Map<String, Object>>>> branchingVariables =
-			Collections.synchronizedMap(new HashMap<>());
+    public Map<String, Map<Integer, Map<String, Object>>> branchingVariables =
+            Collections.synchronizedMap(new HashMap<>());
 
 	public Map<Integer, Integer> coveredFalse = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
@@ -947,25 +947,13 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		return indexAndLengthMap;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Map<Integer, Map<String, Object>> getBranchingVariables(String className, String methodName) {
-		return this.branchingVariables.get(className).get(methodName);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Map<Integer, Map<String, Object>> getBranchingVariables(String className) {
-		HashMap<Integer, Map<String, Object>> branchingVariables = new HashMap<>();
-		for (Map<Integer, Map<String, Object>> map : this.branchingVariables.get(className).values()) {
-			branchingVariables.putAll(map);
-		}
-		return branchingVariables;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<Integer, Map<String, Object>> getBranchingVariables(String className) {
+        return this.branchingVariables.get(className);
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -979,7 +967,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Map<String, Map<String, Map<Integer, Map<String, Object>>>> getBranchingVariableData() {
+	public Map<String, Map<Integer, Map<String, Object>>> getBranchingVariableData() {
 		return branchingVariables;
 	}
 
@@ -1505,17 +1493,14 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	/** {@inheritDoc} */
 	@Override
-	public void logBranchingVariable(String className, String methodName, int line, String variableName, Object val) {
+	public void logBranchingVariable(String className, int line, String variableName, Object val) {
 		if (!branchingVariables.containsKey(className)) {
 			branchingVariables.put(className, new HashMap<>());
 		}
-		if (!branchingVariables.get(className).containsKey(methodName)) {
-			branchingVariables.get(className).put(methodName, new HashMap<>());
+		if (!branchingVariables.get(className).containsKey(line)) {
+			branchingVariables.get(className).put(line, new HashMap<>());
 		}
-		if (!branchingVariables.get(className).get(methodName).containsKey(line)) {
-			branchingVariables.get(className).get(methodName).put(line, new HashMap<>());
-		}
-		branchingVariables.get(className).get(methodName).get(line).put(variableName, val);
+		branchingVariables.get(className).get(line).put(variableName, val);
 	}
 
 	/** {@inheritDoc} */

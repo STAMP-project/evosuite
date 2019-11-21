@@ -785,19 +785,17 @@ public class ExecutionTracer {
 	 *
 	 * @param val          a {@link Object} object.
 	 * @param className    a {@link String} object.
-	 * @param methodName   a {@link String} object.
 	 * @param line         an int.
 	 * @param variableName a {@link String} object.
 	 */
-	public static void passedBranchingVariable(Object val, String className, String methodName, int line,
-											   String variableName) {
+	public static void passedBranchingVariable(Object val, String className, int line, String variableName) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;
 		if (isThreadNeqCurrentThread())
 			return;
 		checkTimeout();
-		tracer.trace.logBranchingVariable(className, methodName, line, variableName, val);
+		tracer.trace.logBranchingVariable(className, line, variableName, val);
 	}
 
 	/**
