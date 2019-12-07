@@ -22,6 +22,7 @@
  */
 package org.evosuite.seeding;
 
+import java.awt.*;
 import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -110,7 +111,7 @@ public class ObjectPool implements Serializable {
 				Class<?> sequenceClass = null;
 				try {
 					sequenceClass = Class.forName(className, true, TestGenerationContext.getInstance().getClassLoaderForSUT());
-				} catch (ClassNotFoundException | ExceptionInInitializerError | NoClassDefFoundError e) {
+				} catch (ClassNotFoundException | ExceptionInInitializerError | NoClassDefFoundError | AWTError e) {
 					logger.debug("could not load " + className);
 				}
 				if (sequenceClass != null) {
