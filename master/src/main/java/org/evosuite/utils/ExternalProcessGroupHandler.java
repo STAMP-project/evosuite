@@ -674,6 +674,11 @@ public class ExternalProcessGroupHandler {
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public TestGenerationResult waitForResult(int timeout) {
+		try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		try {
 			long start = System.currentTimeMillis();
@@ -689,6 +694,8 @@ public class ExternalProcessGroupHandler {
 				long remaining = timeout - passed;
 				if(remaining <=0 ){ remaining = 1;}
 				boolean finished = false;
+				Thread.sleep(3000);
+
 				ClientState clientState = MasterServices.getInstance().getMasterNode().getCurrentState(entry.getKey());
 
 				if (!clientState.equals(ClientState.FINISHED)) {

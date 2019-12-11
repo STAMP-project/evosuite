@@ -320,7 +320,8 @@ public class EvoSuite {
                 logger.info("Checking if execution count file exists: " + executionCountFile
                     .getAbsolutePath());
                 if (!executionCountFile.exists()) {
-                    throw new ParseException("Specified execution count file does not exist");
+                    throw new ParseException("Specified execution count file does not exist: "
+                    + executionCountFile.getAbsolutePath());
                 }
                 LoggingUtils.getEvoLogger()
                     .info("* " + ClientProcess.getPrettyPrintIdentifier()

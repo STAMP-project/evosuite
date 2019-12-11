@@ -22,12 +22,17 @@
  */
 package org.evosuite.coverage;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import org.evosuite.ExecutionCountManager;
 import org.evosuite.Properties;
@@ -35,9 +40,12 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.ambiguity.AmbiguityCoverageSuiteFitness;
 import org.evosuite.coverage.rho.RhoCoverageSuiteFitness;
+import org.evosuite.graphs.cfg.BasicBlock;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.runtime.Runtime;
 import org.evosuite.statistics.RuntimeVariable;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionTracer;
@@ -218,6 +226,40 @@ public class CoverageCriteriaAnalyzer {
                 .format(summedAvgExecutionCount));
         LoggingUtils.getEvoLogger()
             .info("* Average: " + decimalFormat.format(summedAvgExecutionCount / testSuite.size()));
+    }
+
+    public static void writeBranchCoverageToFile(TestSuiteChromosome testSuite) {
+        ExecutionCountManager countManager = ExecutionCountManager.getTargetClassExecutionCountManager();
+        Set<BasicBlock> allBranchBlocks = countManager.getAllBasicBlocks();
+
+        PrintStream outputStream = null;
+        try {
+            outputStream = new PrintStream(new FileOutputStream(Properties.REPORT_DIR + "/branch-coverage.csv", true));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        for (BasicBlock block : allBranchBlocks) {
+            int numberOfTimesCovered = 0;
+            for (ExecutableChromosome testCase : testSuite.getTestChromosomes()) {
+                if (doesTestCaseCoverBasicBlock(testCase, block)) {
+                    numberOfTimesCovered++;
+                }
+            }
+            int executionCount = countManager.lineExecCount(block.getFirstLine());
+            outputStream.println(Properties.CONFIGURATION_ID + "," + block.getFirstLine() + "-" + block.getLastLine()
+                + "," + numberOfTimesCovered + "," + executionCount);
+        }
+    }
+
+    private static boolean doesTestCaseCoverBasicBlock(ExecutableChromosome testCase, BasicBlock block) {
+        Set<Integer> coveredLines = testCase.getLastExecutionResult().getTrace().getCoveredLines();
+        for (int i = block.getFirstLine(); i <= block.getLastLine(); i++) {
+            if (coveredLines.contains(i)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void analyzeCoverage(TestSuiteChromosome testSuite) {

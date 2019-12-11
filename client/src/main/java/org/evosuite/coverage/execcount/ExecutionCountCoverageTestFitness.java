@@ -61,7 +61,7 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
    * @see org.evosuite.ExecutionCountManager#weightedAvgExecutionCount(Map)
    */
   protected double getWeightedAvgExecCount(TestChromosome individual, ExecutionResult result) {
-    Map<Integer, Double> lineToFitness = lineGoals.stream().collect(Collectors.toMap(
+    Map<Integer, Double> lineToFitness = lineGoals.stream().filter(lineGoal -> individual.getLastExecutionResult().getTrace().getAllCoveredLines().contains(lineGoal.getLine())).collect(Collectors.toMap(
         LineCoverageTestFitness::getLine, line -> line.getFitness(individual, result)));
     return executionCountManager.weightedAvgExecutionCount(lineToFitness);
   }

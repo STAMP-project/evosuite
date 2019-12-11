@@ -4,11 +4,14 @@ import com.google.gson.JsonSyntaxException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.evosuite.coverage.execcount.ClassExecutionCounts;
 import org.evosuite.coverage.execcount.ClassExecutionCounts.Method.Line;
 import org.evosuite.graphs.GraphPool;
@@ -79,7 +82,7 @@ public class ExecutionCountManager implements Serializable {
       executedBlocks.add(lineNumberToBasicBlock.get(line));
     }
 
-    return executedBlocks.stream().mapToInt(
+    return executedBlocks.stream().filter(block -> basicBlockToExecutionCount.get(block) > 0).mapToInt(
         block -> basicBlockToExecutionCount.get(block)).average().orElse(0d);
   }
 
@@ -99,6 +102,10 @@ public class ExecutionCountManager implements Serializable {
     return blockWeights.keySet().stream().mapToDouble(
         block -> basicBlockToExecutionCount.get(block) * blockWeights.get(block))
         .average().orElse(0d);
+  }
+
+  public Set<BasicBlock> getAllBasicBlocks() {
+    return basicBlockToExecutionCount.keySet();
   }
 
   /**
@@ -159,10 +166,12 @@ public class ExecutionCountManager implements Serializable {
    * Execution counts are loaded from the provided structure and a mapping is created from {@code
    * BasicBlock}s to how many times they have been executed.
    */
-  private void processExecutionCounts(ClassExecutionCounts executionCounts) {
-    for (Line line : executionCounts.lineList()) {
-      BasicBlock block = lineNumberToBasicBlock.get(line.getLineNumber());
-      basicBlockToExecutionCount.put(block, line.getCount());
+  private void processExecutionCounts(List<ClassExecutionCounts> executionCountsList) {
+    for (ClassExecutionCounts executionCounts : executionCountsList) {
+      for (Line line : executionCounts.lineList()) {
+        BasicBlock block = lineNumberToBasicBlock.get(line.getLineNumber());
+        basicBlockToExecutionCount.put(block, line.getCount());
+      }
     }
     // If the basic block does not appear in the loaded execution counts, its execution count is
     // apparently 0.
@@ -176,20 +185,20 @@ public class ExecutionCountManager implements Serializable {
   /**
    * Loads execution count from the provided file, which should be in the specified JSON format.
    */
-  private ClassExecutionCounts loadExecutionCountFile(File file) {
+  private List<ClassExecutionCounts> loadExecutionCountFile(File file) {
     if (!file.exists()) {
       throw new IllegalArgumentException("Input file does not exist: " + file.getAbsolutePath());
     }
     try {
+      Scanner scanner = new Scanner(file).useDelimiter("\\Z");
+      if (!scanner.hasNext()) {
+        return Collections.emptyList();
+      }
       return ClassExecutionCounts
-          .readCounts(new Scanner(file).useDelimiter("\\Z").next()).stream()
+          .readCounts(scanner.next()).stream()
           .filter(classCounts -> classCounts.getClassName().equals(
-              Properties.TARGET_CLASS)).findAny().orElseGet(() -> {
-                logger.warn("No execution count information found for " + Properties.TARGET_CLASS
-                    + ". Using empty execution counts.");
-                return new ClassExecutionCounts(Properties.TARGET_CLASS);
-              }
-          );
+              Properties.TARGET_CLASS) || classCounts.getClassName().startsWith(Properties.TARGET_CLASS + "$"))
+          .collect(Collectors.toList());
     } catch (FileNotFoundException e) {
       throw new RuntimeException("Just checked if file exists, but not accessible anymore", e);
     } catch (JsonSyntaxException e) {
