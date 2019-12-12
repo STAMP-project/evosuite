@@ -47,7 +47,9 @@ import org.evosuite.coverage.exception.TryCatchCoverageFactory;
 import org.evosuite.coverage.exception.TryCatchCoverageSuiteFitness;
 import org.evosuite.coverage.exception.TryCatchCoverageTestFitness;
 import org.evosuite.coverage.execcount.ExecutionCountCoverageFactory;
+import org.evosuite.coverage.execcount.MaxExecutionCountCoverageSuiteFitness;
 import org.evosuite.coverage.execcount.MaxExecutionCountCoverageTestFitness;
+import org.evosuite.coverage.execcount.MinExecutionCountCoverageSuiteFitness;
 import org.evosuite.coverage.execcount.MinExecutionCountCoverageTestFitness;
 import org.evosuite.coverage.execcount.OnlyExecutedLinesCoverageFactory;
 import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
@@ -88,6 +90,7 @@ import org.evosuite.coverage.statement.StatementCoverageFactory;
 import org.evosuite.coverage.statement.StatementCoverageSuiteFitness;
 import org.evosuite.coverage.statement.StatementCoverageTestFitness;
 import org.evosuite.regression.RegressionSuiteFitness;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
@@ -166,10 +169,13 @@ public class FitnessFunctions {
 					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
 			));
 		case MAX_EXEC_COUNT:
+			return new MaxExecutionCountCoverageSuiteFitness(
+					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
+			);
 		case MIN_EXEC_COUNT:
-			return new DummySuiteFitness(
-					"The " + criterion + " criterion is currently only implemented for MOSA, "
-							+ "which does not use suite fitness functions.");
+			return new MinExecutionCountCoverageSuiteFitness(
+					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
+			);
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();

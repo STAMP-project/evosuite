@@ -19,6 +19,7 @@
  */
 package org.evosuite.testsuite.secondaryobjectives;
 
+import org.evosuite.ExecutionCountManager;
 import org.evosuite.Properties;
 import org.evosuite.coverage.ibranch.IBranchSecondaryObjective;
 import org.evosuite.coverage.rho.RhoTestSuiteSecondaryObjective;
@@ -59,14 +60,14 @@ public class TestSuiteSecondaryObjective {
           secondaryObjectiveInstance = new RhoTestSuiteSecondaryObjective();
           break;
         case MAX_EXEC_COUNT:
-          secondaryObjectiveInstance = new DummySecondaryObjective(
-              Properties.SecondaryObjective.MAX_EXEC_COUNT, "For use in MOSA, which does not"
-              + "use suite secondary objectives");
+          secondaryObjectiveInstance = new MaximizePathExecutionCountSecondaryObjective(
+              ExecutionCountManager.getTargetClassExecutionCountManager()
+          );
           break;
         case MIN_EXEC_COUNT:
-          secondaryObjectiveInstance = new DummySecondaryObjective(
-              Properties.SecondaryObjective.MIN_EXEC_COUNT, "For use in MOSA, which does not"
-              + "use suite secondary objectives");
+          secondaryObjectiveInstance = new MinimizePathExecutionCountSecondaryObjective(
+              ExecutionCountManager.getTargetClassExecutionCountManager()
+          );
           break;
         default:
           throw new RuntimeException(

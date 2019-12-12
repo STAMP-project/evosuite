@@ -21,9 +21,11 @@ package org.evosuite.testcase;
 
 import java.util.List;
 
+import org.evosuite.ExecutionCountManager;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testcase.execution.TestCaseExecutor;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -121,12 +123,12 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 		return false;
 	}
 
-	public boolean isCoveredBy(TestSuiteChromosome testSuite) {
+	public boolean isCoveredBy(AbstractTestSuiteChromosome<? extends ExecutableChromosome> testSuite) {
 		int num = 1;
-		for (TestChromosome test : testSuite.getTestChromosomes()) {
+		for (ExecutableChromosome test : testSuite.getTestChromosomes()) {
 			logger.debug("Checking goal against test "+num+"/"+testSuite.size());
 			num++;
-			if (isCovered(test))
+			if (isCovered(test.getLastExecutionResult()))
 				return true;
 		}
 		return false;
