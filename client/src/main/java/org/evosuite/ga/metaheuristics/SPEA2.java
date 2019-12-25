@@ -42,7 +42,7 @@ import java.util.ListIterator;
 
 /**
  * SPEA2 implementation.
- * 
+ *
  * @techreport{ZLT:2001,
             author = {E. Zitzler and M. Laumanns and L. Thiele},
             title = {{SPEA2: Improving the Strength Pareto Evolutionary Algorithm}},
@@ -62,7 +62,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
   private DominanceComparator<T> comparator;
 
   // TODO should we use 'archive' from GeneticAlgorithm class?
-  private List<T> archive = null;
+  protected List<T> archive = null;
 
   public SPEA2(ChromosomeFactory<T> factory) {
     super(factory);
@@ -179,7 +179,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
   }
 
   /**
-   * 
+   *
    * @param population
    * @return
    */
@@ -311,7 +311,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
   }
 
   /**
-   * 
+   *
    * @param solutions
    */
   protected void computeStrength(List<T> solution) {
@@ -359,7 +359,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   /**
    * Returns a matrix with the euclidean distance between each pair of solutions in the population.
-   * 
+   *
    * @param solution
    * @return
    */
@@ -379,7 +379,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
 
   /**
    * Returns the euclidean distance between a pair of solutions in the objective space.
-   * 
+   *
    * @param t1
    * @param t2
    * @return
