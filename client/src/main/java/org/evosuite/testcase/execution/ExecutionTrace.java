@@ -190,7 +190,7 @@ public interface ExecutionTrace {
 
 	/**
 	 * Retrieve the set of line numbers covered of
-	 * {@link org.evosuite.Properties.TARGET_CLASS} class
+	 * {@link org.evosuite.Properties#TARGET_CLASS} class
 	 *
 	 * @return a {@link java.util.Set} object.
 	 */
@@ -204,23 +204,41 @@ public interface ExecutionTrace {
 	public Set<Integer> getAllCoveredLines();
 
 	/**
-	 * Retrieve the index-length Pair of the array at a specific layer.
-	 * @return an int array of size 2.
-	 */
-	int[] getArrayAccessInfo(int layer);
-
-	/**
-	 * Retrieve the index-length Pair of all arrays accessed at the target line.
-	 * @return a {@link Map} object.
-	 */
-	Map<Integer, int[]> getArrayAccessInfo();
-
-	/**
 	 * Retrieve detailed line coverage count
 	 *
 	 * @return a {@link java.util.Map} object.
 	 */
 	public Map<String, Map<String, Map<Integer, Integer>>> getCoverageData();
+
+	/**
+	 * Retrieve the set of index-length-pair of a specific class
+	 *
+	 * @param className a {@link String} object.
+	 *
+	 * @return a {@link Set} object.
+	 */
+	Set<int[]> getIndexedAccessInfo(String className);
+
+	/**
+	 * Retrieve the set of index-length-pair of {@link org.evosuite.Properties#TARGET_CLASS} class.
+	 *
+	 * @return a {@link Set} object.
+	 */
+	Set<int[]> getIndexedAccessInfo();
+
+	/**
+	 * Retrieve the set of index-length-pair of all classes.
+	 *
+	 * @return a {@link Set} object.
+	 */
+	Set<int[]> getAllIndexedAccessInfo();
+
+	/**
+	 * Retrieve detailed indexed access information.
+	 *
+	 * @return a {@link Map} object.
+	 */
+	Map<String, Map<String, Map<Integer, int[]>>> getIndexedAccessData();
 
 	/**
 	 * Retrieve return value data
@@ -457,13 +475,14 @@ public interface ExecutionTrace {
 	public void linePassed(String className, String methodName, int line);
 
 	/**
-	 * Log the query index and the length of an array when one is access.
+	 * Log the query index and the length of an array/String when one is access.
 	 *
-	 * @param layer an int.
-	 * @param indexAndArrayLength an int array of size 2. The first element is the accessed index and the second element
-	 *                            is the length of the array/String.
+	 * @param className      a {@link String} object.
+	 * @param methodName     a {@link String} object.
+	 * @param layer          an int.
+	 * @param indexAndLength an int array of size 2.
 	 */
-	public void logArrayAccess(int layer, int[] indexAndArrayLength);
+	void logIndexedAccess(String className, String methodName, int layer, int[] indexAndLength);
 
 	/**
 	 * Record a mutant execution
