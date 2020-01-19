@@ -170,7 +170,7 @@ public class SPEA2<T extends Chromosome> extends GeneticAlgorithm<T> {
     this.notifySearchFinished();
   }
 
-  private void updateArchive() {
+  protected void updateArchive() {
     List<T> union = new ArrayList<T>(2 * Properties.POPULATION);
     union.addAll(population);
     union.addAll(this.archive);
