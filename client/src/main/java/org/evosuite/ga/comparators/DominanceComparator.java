@@ -36,7 +36,7 @@ public class DominanceComparator<T extends Chromosome> implements Comparator<T>,
 
     private static final long serialVersionUID = -2154238776555768364L;
 
-    private Set<FitnessFunction<?>> objectives;
+    protected Set<FitnessFunction<?>> objectives;
 
     /**
      * 
