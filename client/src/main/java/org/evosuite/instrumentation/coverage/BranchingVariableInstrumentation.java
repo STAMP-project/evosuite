@@ -7,8 +7,7 @@ import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.ListIterator;
+import java.util.*;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -17,41 +16,52 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
     private MethodNode methodNode;
     private String className;
     private int currentLine;
+    private Map<LabelNode, Integer> labelLineMap = new HashMap<>();
 
     @Override
     public void analyze(ClassLoader classLoader, MethodNode methodNode, String className, String methodName,
                         int access) {
         this.methodNode = methodNode;
         this.className = className;
-        this.methodNode.localVariables.sort(Comparator.comparingInt(o -> o.index));
+        labelLineMap = new HashMap<>();
+        boolean ignore = false;
         ListIterator<AbstractInsnNode> iterator = this.methodNode.instructions.iterator();
         while (iterator.hasNext()) {
             AbstractInsnNode instruction = iterator.next();
             int opcode = instruction.getOpcode();
 
-            if (instruction instanceof LineNumberNode) {
-                currentLine = ((LineNumberNode) instruction).line;
-            } else if (opcode == DCMPL || opcode == DCMPG) {
-                logger.info("Comparing two double values");
-                logBranchingVariables(instruction, 2);
-            } else if (opcode == FCMPL || opcode == FCMPG) {
-                logger.info("Comparing two float values");
-                logBranchingVariables(instruction, 2);
-            } else if (opcode == LCMP) {
-                logger.info("Comparing two long values");
-                logBranchingVariables(instruction, 2);
-            } else if (opcode >= IF_ICMPEQ && opcode <= IF_ICMPLE) {
-                logger.info("Comparing two byte/char/int/short/boolean values");
-                logBranchingVariables(instruction, 2);
-            } else if (opcode == IF_ACMPEQ || opcode == IF_ACMPNE) {
-                logger.info("Comparing two references");
-                logBranchingVariables(instruction, 2);
-            } else if (opcode >= IFEQ && opcode <= IFLE) {
-                logger.info("Comparing one byte/char/int/short/boolean against 0");
-                logBranchingVariables(instruction, 1);
-            } else if (opcode == IFNULL || opcode == IFNONNULL) {
-                logger.info("Comparing one reference against NULL");
-                logBranchingVariables(instruction, 1);
+            if (instruction instanceof LabelNode) {
+                if (instruction.getNext() instanceof LineNumberNode) {
+                    LineNumberNode lineNumberNode = (LineNumberNode) instruction.getNext();
+                    currentLine = lineNumberNode.line;
+                    labelLineMap.put(lineNumberNode.start, currentLine);
+                    ignore = false;
+                } else {
+                    ignore = true;
+                }
+            } else if (!ignore) {
+                if (opcode == DCMPL || opcode == DCMPG) {
+                    logger.info("Comparing two double values");
+                    logBranchingVariables(instruction, 2);
+                } else if (opcode == FCMPL || opcode == FCMPG) {
+                    logger.info("Comparing two float values");
+                    logBranchingVariables(instruction, 2);
+                } else if (opcode == LCMP) {
+                    logger.info("Comparing two long values");
+                    logBranchingVariables(instruction, 2);
+                } else if (opcode >= IF_ICMPEQ && opcode <= IF_ICMPLE) {
+                    logger.info("Comparing two byte/char/int/short/boolean values");
+                    logBranchingVariables(instruction, 2);
+                } else if (opcode == IF_ACMPEQ || opcode == IF_ACMPNE) {
+                    logger.info("Comparing two references");
+                    logBranchingVariables(instruction, 2);
+                } else if (opcode >= IFEQ && opcode <= IFLE) {
+                    logger.info("Comparing one byte/char/int/short/boolean against 0");
+                    logBranchingVariables(instruction, 1);
+                } else if (opcode == IFNULL || opcode == IFNONNULL) {
+                    logger.info("Comparing one reference against NULL");
+                    logBranchingVariables(instruction, 1);
+                }
             }
         }
     }
@@ -130,15 +140,33 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
                 case FLOAD:
                 case DLOAD:
                 case ALOAD:
-                    LocalVariableNode variable = methodNode.localVariables.get(((VarInsnNode) current).var);
+                    LocalVariableNode variable = null;
+                    for (LocalVariableNode localVariable : methodNode.localVariables) {
+                        if (localVariable.index == ((VarInsnNode) current).var) {
+                            Integer startLine = labelLineMap.get(localVariable.start);
+                            Integer endLine = labelLineMap.get(localVariable.end);
+                            if (startLine != null && startLine <= currentLine) {
+                                if (endLine == null || endLine >= currentLine) {
+                                    variable = localVariable;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (variable == null)
+                        throw new IllegalStateException("Cannot find the local variable in the method node!!!");
                     InsnList insnList = getInstrumentation(variable);
                     methodNode.instructions.insert(current, insnList);
                     methodNode.maxStack += 5;
+                    count++;
+                    break;
                 // endregion
                 // region The variable is a field of the object or a static field of the class
                 case GETSTATIC:
                 case GETFIELD:
                     // todo For now we only increase the counter, but maybe they should be treated differently as they may be related to crashes
+                    count++;
+                    break;
                 // endregion
                 // region The variable is a return value from a method call
                 case INVOKEVIRTUAL:
@@ -148,8 +176,12 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
                 case INVOKEDYNAMIC:
                     // todo For now we only increase the counter, but maybe they should be treated differently as they may be related to crashes
                     // todo For now we haven't considered the arguments of the method call. They should be excluded as well.
+                    count = numOfVariables;
+                    break;
                 // endregion
                 case NEW: // todo New object maybe should be logged as well?
+                    count++;
+                    break;
                 // region The variable is a constant, we don't care about it, just increase the counter.
                 case ACONST_NULL:
                 case ICONST_M1:
@@ -169,6 +201,8 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
                 case BIPUSH:
                 case SIPUSH:
                 case LDC:
+                    count++;
+                    break;
                 // endregion
                 // region The variable is a result of a previous comparision, increase the counter and ignore it.
                 case LCMP:
@@ -176,8 +210,9 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
                 case FCMPG:
                 case DCMPL:
                 case DCMPG:
-                // endregion
                     count++;
+                    break;
+                // endregion
                 // region We don't care about all the other instructions.
                 default:
                     break;
