@@ -7,7 +7,9 @@ import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.ListIterator;
+import java.util.Map;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -37,6 +39,10 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
                     labelLineMap.put(lineNumberNode.start, currentLine);
                     ignore = false;
                 } else {
+                    AbstractInsnNode current = instruction.getPrevious();
+                    while (!(current instanceof LineNumberNode))
+                        current = current.getPrevious();
+                    labelLineMap.put((LabelNode) instruction, ((LineNumberNode) current).line);
                     ignore = true;
                 }
             } else if (!ignore) {
