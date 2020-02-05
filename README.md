@@ -3,7 +3,7 @@
 
 # EvoSuite Runtime Amplification
 
-This fork of the EvoSuite project (http://www.evosuite.org) contains the runtime amplification version of EvoSuite developed within the STAMP project.
+Runtime test AMPlification (RAMP) implements novel features for automatic test generation. This tool generates test cases that exercise common behaviors observed during software execution. RAMP builds on top of [EvoSuite] (http://www.evosuite.org).
 
 ## Funding
 
