@@ -7,7 +7,7 @@ This fork of the EvoSuite project (http://www.evosuite.org) contains the runtime
 
 ## Funding
 
-Botsing is partially funded by research project STAMP (European Commission - H2020) ICT-16-10 No.731529.
+RAMP is partially funded by research project STAMP (European Commission - H2020) ICT-16-10 No.731529.
 
 ![STAMP - European Commission - H2020](https://raw.githubusercontent.com/STAMP-project/botsing/master/docs/assets/logo_readme_md.png)
 
