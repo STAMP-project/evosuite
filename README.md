@@ -3,7 +3,7 @@
 
 # EvoSuite Runtime Amplification
 
-Runtime test AMPlification (RAMP) implements novel features for automatic test generation. This tool generates test cases that exercise common behaviors observed during software execution. RAMP builds on top of [EvoSuite] (http://www.evosuite.org).
+Runtime test AMPlification (RAMP) implements novel features for automatic test generation. This tool generates test cases that exercise common behaviors observed during software execution. RAMP builds on top of [EvoSuite](http://www.evosuite.org).
 
 ## Funding
 
