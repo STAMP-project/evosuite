@@ -1,8 +1,12 @@
 package org.evosuite.instrumentation.coverage;
 
-import org.evosuite.PackageInfo;
+import org.evosuite.graphs.GraphPool;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.evosuite.testcase.execution.ExecutionTracer;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,65 +14,109 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 
 import static org.objectweb.asm.Opcodes.*;
 
 public class BranchingVariableInstrumentation implements MethodInstrumentation {
     private static final Logger logger = LoggerFactory.getLogger(BranchingVariableInstrumentation.class);
+
+    public static final String EXECUTION_TRACER = Type.getInternalName(ExecutionTracer.class);
+    public static final String CHARACTER = Type.getInternalName(Character.class);
+    public static final String INTEGER = Type.getInternalName(Integer.class);
+    public static final String BOOLEAN = Type.getInternalName(Boolean.class);
+    public static final String DOUBLE = Type.getInternalName(Double.class);
+    public static final String SHORT = Type.getInternalName(Short.class);
+    public static final String FLOAT = Type.getInternalName(Float.class);
+    public static final String LONG = Type.getInternalName(Long.class);
+    public static final String BYTE = Type.getInternalName(Byte.class);
+
+    static final String LOG_METHOD_NAME = "passedBranchingVariable";
+    static final String LOG_METHOD_DESC = "(Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;)V";
+    static final String VALUE_OF = "valueOf";
+
     private MethodNode methodNode;
     private String className;
-    private int currentLine;
+
     private Map<LabelNode, Integer> labelLineMap = new HashMap<>();
+    private Map<AbstractInsnNode, String> variableNameMap = new HashMap<>();
+    private Map<String, String> variableTypeMap = new HashMap<>();
+    private Map<Integer, Set<LocalVariableNode>> indexVariableMap = new HashMap<>();
 
     @Override
     public void analyze(ClassLoader classLoader, MethodNode methodNode, String className, String methodName,
                         int access) {
         this.methodNode = methodNode;
         this.className = className;
-        labelLineMap = new HashMap<>();
-        boolean ignore = false;
-        ListIterator<AbstractInsnNode> iterator = this.methodNode.instructions.iterator();
-        while (iterator.hasNext()) {
-            AbstractInsnNode instruction = iterator.next();
-            int opcode = instruction.getOpcode();
 
-            if (instruction instanceof LabelNode) {
-                if (instruction.getNext() instanceof LineNumberNode) {
-                    LineNumberNode lineNumberNode = (LineNumberNode) instruction.getNext();
-                    currentLine = lineNumberNode.line;
-                    labelLineMap.put(lineNumberNode.start, currentLine);
-                    ignore = false;
-                } else {
-                    AbstractInsnNode current = instruction.getPrevious();
-                    while (!(current instanceof LineNumberNode))
-                        current = current.getPrevious();
-                    labelLineMap.put((LabelNode) instruction, ((LineNumberNode) current).line);
-                    ignore = true;
-                }
-            } else if (!ignore) {
-                if (opcode == DCMPL || opcode == DCMPG) {
-                    logger.info("Comparing two double values");
-                    logBranchingVariables(instruction, 2);
-                } else if (opcode == FCMPL || opcode == FCMPG) {
-                    logger.info("Comparing two float values");
-                    logBranchingVariables(instruction, 2);
-                } else if (opcode == LCMP) {
-                    logger.info("Comparing two long values");
-                    logBranchingVariables(instruction, 2);
-                } else if (opcode >= IF_ICMPEQ && opcode <= IF_ICMPLE) {
-                    logger.info("Comparing two byte/char/int/short/boolean values");
-                    logBranchingVariables(instruction, 2);
-                } else if (opcode == IF_ACMPEQ || opcode == IF_ACMPNE) {
-                    logger.info("Comparing two references");
-                    logBranchingVariables(instruction, 2);
-                } else if (opcode >= IFEQ && opcode <= IFLE) {
-                    logger.info("Comparing one byte/char/int/short/boolean against 0");
-                    logBranchingVariables(instruction, 1);
-                } else if (opcode == IFNULL || opcode == IFNONNULL) {
-                    logger.info("Comparing one reference against NULL");
-                    logBranchingVariables(instruction, 1);
-                }
-            }
+        RawControlFlowGraph graph = GraphPool.getInstance(classLoader).getRawCFG(className, methodName);
+        boolean ignore = false;
+        ListIterator<AbstractInsnNode> j = methodNode.instructions.iterator();
+        while (j.hasNext()) {
+            AbstractInsnNode in = j.next();
+            for (BytecodeInstruction v : graph.vertexSet())
+                if (in.equals(v.getASMNode()))
+                    if (v.isBranch() && in.getOpcode() != JSR) {
+                        if (in.getPrevious() instanceof LabelNode) {
+                            LabelNode label = (LabelNode) in.getPrevious();
+                            if (label.getLabel() instanceof AnnotatedLabel) {
+                                AnnotatedLabel aLabel = (AnnotatedLabel) label.getLabel();
+                                if (aLabel.isStartTag())
+                                    if (aLabel.shouldIgnore())
+                                        continue;
+                            }
+                        }
+                        instrument(graph, v);
+                    } else if (v.isLocalVariableUse() && !v.isIINC()) {
+                        int lineNumber = v.getLineNumber();
+                        int variableIndex = ((VarInsnNode) in).var;
+                        for (LocalVariableNode localVariable : this.methodNode.localVariables)
+                            if (localVariable.index == variableIndex) {
+                                Integer start = labelLineMap.get(localVariable.start);
+                                Integer end = labelLineMap.get(localVariable.end);
+                                if (start != null && start <= lineNumber && (end == null || lineNumber <= end)) {
+                                    variableNameMap.put(in, localVariable.name);
+                                    variableTypeMap.put(localVariable.name, localVariable.desc);
+                                    break;
+                                }
+                            }
+                    } else if (v.isLabel())
+                        if (graph.getInstruction(v.getInstructionId() + 1).isLineNumber()) {
+                            labelLineMap.put((LabelNode) v.getASMNode(),
+                                    graph.getInstruction(v.getInstructionId() + 1).getLineNumber());
+                            ignore = false;
+                        } else
+                            ignore = true;
+                    else
+                        break;
+        }
+    }
+
+    private void instrument(RawControlFlowGraph graph, BytecodeInstruction instruction) {
+        int instructionId = instruction.getInstructionId();
+
+        int opcode = instruction.getASMNode().getOpcode();
+        if (opcode >= IF_ICMPEQ && opcode <= IF_ICMPLE) {
+            logger.info("Comparing two byte/char/int/short/boolean values");
+            logBranchingVariables(graph, instructionId, 2);
+        } else if (opcode == IF_ACMPEQ || opcode == IF_ACMPNE) {
+            logger.info("Comparing two references");
+            logBranchingVariables(graph, instructionId, 2);
+        } else if (opcode >= IFEQ && opcode <= IFLE) {
+            logger.info("Comparing one byte/char/int/short/boolean against 0");
+            BytecodeInstruction current = graph.getInstruction(instructionId--);
+            if (current.isLocalVariableUse() && !current.isIINC()) {
+                methodNode.instructions.insert(current.getASMNode(), getInstrumentation(current.getLineNumber(),
+                        variableNameMap.get(current.getASMNode())));
+            } else if (current.getASMNode().getOpcode() == DCMPL || current.getASMNode().getOpcode() == DCMPG || current.getASMNode() instanceof MethodInsnNode && (((MethodInsnNode) current.getASMNode()).name.equals("doubleSubL") || ((MethodInsnNode) current.getASMNode()).name.equals("doubleSubG")))
+                logBranchingVariables(graph, instructionId, 2);
+            else if (current.getASMNode().getOpcode() == FCMPL || current.getASMNode().getOpcode() == FCMPG || current.getASMNode() instanceof MethodInsnNode && (((MethodInsnNode) current.getASMNode()).name.equals("floatSubL") || ((MethodInsnNode) current.getASMNode()).name.equals("floatSubG")))
+                logBranchingVariables(graph, instructionId, 2);
+            else if (current.getASMNode().getOpcode() == LCMP || current.getASMNode() instanceof MethodInsnNode && (((MethodInsnNode) current.getASMNode()).name.equals("longSub")))
+                logBranchingVariables(graph, instructionId, 2);
+        } else if (opcode == IFNULL || opcode == IFNONNULL) {
+            logger.info("Comparing one reference against NULL");
+            logBranchingVariables(graph, instructionId, 1);
         }
     }
 
@@ -87,29 +135,26 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
      * corresponding <b><i>valueOf</i></b> method, so it can be wrapped into an object. If it is already an object,
      * return a {@link Opcodes#NOP NOP} instruction to do nothing.
      *
-     * @param variable The instruction node of the local variable.
+     * @param type The type of the local variable.
      */
-    private static AbstractInsnNode valueOf(LocalVariableNode variable) {
-        switch (variable.desc) {
+    private static AbstractInsnNode valueOf(String type) {
+        switch (type) {
             case "B":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Byte", "valueOf", "(B)Ljava/lang/Byte;", false);
+                return new MethodInsnNode(INVOKESTATIC, BYTE, VALUE_OF, "(B)Ljava/lang/Byte;", false);
             case "C":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;",
-                        false);
+                return new MethodInsnNode(INVOKESTATIC, CHARACTER, VALUE_OF, "(C)Ljava/lang/Character;", false);
             case "D":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+                return new MethodInsnNode(INVOKESTATIC, DOUBLE, VALUE_OF, "(D)Ljava/lang/Double;", false);
             case "F":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+                return new MethodInsnNode(INVOKESTATIC, FLOAT, VALUE_OF, "(F)Ljava/lang/Float;", false);
             case "I":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;",
-                        false);
+                return new MethodInsnNode(INVOKESTATIC, INTEGER, VALUE_OF, "(I)Ljava/lang/Integer;", false);
             case "J":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+                return new MethodInsnNode(INVOKESTATIC, LONG, VALUE_OF, "(J)Ljava/lang/Long;", false);
             case "S":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Short", "valueOf", "(S)Ljava/lang/Short;", false);
+                return new MethodInsnNode(INVOKESTATIC, SHORT, VALUE_OF, "(S)Ljava/lang/Short;", false);
             case "Z":
-                return new MethodInsnNode(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;",
-                        false);
+                return new MethodInsnNode(INVOKESTATIC, BOOLEAN, VALUE_OF, "(Z)Ljava/lang/Boolean;", false);
             default:
                 return new InsnNode(NOP);
         }
@@ -118,111 +163,38 @@ public class BranchingVariableInstrumentation implements MethodInstrumentation {
     /**
      * Get the instrumentation to log a local variable into the {@link ExecutionTracer}.
      *
-     * @param variable The instruction node of the local variable.
-     *
      * @return A list of instructions to perform the logging process.
      */
-    private InsnList getInstrumentation(LocalVariableNode variable) {
+    private InsnList getInstrumentation(int currentLine, String variableName) {
         InsnList insnList = new InsnList();
-        insnList.add(new InsnNode(DUP));
-        insnList.add(valueOf(variable));
-        insnList.add(new LdcInsnNode(className));
-        insnList.add(new LdcInsnNode(currentLine));
-        insnList.add(new LdcInsnNode(variable.name));
-        insnList.add(new MethodInsnNode(INVOKESTATIC, PackageInfo.getNameWithSlash(ExecutionTracer.class),
-                "passedBranchingVariable", "(Ljava/lang/Object;Ljava/lang/String;ILjava/lang/String;)V", false));
+        if (variableName != null) {
+            insnList.add(new InsnNode(DUP));
+            insnList.add(valueOf(variableTypeMap.get(variableName)));
+            insnList.add(new LdcInsnNode(className));
+            insnList.add(new LdcInsnNode(currentLine));
+            insnList.add(new LdcInsnNode(variableName));
+            methodNode.maxStack += 4;
+            insnList.add(new MethodInsnNode(INVOKESTATIC, EXECUTION_TRACER, LOG_METHOD_NAME, LOG_METHOD_DESC, false));
+        }
         return insnList;
     }
 
-    private void logBranchingVariables(AbstractInsnNode instruction, int numOfVariables) {
-        int count = 0;
-        AbstractInsnNode current = instruction;
-        while (count < numOfVariables) {
-            current = current.getPrevious();
-            switch (current.getOpcode()) {
-                // region The variable is a local variable, we log it into the ExecutionTracer
-                case ILOAD:
-                case LLOAD:
-                case FLOAD:
-                case DLOAD:
-                case ALOAD:
-                    LocalVariableNode variable = null;
-                    for (LocalVariableNode localVariable : methodNode.localVariables) {
-                        if (localVariable.index == ((VarInsnNode) current).var) {
-                            Integer startLine = labelLineMap.get(localVariable.start);
-                            Integer endLine = labelLineMap.get(localVariable.end);
-                            if (startLine != null && startLine <= currentLine) {
-                                if (endLine == null || endLine >= currentLine) {
-                                    variable = localVariable;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (variable == null)
-                        throw new IllegalStateException("Cannot find the local variable in the method node!!!");
-                    InsnList insnList = getInstrumentation(variable);
-                    methodNode.instructions.insert(current, insnList);
-                    methodNode.maxStack += 5;
-                    count++;
-                    break;
-                // endregion
-                // region The variable is a field of the object or a static field of the class
-                case GETSTATIC:
-                case GETFIELD:
-                    // todo For now we only increase the counter, but maybe they should be treated differently as they may be related to crashes
-                    count++;
-                    break;
-                // endregion
-                // region The variable is a return value from a method call
-                case INVOKEVIRTUAL:
-                case INVOKESPECIAL:
-                case INVOKESTATIC:
-                case INVOKEINTERFACE:
-                case INVOKEDYNAMIC:
-                    // todo For now we only increase the counter, but maybe they should be treated differently as they may be related to crashes
-                    // todo For now we haven't considered the arguments of the method call. They should be excluded as well.
-                    count = numOfVariables;
-                    break;
-                // endregion
-                case NEW: // todo New object maybe should be logged as well?
-                    count++;
-                    break;
-                // region The variable is a constant, we don't care about it, just increase the counter.
-                case ACONST_NULL:
-                case ICONST_M1:
-                case ICONST_0:
-                case ICONST_1:
-                case ICONST_2:
-                case ICONST_3:
-                case ICONST_4:
-                case ICONST_5:
-                case LCONST_0:
-                case LCONST_1:
-                case FCONST_0:
-                case FCONST_1:
-                case FCONST_2:
-                case DCONST_0:
-                case DCONST_1:
-                case BIPUSH:
-                case SIPUSH:
-                case LDC:
-                    count++;
-                    break;
-                // endregion
-                // region The variable is a result of a previous comparision, increase the counter and ignore it.
-                case LCMP:
-                case FCMPL:
-                case FCMPG:
-                case DCMPL:
-                case DCMPG:
-                    count++;
-                    break;
-                // endregion
-                // region We don't care about all the other instructions.
-                default:
-                    break;
-                // endregion
+    private void logBranchingVariables(RawControlFlowGraph graph, int instructionId, int numberOfVariables) {
+        int count;
+        BytecodeInstruction current;
+        count = 0;
+        while (count < numberOfVariables) {
+            current = graph.getInstruction(instructionId--);
+            if (current.isConstant() || current.isFieldNodeUse() || current.getASMNode().getOpcode() == NEW)
+                count++;
+            else if (current.isMethodCall() || current.getASMNode().getOpcode() == INVOKEDYNAMIC)
+                break;
+            else if (current.isLocalVariableUse() && !current.isIINC()) {
+                count++;
+                methodNode.instructions.insert(current.getASMNode(), getInstrumentation(current.getLineNumber(),
+                        variableNameMap.get(current.getASMNode())));
+            } else if (current.loadsReferenceToThis()) {
+                count++;
             }
         }
     }

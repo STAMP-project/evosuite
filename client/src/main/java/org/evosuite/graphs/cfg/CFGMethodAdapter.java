@@ -151,10 +151,10 @@ public class CFGMethodAdapter extends MethodVisitor {
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<>();
-		if (Properties.INSTRUMENT_BRANCHING_VARIABLES) {
-			instrumentations.add(new BranchingVariableInstrumentation());
-		}
 		if (DependencyAnalysis.shouldInstrument(className, methodName)) {
+			if (Properties.INSTRUMENT_BRANCHING_VARIABLES) {
+				instrumentations.add(new BranchingVariableInstrumentation());
+			}
 		    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 				instrumentations.add(new BranchInstrumentation());
