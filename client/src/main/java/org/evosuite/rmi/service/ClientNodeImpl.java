@@ -43,6 +43,7 @@ import org.evosuite.TestSuiteGenerator;
 import org.evosuite.TimeController;
 import org.evosuite.classpath.ClassPathHandler;
 import org.evosuite.coverage.ClassStatisticsPrinter;
+import org.evosuite.coverage.CoverageCriteriaAnalyzer;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
@@ -54,6 +55,7 @@ import org.evosuite.runtime.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.statistics.RuntimeVariable;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -102,7 +104,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	private Collection<Set<? extends Chromosome>> bestSolutions;
 	
-	private Thread statisticsThread; 
+	private Thread statisticsThread;
+
+	private int newBestIndividualCount = 0;
 
 	//only for testing
 	protected ClientNodeImpl() {
@@ -264,11 +268,13 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		logger.info("Sending current best individual to master process");
 
 		try {
-
+			newBestIndividualCount++;
+			LoggingUtils.getEvoLogger().info("New best individual (" + newBestIndividualCount + ")");
 			for(FitnessFunction f : individual.getFitnessValues().keySet()){
-				LoggingUtils.getEvoLogger().info("Current fitness function value: "+f.getClass()+" ** "+individual.getCoverage(f));
+				LoggingUtils.getEvoLogger().info("Best so far (" + newBestIndividualCount + "): "+f.getClass()+" ** "+individual.getCoverage(f));
 			}
-
+			LoggingUtils.getEvoLogger().info("Best so far (" + newBestIndividualCount + "): "+"AvgExecCountRatio"+" ** "+CoverageCriteriaAnalyzer.avgExecCountRatio(
+					(TestSuiteChromosome) individual));
 
 			masterNode.evosuite_collectStatistics(clientRmiIdentifier, individual);
 		} catch (RemoteException e) {

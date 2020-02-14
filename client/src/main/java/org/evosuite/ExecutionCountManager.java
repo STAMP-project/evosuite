@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.function.IntSupplier;
 import java.util.stream.Collectors;
 import org.evosuite.coverage.execcount.ClassExecutionCounts;
 import org.evosuite.coverage.execcount.ClassExecutionCounts.Method.Line;
@@ -82,8 +83,12 @@ public class ExecutionCountManager implements Serializable {
       executedBlocks.add(lineNumberToBasicBlock.get(line));
     }
 
-    return executedBlocks.stream().filter(block -> basicBlockToExecutionCount.get(block) > 0).mapToInt(
-        block -> basicBlockToExecutionCount.get(block)).average().orElse(0d);
+    int highestCount = highestExecutionCount();
+    int lowestCount = lowestExecutionCount();
+    return executedBlocks.stream().filter(block -> basicBlockToExecutionCount.get(block) > 0).mapToDouble(
+        block -> ((basicBlockToExecutionCount.get(block) - lowestCount)
+            / ((double) (highestCount - lowestCount)))
+            ).average().orElse(0d);
   }
 
   /**
@@ -99,9 +104,23 @@ public class ExecutionCountManager implements Serializable {
       blockWeights.put(lineNumberToBasicBlock.get(line), lineWeights.get(line));
     }
 
-    return blockWeights.keySet().stream().mapToDouble(
-        block -> basicBlockToExecutionCount.get(block) * blockWeights.get(block))
+    int highestCount = highestExecutionCount();
+    int lowestCount = lowestExecutionCount();
+    return blockWeights.keySet().stream().filter(block -> basicBlockToExecutionCount.get(block) > 0).mapToDouble(
+        block -> ((basicBlockToExecutionCount.get(block) - lowestCount)
+            / ((double) (highestCount - lowestCount)))
+            * blockWeights.get(block))
         .average().orElse(0d);
+  }
+
+  private int highestExecutionCount() {
+    return basicBlockToExecutionCount.values().stream()
+        .mapToInt(wrapper -> wrapper).max().orElseGet(() -> 0);
+  }
+
+  private int lowestExecutionCount() {
+    return basicBlockToExecutionCount.values().stream()
+        .mapToInt(wrapper -> wrapper).min().orElseGet(() -> 0);
   }
 
   public Set<BasicBlock> getAllBasicBlocks() {

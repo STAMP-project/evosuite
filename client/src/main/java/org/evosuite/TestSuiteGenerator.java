@@ -519,6 +519,8 @@ public class TestSuiteGenerator {
 		if (Properties.EXE_COUNT_FILE != null) {
 			CoverageCriteriaAnalyzer.analyzeExecutionCountCoverage(testSuite);
 			CoverageCriteriaAnalyzer.writeBranchCoverageToFile(testSuite);
+			CoverageCriteriaAnalyzer.writeTestCaseBranchCoverageToFile(testSuite);
+			CoverageCriteriaAnalyzer.writeTestCaseLengthsToFile(testSuite);
 		}
 
 		double coverage = testSuite.getCoverage();

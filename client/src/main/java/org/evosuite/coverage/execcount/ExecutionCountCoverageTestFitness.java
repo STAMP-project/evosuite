@@ -62,7 +62,7 @@ public abstract class ExecutionCountCoverageTestFitness extends TestFitnessFunct
    */
   protected double getWeightedAvgExecCount(TestChromosome individual, ExecutionResult result) {
     Map<Integer, Double> lineToFitness = lineGoals.stream().filter(lineGoal -> individual.getLastExecutionResult().getTrace().getAllCoveredLines().contains(lineGoal.getLine())).collect(Collectors.toMap(
-        LineCoverageTestFitness::getLine, line -> line.getFitness(individual, result)));
+        LineCoverageTestFitness::getLine, line -> line.isCovered(result) ? 1d : 0d));
     return executionCountManager.weightedAvgExecutionCount(lineToFitness);
   }
 

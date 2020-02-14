@@ -209,23 +209,24 @@ public class CoverageCriteriaAnalyzer {
      * tests in the suite.
      */
     public static void analyzeExecutionCountCoverage(TestSuiteChromosome testSuite) {
-        double summedAvgExecutionCount = testSuite.getTestChromosomes().stream()
-            .mapToDouble(testCase ->
-                ExecutionCountManager.getTargetClassExecutionCountManager().avgExecCount(
-                    testCase.getLastExecutionResult().getTrace().getCoveredLines())
-            ).sum();
+        LoggingUtils.getEvoLogger().info("* Analyzing execution count coverage");
+        double summedAvgExecutionCount = avgExecCountRatio(testSuite);
 
         ClientServices.getInstance().getClientNode().trackOutputVariable(
             RuntimeVariable.SummedAverageExecutionCount, summedAvgExecutionCount);
-
-        LoggingUtils.getEvoLogger().info("* Analyzing execution count coverage");
 
         DecimalFormat decimalFormat = new DecimalFormat("0.000");
         LoggingUtils.getEvoLogger().info(
             "* Sum of average covered execution count over all tests: " + decimalFormat
                 .format(summedAvgExecutionCount));
-        LoggingUtils.getEvoLogger()
-            .info("* Average: " + decimalFormat.format(summedAvgExecutionCount / testSuite.size()));
+    }
+
+    public static double avgExecCountRatio(TestSuiteChromosome testSuite) {
+        return testSuite.getTestChromosomes().stream().filter(testCase -> testCase.getLastExecutionResult() != null)
+            .mapToDouble(testCase ->
+                ExecutionCountManager.getTargetClassExecutionCountManager().avgExecCount(
+                    testCase.getLastExecutionResult().getTrace().getCoveredLines())
+            ).average().orElseGet(() -> 0d);
     }
 
     public static void writeBranchCoverageToFile(TestSuiteChromosome testSuite) {
@@ -250,6 +251,48 @@ public class CoverageCriteriaAnalyzer {
             outputStream.println(Properties.CONFIGURATION_ID + "," + block.getFirstLine() + "-" + block.getLastLine()
                 + "," + numberOfTimesCovered + "," + executionCount);
         }
+        outputStream.close();
+    }
+
+    public static void writeTestCaseBranchCoverageToFile(TestSuiteChromosome testSuite) {
+        ExecutionCountManager countManager = ExecutionCountManager.getTargetClassExecutionCountManager();
+        Set<BasicBlock> allBranchBlocks = countManager.getAllBasicBlocks();
+
+        //noinspection ResultOfMethodCallIgnored
+        new File(Properties.REPORT_DIR + "/test-case-branch-cov").mkdirs();
+
+        for (ExecutableChromosome testCase : testSuite.getTestChromosomes()) {
+            PrintStream outputStream;
+            try {
+                outputStream = new PrintStream(new FileOutputStream(Properties.REPORT_DIR +
+                    "/test-case-branch-cov/" + Properties.CONFIGURATION_ID + "-" +
+                    testSuite.getTestChromosomes().indexOf(testCase) + ".csv"));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            for (BasicBlock block : allBranchBlocks) {
+                outputStream.println(
+                    block.getFirstLine() + "-" + block.getLastLine()
+                        + "," + doesTestCaseCoverBasicBlock(testCase, block));
+            }
+            outputStream.close();
+        }
+    }
+
+    public static void writeTestCaseLengthsToFile(TestSuiteChromosome testSuite) {
+        PrintStream outputStream;
+        try {
+            outputStream = new PrintStream(new FileOutputStream(Properties.REPORT_DIR +
+                "/test-case-lengths.csv"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        for (ExecutableChromosome testCase : testSuite.getTestChromosomes()) {
+            outputStream.println(Properties.CONFIGURATION_ID + "-" +
+                testSuite.getTestChromosomes().indexOf(testCase) + "," +
+                testCase.size());
+        }
+        outputStream.close();
     }
 
     private static boolean doesTestCaseCoverBasicBlock(ExecutableChromosome testCase, BasicBlock block) {

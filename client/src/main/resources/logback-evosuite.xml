@@ -83,7 +83,7 @@
 
 	<appender name="EVO_LOGGER_MASTER" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>
-			<pattern>%msg%n</pattern>
+			<pattern>[%date{ISO8601}] %msg%n</pattern>
 		</encoder>
 	</appender>
 

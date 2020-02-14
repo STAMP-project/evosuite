@@ -4,6 +4,7 @@ import org.evosuite.ExecutionCountManager;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * An {@link ExecutionCountCoverageTestFitness} that prefers test cases that exercise commonly
@@ -22,6 +23,8 @@ public class MaxExecutionCountCoverageTestFitness extends ExecutionCountCoverage
 
   @Override
   public double getFitness(TestChromosome individual, ExecutionResult result) {
-    return getWeightedAvgExecCount(individual, result);
+    double fitness = 1 - getWeightedAvgExecCount(individual, result);
+    individual.setCoverage(this, 1 - fitness);
+    return fitness;
   }
 }
