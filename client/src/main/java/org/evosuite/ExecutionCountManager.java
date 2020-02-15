@@ -70,7 +70,12 @@ public class ExecutionCountManager implements Serializable {
    * happen in case of a crash in the middle of executing a code segment, for example.
    */
   public int lineExecCount(int lineNumber) {
-    return basicBlockToExecutionCount.get(lineNumberToBasicBlock.get(lineNumber));
+    if (lineNumberToBasicBlock.containsKey(lineNumber)) {
+      return basicBlockToExecutionCount.get(lineNumberToBasicBlock.get(lineNumber));
+    }
+    else {
+      return 0;
+    }
   }
 
   /**
@@ -80,7 +85,9 @@ public class ExecutionCountManager implements Serializable {
   public double avgExecCount(Set<Integer> lines) {
     Set<BasicBlock> executedBlocks = new HashSet<>();
     for (Integer line : lines) {
-      executedBlocks.add(lineNumberToBasicBlock.get(line));
+      if (lineNumberToBasicBlock.containsKey(line)) {
+        executedBlocks.add(lineNumberToBasicBlock.get(line));
+      }
     }
 
     int highestCount = highestExecutionCount();
@@ -101,7 +108,9 @@ public class ExecutionCountManager implements Serializable {
   public double weightedAvgExecutionCount(Map<Integer, Double> lineWeights) {
     Map<BasicBlock, Double> blockWeights = new HashMap<>();
     for (Integer line : lineWeights.keySet()) {
-      blockWeights.put(lineNumberToBasicBlock.get(line), lineWeights.get(line));
+      if (lineNumberToBasicBlock.containsKey(line)) {
+        blockWeights.put(lineNumberToBasicBlock.get(line), lineWeights.get(line));
+      }
     }
 
     int highestCount = highestExecutionCount();
