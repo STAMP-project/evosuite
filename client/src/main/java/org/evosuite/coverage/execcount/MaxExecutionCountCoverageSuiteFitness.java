@@ -23,9 +23,7 @@ public class MaxExecutionCountCoverageSuiteFitness extends ExecutionCountCoverag
    * Constructs this fitness function with the given execution count manager and factory for line
    * coverage goals.
    */
-  public MaxExecutionCountCoverageSuiteFitness(ExecutionCountManager executionCountManager,
-      LineCoverageFactory lineFactory) {
-    super(executionCountManager, lineFactory);
+  public MaxExecutionCountCoverageSuiteFitness() {
     goals = FitnessFunctions.getFitnessFactory(Criterion.MAX_EXEC_COUNT).getCoverageGoals();
   }
 

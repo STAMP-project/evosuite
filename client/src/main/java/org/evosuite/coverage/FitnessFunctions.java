@@ -169,13 +169,9 @@ public class FitnessFunctions {
 					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
 			));
 		case MAX_EXEC_COUNT:
-			return new MaxExecutionCountCoverageSuiteFitness(
-					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
-			);
+			return new MaxExecutionCountCoverageSuiteFitness();
 		case MIN_EXEC_COUNT:
-			return new MinExecutionCountCoverageSuiteFitness(
-					ExecutionCountManager.getTargetClassExecutionCountManager(), new LineCoverageFactory()
-			);
+			return new MinExecutionCountCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for {}; using default one (BranchCoverageSuiteFitness)", Arrays.toString(Properties.CRITERION));
 			return new BranchCoverageSuiteFitness();

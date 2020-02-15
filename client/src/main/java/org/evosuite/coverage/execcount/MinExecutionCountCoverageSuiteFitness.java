@@ -22,9 +22,7 @@ public class MinExecutionCountCoverageSuiteFitness extends ExecutionCountCoverag
    * Constructs this fitness function with the given execution count manager and factory for line
    * coverage goals.
    */
-  public MinExecutionCountCoverageSuiteFitness(ExecutionCountManager executionCountManager,
-      LineCoverageFactory lineFactory) {
-    super(executionCountManager, lineFactory);
+  public MinExecutionCountCoverageSuiteFitness() {
     goals = FitnessFunctions.getFitnessFactory(Criterion.MIN_EXEC_COUNT).getCoverageGoals();
   }
 
