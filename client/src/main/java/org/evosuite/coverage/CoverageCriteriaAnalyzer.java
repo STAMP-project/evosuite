@@ -283,7 +283,7 @@ public class CoverageCriteriaAnalyzer {
         PrintStream outputStream;
         try {
             outputStream = new PrintStream(new FileOutputStream(Properties.REPORT_DIR +
-                "/test-case-lengths.csv"));
+                "/test-case-lengths.csv", true));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
