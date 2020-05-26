@@ -20,6 +20,7 @@
 package org.evosuite.ga.archive;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -235,7 +236,7 @@ public abstract class Archive<F extends TestFitnessFunction, T extends TestChrom
         totalRelativeValue +=
             relativeObjective.relativeChange(candidateSolution, currentSolution) * weight;
       }
-      double resultValue = totalRelativeValue / objectives.size();
+      double resultValue = totalRelativeValue / Arrays.stream(Properties.SECONDARY_OBJECTIVE_WEIGHTS).sum();
       logger.trace("resultValue = " + resultValue);
 
       return resultValue >= 1d;
