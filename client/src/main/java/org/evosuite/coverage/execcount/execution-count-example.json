@@ -1,0 +1,62 @@
+[
+  {
+    "className": "org.jabref.gui.DefaultInjector",
+    "methods": [
+      {
+        "methodName": "injectMembers",
+        "executionCounts": [
+          {
+            "lineNumber": 73,
+            "count": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "className": "org.jabref.gui.JabRefDialogService",
+    "methods": [
+      {
+        "methodName": "notify",
+        "executionCounts": [
+          {
+            "lineNumber": 274,
+            "count": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "className": "org.jabref.gui.util.ThemeLoader",
+    "methods": [
+      {
+        "methodName": "addAndWatchForChanges",
+        "executionCounts": [
+          {
+            "lineNumber": 94,
+            "count": 1
+          },
+          {
+            "lineNumber": 99,
+            "count": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "className": "org.jabref.logic.citationstyle.CitationStyle",
+    "methods": [
+      {
+        "methodName": "createCitationStyleFromFile",
+        "executionCounts": [
+          {
+            "lineNumber": 98,
+            "count": 1
+          }
+        ]
+      }
+    ]
+  }
+]

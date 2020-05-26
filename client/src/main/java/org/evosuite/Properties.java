@@ -1508,6 +1508,10 @@ public class Properties {
 	@Parameter(key = "exclude_ibranches_cut", group = "Runtime", description = "Exclude ibranches in the cut, to speed up ibranch as secondary criterion")
 	public static boolean EXCLUDE_IBRANCHES_CUT = false;
 
+	/**
+	 * See for format of the file {@code client/src/main/java/org/evosuite/coverage/execcount/execution-count-schema.json}.
+	 * See for example file {@code client/src/main/java/org/evosuite/coverage/execcount/execution-count-example.json}.
+	 */
 	@Parameter(key = "exe_count_file", group = "Runtime", description = "File in which execution count data is stored")
 	public static String EXE_COUNT_FILE = null;
 

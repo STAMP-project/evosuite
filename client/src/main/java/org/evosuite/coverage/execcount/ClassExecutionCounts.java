@@ -14,6 +14,10 @@ import org.evosuite.coverage.execcount.ClassExecutionCounts.Method.Line;
 /**
  * The data structure for storing the execution counts, corresponding to the JSON structure of the
  * input file. This class is used by gson to deserialize the input file.
+ *
+ * The required format of the JSON file is specified in the schema in file
+ * {@code execution-count-schema.json} in the same directory as this file. And example is given in
+ * {@code execution-count-example.json}.
  */
 @SuppressWarnings("unused")
 public class ClassExecutionCounts implements Serializable {
