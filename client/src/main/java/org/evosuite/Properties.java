@@ -1147,12 +1147,6 @@ public class Properties {
 	@Parameter(key = "test_naming_strategy", group = "Output", description = "What strategy to use to derive names for tests")
 	public static TestNamingStrategy TEST_NAMING_STRATEGY = TestNamingStrategy.NUMBERED;
 
-	@Parameter(key = "generateRandomLog", group = "Output", description = "Whether EvoSuite should run only to generate a random log file for the target class")
-	public static boolean generateRandomLog = false;
-
-	@Parameter(key = "numberOfGeneratedLogs", group = "Output", description = "Number of random log files that EvoSuite should generate")
-	public static int numberOfGeneratedLogs = 1;
-
 	// ---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")

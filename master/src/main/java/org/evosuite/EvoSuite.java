@@ -208,12 +208,6 @@ public class EvoSuite {
                 }
             }
 
-          if (line.hasOption("generateRandomLog")) {
-            logger.warn("Only going to generate random log file for target class. No tests"
-                + " will be generated.");
-            javaOpts.add("-DgenerateRandomLog=true");
-          }
-
 			/*
 			 * FIXME: every time in the Master we set a parameter with -D,
 			 * we should check if it actually exists (ie detect typos)
