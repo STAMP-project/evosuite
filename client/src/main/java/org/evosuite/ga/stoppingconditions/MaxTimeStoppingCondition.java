@@ -21,6 +21,7 @@ package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.metaheuristics.GeneticAlgorithm;
+import org.evosuite.utils.LoggingUtils;
 
 
 /**
@@ -50,8 +51,18 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public boolean isFinished() {
+
+
 		long currentTime = System.currentTimeMillis();
-		return (currentTime - startTime) / 1000 > maxSeconds;
+		long diff = (currentTime - startTime) / 1000;
+		if(Properties.SEED_MODEL && diff>maxSeconds/4){
+			LoggingUtils.getEvoLogger().info("* Turning model seeding off");
+			Properties.SEED_MODEL=false;
+			Properties.ONLINE_MODEL_SEEDING=false;
+			Properties.SEED_CLONE = 0;
+			Properties.P_OBJECT_POOL = 0;
+		}
+		return diff > maxSeconds;
 	}
 
 	/**

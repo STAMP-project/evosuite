@@ -29,6 +29,7 @@ import java.util.Set;
 
 import be.vibes.dsl.io.Xml;
 import be.vibes.dsl.selection.Dissimilar;
+import be.vibes.dsl.selection.Random;
 import be.vibes.ts.Action;
 import be.vibes.ts.TestSet;
 import be.vibes.ts.Transition;
@@ -51,7 +52,7 @@ import org.evosuite.utils.generic.GenericMethod;
 public class ObjectPoolManager extends ObjectPool {
 
 	private static final long serialVersionUID = 6287216639197977371L;
-	private List<GenericClass> fetchedModels;
+	private List<String> fetchedModels;
 
 	private static ObjectPoolManager instance = null;
 
@@ -115,8 +116,7 @@ public class ObjectPoolManager extends ObjectPool {
 			}
 			logger.info("Pool after carving: "+this.getNumberOfClasses()+"/"+this.getNumberOfSequences());
 		}
-
-		if(Properties.SEED_MODEL){
+		if(Properties.SEED_MODEL && !Properties.ONLINE_MODEL_SEEDING){
 			ClientServices.getInstance().getClientNode().changeState(ClientState.CARVING_MODEL);
 			File folder = new File(Properties.MODEL_PATH);
 			if(folder.exists()){
@@ -157,14 +157,14 @@ public class ObjectPoolManager extends ObjectPool {
 	}
 
 	public void fillObjectPoolIfNecessary(GenericClass clazz){
-		if(Properties.ONLINE_MODEL_SEEDING && !fetchedModels.contains(clazz)){
+		if(Properties.ONLINE_MODEL_SEEDING && !fetchedModels.contains(clazz.getClassName())){
 			File folder = new File(Properties.MODEL_PATH);
 			if(modelExists(clazz,folder)){
-				logger.info("working on model of " + clazz.getClassName());
+				LoggingUtils.getEvoLogger().info("working on model of " + clazz.getClassName());
 				String modelPath=Paths.get(folder.getAbsolutePath(), clazz.getClassName()+".xml").toString();
 				fillObjectPool(clazz,modelPath);
 			}
-			fetchedModels.add(clazz);
+			fetchedModels.add(clazz.getClassName());
 		}
 
 	}
@@ -192,10 +192,17 @@ public class ObjectPoolManager extends ObjectPool {
 		for (File file : listOfFiles){
 			if (file.isFile() && !file.getName().startsWith(".") && file.getName().endsWith(".xml") ) {
 				String xmlClassName = file.getName().substring(0, file.getName().length() - 4);
-				// TODO: We shpuld find a proper approach to filter the models.
 //				if (xmlClassName.indexOf('.')== -1 || xmlClassName.contains(".java.") ){
 					UsageModel um = Xml.loadUsageModel(Paths.get(folder.getAbsolutePath(), file.getName()).toString());
-					TestSet ts = Dissimilar.from(um).withGlobalMaxDistance(Dissimilar.jaccard()).during(Properties.ABSTRACT_TESTCASE_SELECTION_DURATION).generate(Properties.ABSTRACT_TESTCASE_PER_MODEL);
+					TestSet ts;
+					if(Properties.RANDOM_ABSTRACT_TESTS){
+						LoggingUtils.getEvoLogger().info("Random");
+						ts=Random.randomSelection(um, Properties.ABSTRACT_TESTCASE_PER_MODEL);
+					}else{
+						LoggingUtils.getEvoLogger().info("Dissimilar");
+						ts = Dissimilar.from(um).withGlobalMaxDistance(Dissimilar.jaccard()).during(Properties.ABSTRACT_TESTCASE_SELECTION_DURATION).generate(Properties.ABSTRACT_TESTCASE_PER_MODEL);
+					}
+
 					for (be.vibes.ts.TestCase abstractTestCase : ts) {
 						concretizeAbstractTestCase(abstractTestCase);
 					}
@@ -242,7 +249,9 @@ public class ObjectPoolManager extends ObjectPool {
 					if (target != null) {
 						GenericMethod genericMethod = new GenericMethod(target, actionClass);
 						try {
+							Properties.SEED_MODEL=false;
 							TestFactory.getInstance().addMethod(newTestCase, genericMethod, newTestCase.size(), 0);
+							Properties.SEED_MODEL=true;
 							LoggingUtils.getEvoLogger().info("method call {} is added", genericMethod.getName());
 						} catch (Exception e) {
 							LoggingUtils.getEvoLogger().warn("Error in addidng " + genericMethod.getName() + "  " + e.getMessage());
@@ -305,6 +314,7 @@ public class ObjectPoolManager extends ObjectPool {
 	}
 
 	public void reset() {
+		LoggingUtils.getEvoLogger().info("Reset object pool!!");
 		pool.clear();
 		ObjectPoolManager.instance = null;
 	}

@@ -1606,10 +1606,13 @@ public class Properties {
 	public static boolean SEED_MODEL = false;
 
 	@Parameter(key = "abtsract_testcase_per_model", group = "Model Seeding", description = "Number abstact test cases exported from each model")
-	public static int ABSTRACT_TESTCASE_PER_MODEL = 100;
+	public static int ABSTRACT_TESTCASE_PER_MODEL = 50;
 
 	@Parameter(key = "abtsract_testcase_per_model", group = "Model Seeding", description = "Number abstact test cases exported from each model")
-	public static long ABSTRACT_TESTCASE_SELECTION_DURATION = 10000; // 10 seconds by default
+	public static long ABSTRACT_TESTCASE_SELECTION_DURATION = 1000; // 1 second by default
+
+	@Parameter(key = "random_abstract_test_selection", group = "Model Seeding", description = "Selecting abstract test cases randomly from models")
+	public static boolean RANDOM_ABSTRACT_TESTS = false;
 
 	/**
 	 * Get all parameters that are available
