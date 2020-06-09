@@ -26,10 +26,7 @@ import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <p>
@@ -772,6 +769,16 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 
 	public Map<Integer, Object> getKnownCallerObjects() {
 		return trace.knownCallerObjects;
+	}
+
+	@Override
+	public void saveStack(){
+		trace.saveStack();
+	}
+
+	@Override
+	public LinkedList<MethodCall> getUnfinishedCalls() {
+		return trace.getUnfinishedCalls();
 	}
 
 }

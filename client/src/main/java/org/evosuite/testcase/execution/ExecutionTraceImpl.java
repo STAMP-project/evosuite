@@ -253,6 +253,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	// active calls
 	LinkedList<MethodCall> stack = new LinkedList<>();
 
+	// unfinished calls
+	LinkedList<MethodCall> unfinishedCalls = new LinkedList<>();
+
 	public Set<Integer> touchedMutants = Collections.synchronizedSet(new HashSet<Integer>());
 
 	public Map<Integer, Double> trueDistances = Collections.synchronizedMap(new HashMap<Integer, Double>());
@@ -700,7 +703,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				}
 			}
 		}
-		if (!className.isEmpty() && !methodName.isEmpty()) {
+		if (!className.isEmpty() && !methodName.isEmpty() & stack.size()>0) {
 			int callingObjectID = registerObject(caller);
 			methodId++;
 			MethodCall call = new MethodCall(className,
@@ -814,7 +817,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 						// timeout
 						stack.pop();
 					}
-				} else {
+				} else if(!stack.isEmpty()){
 					finishedCalls.add(stack.pop());
 				}
 			//}
@@ -1518,6 +1521,16 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public void setExplicitException(Throwable explicitException) {
 		this.explicitException = explicitException;
+	}
+
+	@Override
+	public void saveStack() {
+		this.unfinishedCalls = (LinkedList<MethodCall>) stack.clone();
+	}
+
+	@Override
+	public LinkedList<MethodCall> getUnfinishedCalls() {
+		return unfinishedCalls;
 	}
 
 	/**

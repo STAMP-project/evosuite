@@ -28,6 +28,7 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedList;
 import java.util.Map;
 
 
@@ -897,7 +898,7 @@ public class ExecutionTracer {
 			return;
 
 		checkTimeout();
-
+		tracer.trace.saveStack();
 		tracer.trace.setExplicitException((Throwable) exception);
 
 	}

@@ -26,10 +26,7 @@ import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * This interface defines the trace data that is collected during execution.
@@ -664,4 +661,18 @@ public interface ExecutionTrace {
 	 * @return
 	 */
 	public List<String> getInitializedClasses();
+
+	/**
+	 * Saves the active method calls
+	 *
+	 */
+	public void saveStack();
+
+	/**
+	 * Returns the active method calls captured before the exception throwing
+	 *
+	 *
+	 * @return
+	 */
+	public LinkedList<MethodCall> getUnfinishedCalls();
 }
