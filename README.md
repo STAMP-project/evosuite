@@ -3,11 +3,11 @@
 
 # EvoSuite Runtime Amplification
 
-This fork of the EvoSuite project (http://www.evosuite.org) contains the runtime amplification version of EvoSuite developed within the STAMP project.
+Runtime test AMPlification (RAMP) implements novel features for automatic test generation. This tool generates test cases that exercise common behaviors observed during software execution. The tool exploits the novel concept of behavioral model seeding to generate relevant test cases. RAMP builds on top of [EvoSuite](http://www.evosuite.org).
 
 ## Funding
 
-Botsing is partially funded by research project STAMP (European Commission - H2020) ICT-16-10 No.731529.
+RAMP is partially funded by research project STAMP (European Commission - H2020) ICT-16-10 No.731529.
 
 ![STAMP - European Commission - H2020](https://raw.githubusercontent.com/STAMP-project/botsing/master/docs/assets/logo_readme_md.png)
 

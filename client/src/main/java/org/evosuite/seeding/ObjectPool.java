@@ -31,6 +31,7 @@ import java.util.*;
 
 import be.vibes.dsl.io.Xml;
 import be.vibes.dsl.selection.Dissimilar;
+import be.vibes.dsl.selection.Random;
 import be.vibes.ts.Action;
 import be.vibes.ts.TestSet;
 import be.vibes.ts.Transition;
@@ -455,7 +456,14 @@ public class ObjectPool implements Serializable {
 		Properties.ALLOW_OBJECT_POOL_USAGE=false;
 		try {
 			UsageModel um = Xml.loadUsageModel(modelPath);
-			TestSet ts = Dissimilar.from(um).withGlobalMaxDistance(Dissimilar.jaccard()).during(500).generate(Properties.POPULATION);
+			TestSet ts;
+			if(Properties.RANDOM_ABSTRACT_TESTS){
+				LoggingUtils.getEvoLogger().info("Random");
+				ts= Random.randomSelection(um, Properties.ABSTRACT_TESTCASE_PER_MODEL);
+			}else{
+				LoggingUtils.getEvoLogger().info("Dissimilar");
+				ts = Dissimilar.from(um).withGlobalMaxDistance(Dissimilar.jaccard()).during(Properties.ABSTRACT_TESTCASE_SELECTION_DURATION).generate(Properties.ABSTRACT_TESTCASE_PER_MODEL);
+			}
 			HashSet<String> alreadyConcretized = new HashSet<>();
 			for (be.vibes.ts.TestCase abstractTestCase : ts) {
 				concretizeTest(abstractTestCase,alreadyConcretized);
