@@ -22,6 +22,7 @@
  */
 package org.evosuite.testcase.execution;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.execution.ExecutionTraceImpl.BranchEval;
@@ -208,7 +209,7 @@ public interface ExecutionTrace {
 	public Map<String, Map<String, Map<Integer, Integer>>> getCoverageData();
 
 	/**
-	 * Retrieve the set of index-length-pair of a specific class
+	 * Retrieve the set of index-length-pair of a specific class.
 	 *
 	 * @param className a {@link String} object.
 	 *
@@ -217,7 +218,7 @@ public interface ExecutionTrace {
 	Set<int[]> getIndexedAccessInfo(String className);
 
 	/**
-	 * Retrieve the set of index-length-pair of {@link org.evosuite.Properties#TARGET_CLASS} class.
+	 * Retrieve the set of index-length-pair of the {@link Properties#TARGET_CLASS target class}.
 	 *
 	 * @return a {@link Set} object.
 	 */
@@ -236,6 +237,29 @@ public interface ExecutionTrace {
 	 * @return a {@link Map} object.
 	 */
 	Map<String, Map<String, Map<Integer, int[]>>> getIndexedAccessData();
+
+	/**
+	 * Retrieve the branching variables of a specific class.
+	 *
+	 * @param className a {@link String} object.
+	 *
+	 * @return a {@link Map} object.
+	 */
+	Map<Integer, Map<String, Object>> getBranchingVariables(String className);
+
+	/**
+	 * Retrieve the branching variables of the {@link Properties#TARGET_CLASS target class}.
+	 *
+	 * @return a {@link Map} object.
+	 */
+	Map<Integer, Map<String, Object>> getBranchingVariables();
+
+    /**
+     * Retrieve detailed branching variable data.
+     *
+     * @return a {@link Map} object.
+     */
+    Map<String, Map<Integer, Map<String, Object>>> getBranchingVariableData();
 
 	/**
 	 * Retrieve return value data
@@ -480,6 +504,16 @@ public interface ExecutionTrace {
 	 * @param indexAndLength an int array of size 2.
 	 */
 	void logIndexedAccess(String className, String methodName, int layer, int[] indexAndLength);
+
+    /**
+     * Log the local variable used in a branching condition.
+     *
+     * @param className    a {@link String} object.
+     * @param line         an int.
+     * @param variableName a {@link String} object.
+     * @param val          a {@link Object} object.
+     */
+    void logBranchingVariable(String className, int line, String variableName, Object val);
 
 	/**
 	 * Record a mutant execution

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2010-2018 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
@@ -19,16 +19,15 @@
  */
 package org.evosuite.graphs.cfg;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cdg.ControlDependenceGraph;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class is used to represent basic blocks in the control flow graph.
@@ -54,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * Dependence Graph" RON CYTRON, JEANNE FERRANTE, BARRY K. ROSEN, and MARK N.
  * WEGMAN IBM Research Division and F. KENNETH ZADECK Brown University 1991
  *
- * @see cfg.ActualControlFlowGraph
+ * @see ActualControlFlowGraph
  * @author Andre Mis
  */
 public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {

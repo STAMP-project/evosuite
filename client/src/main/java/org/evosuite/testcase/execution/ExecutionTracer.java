@@ -203,7 +203,7 @@ public class ExecutionTracer {
 	 * Obviously more than one thread is executing during the creation of
 	 * concurrent TestCases. #TODO steenbuck we should test if
 	 * Thread.currentThread() is in the set of currently executing threads
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isThreadNeqCurrentThread() {
@@ -316,7 +316,7 @@ public class ExecutionTracer {
 			returnValue(0, className, methodName);
 			return;
 		}
-		StringBuilder tmp = null;
+		StringBuilder tmp;
 		try {
 			// setLineCoverageDeactivated(true);
 			// logger.warn("Disabling tracer: returnValue");
@@ -328,10 +328,10 @@ public class ExecutionTracer {
 			ExecutionTracer.enable();
 		}
 		int index = 0;
-		int position = 0;
+		int position;
 		boolean found = false;
 		boolean deleteAddresses = true;
-		char c = ' ';
+		char c;
 		// quite fast method to detect memory addresses in Strings.
 		while ((position = tmp.indexOf("@", index)) > 0) {
 			for (index = position + 1; index < position + 17 && index < tmp.length(); index++) {
@@ -699,7 +699,7 @@ public class ExecutionTracer {
 		// logger.trace("Called passedBranch3 with opcode "
 		//        + AbstractVisitor.OPCODES[opcode]); // +", val1="+val1+", val2="+val2+" in branch "+branch);
 		double distance_true = 0;
-		double distance_false = 0;
+		double distance_false;
 		// logger.warn("Disabling tracer: passedBranch with 2 Objects");
 
 		switch (opcode) {
@@ -743,15 +743,11 @@ public class ExecutionTracer {
 
 	/**
 	 * Called by the instrumented code each time a new branch is taken
-	 * 
-	 * @param val
-	 *            a {@link java.lang.Object} object.
-	 * @param opcode
-	 *            a int.
-	 * @param branch
-	 *            a int.
-	 * @param bytecode_id
-	 *            a int.
+	 *
+	 * @param val         a {@link java.lang.Object} object.
+	 * @param opcode      an int.
+	 * @param branch      an int.
+	 * @param bytecode_id an int.
 	 */
 	public static void passedBranch(Object val, int opcode, int branch, int bytecode_id) {
 		ExecutionTracer tracer = getExecutionTracer();
@@ -764,16 +760,16 @@ public class ExecutionTracer {
 		checkTimeout();
 
 		double distance_true = 0;
-		double distance_false = 0;
+		double distance_false;
 		switch (opcode) {
-		case Opcodes.IFNULL:
-			distance_true = val == null ? 0.0 : 1.0;
-			break;
-		case Opcodes.IFNONNULL:
-			distance_true = val == null ? 1.0 : 0.0;
-			break;
-		default:
-			logger.error("Warning: encountered opcode " + opcode);
+			case Opcodes.IFNULL:
+				distance_true = val == null ? 0.0 : 1.0;
+				break;
+			case Opcodes.IFNONNULL:
+				distance_true = val == null ? 1.0 : 0.0;
+				break;
+			default:
+				logger.error("Warning: encountered opcode " + opcode);
 		}
 		distance_false = distance_true == 0 ? 1.0 : 0.0;
 		// enable();
@@ -783,6 +779,24 @@ public class ExecutionTracer {
 
 		// Add current branch to control trace
 		tracer.trace.branchPassed(branch, bytecode_id, distance_true, distance_false);
+	}
+
+	/**
+	 * Called by the instrumented code each time a new branching variable is visited.
+	 *
+	 * @param val          a {@link Object} object.
+	 * @param className    a {@link String} object.
+	 * @param line         an int.
+	 * @param variableName a {@link String} object.
+	 */
+	public static void passedBranchingVariable(Object val, String className, int line, String variableName) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+		if (isThreadNeqCurrentThread())
+			return;
+		checkTimeout();
+		tracer.trace.logBranchingVariable(className, line, variableName, val);
 	}
 
 	/**

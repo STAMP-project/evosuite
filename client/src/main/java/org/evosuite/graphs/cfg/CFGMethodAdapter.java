@@ -19,36 +19,23 @@
  */
 package org.evosuite.graphs.cfg;
 
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.instrumentation.coverage.*;
 import org.evosuite.runtime.annotation.EvoSuiteExclude;
-import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
-import org.evosuite.instrumentation.coverage.BranchInstrumentation;
-import org.evosuite.instrumentation.coverage.DefUseInstrumentation;
-import org.evosuite.instrumentation.coverage.MethodInstrumentation;
-import org.evosuite.instrumentation.coverage.MutationInstrumentation;
 import org.evosuite.runtime.classhandling.ClassResetter;
+import org.evosuite.runtime.instrumentation.AnnotatedMethodNode;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.utils.ArrayUtil;
-import org.objectweb.asm.AnnotationVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.*;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 /**
  * Create a minimized control flow graph for the method and store it. In
@@ -76,7 +63,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * The set of all methods which can be used during test case generation This
 	 * excludes e.g. synthetic, initializers, private and deprecated methods
 	 */
-	public static Map<ClassLoader,Map<String, Set<String>>> methods = new HashMap<ClassLoader,Map<String, Set<String>>>();
+	public static Map<ClassLoader,Map<String, Set<String>>> methods = new HashMap<>();
 
 	/**
 	 * This is the name + the description of the method. It is more like the
@@ -135,7 +122,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		this.classLoader = classLoader;
 
 		if(!methods.containsKey(classLoader))
-			methods.put(classLoader, new HashMap<String, Set<String>>());
+			methods.put(classLoader, new HashMap<>());
 	}
 
 	/* (non-Javadoc)
@@ -163,8 +150,11 @@ public class CFGMethodAdapter extends MethodVisitor {
 		boolean isExcludedMethod = excludeMethod || EXCLUDE.contains(methodName);
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
-		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
+		List<MethodInstrumentation> instrumentations = new ArrayList<>();
 		if (DependencyAnalysis.shouldInstrument(className, methodName)) {
+			if (Properties.INSTRUMENT_BRANCHING_VARIABLES) {
+				instrumentations.add(new BranchingVariableInstrumentation());
+			}
 		    if (ArrayUtil.contains(Properties.CRITERION, Criterion.DEFUSE)
 		            || ArrayUtil.contains(Properties.CRITERION, Criterion.ALLDEFS)) {
 				instrumentations.add(new BranchInstrumentation());
@@ -179,8 +169,6 @@ public class CFGMethodAdapter extends MethodVisitor {
 			} else {
 				instrumentations.add(new BranchInstrumentation());
 			}
-		} else {
-			//instrumentations.add(new BranchInstrumentation());
 		}
 
 		boolean executeOnMain = false;
@@ -196,7 +184,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		// Generate CFG of method
 		MethodNode mn = (AnnotatedMethodNode) mv;
 
-		boolean checkForMain = false;
+		boolean checkForMain;
 		if (Properties.CONSIDER_MAIN_METHODS) {
 			checkForMain = true;
 		} else {
@@ -235,7 +223,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 				if (DependencyAnalysis.shouldInstrument(className, methodName)) {
 					if (!methods.get(classLoader).containsKey(className))
-						methods.get(classLoader).put(className, new HashSet<String>());
+						methods.get(classLoader).put(className, new HashSet<>());
 
 					// add the actual instrumentation
 					logger.info("Instrumenting method " + methodName + " in class "
@@ -286,9 +274,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	}
 
 	/**
-	 * See description of CFGMethodAdapter.EXCLUDE
-	 * 
-	 * @return
+	 * @see CFGMethodAdapter#EXCLUDE
 	 */
 	private boolean isUsable() {
 		if((this.access & Opcodes.ACC_SYNTHETIC) != 0)
@@ -305,7 +291,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		// If we are not using reflection, covering private constructors is difficult?
 		if(Properties.P_REFLECTION_ON_PRIVATE <= 0.0) {
-			if(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
+			if (methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
 				return false;
 		}
 
@@ -324,7 +310,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public static Set<String> getMethods(ClassLoader classLoader, String className) {
-		Set<String> targetMethods = new HashSet<String>();
+		Set<String> targetMethods = new HashSet<>();
 		if(!methods.containsKey(classLoader))
 			return targetMethods;
 		
@@ -347,7 +333,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * @return A set with all unique methodNames of methods.
 	 */
 	public static Set<String> getMethods(ClassLoader classLoader) {
-		Set<String> targetMethods = new HashSet<String>();
+		Set<String> targetMethods = new HashSet<>();
 		if(!methods.containsKey(classLoader))
 			return targetMethods;
 		
@@ -371,7 +357,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 *            a {@link java.lang.String} object.
 	 */
 	public static Set<String> getMethodsPrefix(ClassLoader classLoader, String className) {
-		Set<String> matchingMethods = new HashSet<String>();
+		Set<String> matchingMethods = new HashSet<>();
 		if(!methods.containsKey(classLoader))
 			return matchingMethods;
 

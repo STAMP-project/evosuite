@@ -19,8 +19,6 @@
  */
 package org.evosuite.coverage.io.input;
 
-import static org.evosuite.coverage.io.IOCoverageConstants.*;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -37,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static org.evosuite.coverage.io.IOCoverageConstants.*;
+
 /**
  * @author Jose Miguel Rojas
  */
@@ -44,19 +44,12 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
 
     private static final Logger logger = LoggerFactory.getLogger(InputCoverageFactory.class);
 
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
-
     /**
      * {@inheritDoc}
      */
     @Override
     public List<InputCoverageTestFitness> getCoverageGoals() {
-        List<InputCoverageTestFitness> goals = new ArrayList<InputCoverageTestFitness>();
+        List<InputCoverageTestFitness> goals = new ArrayList<>();
 
         long start = System.currentTimeMillis();
         String targetClass = Properties.TARGET_CLASS;
@@ -77,9 +70,9 @@ public class InputCoverageFactory extends AbstractFitnessFactory<InputCoverageTe
                     Type argType = argumentTypes[i];
 
                     int typeSort = argType.getSort();
-                    if(typeSort == Type.OBJECT) {
+                    if (typeSort == Type.OBJECT) {
                         Class<?> typeClass = argumentClasses[i];
-                        if(ClassUtils.isPrimitiveWrapper(typeClass)) {
+                        if (ClassUtils.isPrimitiveWrapper(typeClass)) {
                             typeSort = Type.getType(ClassUtils.wrapperToPrimitive(typeClass)).getSort();
                             goals.add(createGoal(className, methodName, i, argType, REF_NULL));
                         }

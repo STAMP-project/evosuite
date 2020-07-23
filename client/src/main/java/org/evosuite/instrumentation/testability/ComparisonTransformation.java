@@ -102,8 +102,7 @@ public class ComparisonTransformation {
 	private void insertLongComparison(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "longSub",
-		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.LONG_TYPE,
-		                Type.LONG_TYPE }), false);
+		        Type.getMethodDescriptor(Type.INT_TYPE, Type.LONG_TYPE, Type.LONG_TYPE), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
@@ -111,8 +110,7 @@ public class ComparisonTransformation {
 	private void insertFloatComparisonG(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "floatSubG",
-		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE,
-		                Type.FLOAT_TYPE }), false);
+		        Type.getMethodDescriptor(Type.INT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
@@ -120,8 +118,7 @@ public class ComparisonTransformation {
 	private void insertFloatComparisonL(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 				Type.getInternalName(BooleanHelper.class), "floatSubL",
-				Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.FLOAT_TYPE,
-						Type.FLOAT_TYPE }), false);
+				Type.getMethodDescriptor(Type.INT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
@@ -129,8 +126,7 @@ public class ComparisonTransformation {
 	private void insertDoubleComparisonG(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "doubleSubG",
-		        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE,
-		                Type.DOUBLE_TYPE }), false);
+		        Type.getMethodDescriptor(Type.INT_TYPE, Type.DOUBLE_TYPE, Type.DOUBLE_TYPE), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
@@ -138,8 +134,7 @@ public class ComparisonTransformation {
 	private void insertDoubleComparisonL(AbstractInsnNode position, InsnList list) {
 		MethodInsnNode get = new MethodInsnNode(Opcodes.INVOKESTATIC,
 				Type.getInternalName(BooleanHelper.class), "doubleSubL",
-				Type.getMethodDescriptor(Type.INT_TYPE, new Type[] { Type.DOUBLE_TYPE,
-						Type.DOUBLE_TYPE }), false);
+				Type.getMethodDescriptor(Type.INT_TYPE, Type.DOUBLE_TYPE, Type.DOUBLE_TYPE), false);
 		list.insert(position, get);
 		list.remove(position);
 	}
